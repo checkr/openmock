@@ -1,0 +1,37 @@
+- key: jsonrpc_test_1
+  expect:
+    condition: '{{eq (json_xpath .HTTPBody "params/user/first_name") "foo"}}'
+    http:
+      method: POST
+      path: /jsonrpc_test
+  actions:
+    - reply_http:
+        status_code: 200
+        body: >
+          {"jsonrpc": "2.0", "result": "consider", "id": 1}
+
+- key: jsonrpc_test_2
+  expect:
+    condition: '{{ne (json_xpath .HTTPBody "params/user/first_name") "foo"}}'
+    http:
+      method: POST
+      path: /jsonrpc_test
+  actions:
+    - reply_http:
+        status_code: 200
+        body: >
+          {"jsonrpc": "2.0", "result": "clear", "id": 1}
+
+- key: jsonrpc_test_3
+  expect:
+    condition: '{{eq (json_xpath .HTTPBody "*[1]/method") "classify"}}'
+    http:
+      method: POST
+      path: /jsonrpc_test
+  actions:
+    - reply_http:
+        status_code: 200
+        body: >
+           {"jsonrpc": "2.0", "result": {"classification": "cat_A", "confidence": 1.0}, "id": "{{json_xpath .HTTPBody "*[1]/id"}}"}
+
+

@@ -69,30 +69,34 @@ type Action struct {
 
 // ActionSendWebhook represents the webhook return
 type ActionSendWebhook struct {
-	URL        string            `yaml:"url"`
-	StatusCode int               `yaml:"status_code"`
-	Body       string            `yaml:"body"`
-	Headers    map[string]string `yaml:"headers"`
+	URL          string            `yaml:"url"`
+	StatusCode   int               `yaml:"status_code"`
+	Headers      map[string]string `yaml:"headers"`
+	Body         string            `yaml:"body"`
+	BodyFromFile string            `yaml:"body_from_file"`
 }
 
 // ActionReplyHTTP represents http return
 type ActionReplyHTTP struct {
-	StatusCode int               `yaml:"status_code"`
-	Body       string            `yaml:"body"`
-	Headers    map[string]string `yaml:"headers"`
+	StatusCode   int               `yaml:"status_code"`
+	Headers      map[string]string `yaml:"headers"`
+	Body         string            `yaml:"body"`
+	BodyFromFile string            `yaml:"body_from_file"`
 }
 
 // ActionPublishAMQP represents AMQP return
 type ActionPublishAMQP struct {
-	Exchange   string `yaml:"exchange"`
-	RoutingKey string `yaml:"routing_key"`
-	Payload    string `yaml:"payload"`
+	Exchange        string `yaml:"exchange"`
+	RoutingKey      string `yaml:"routing_key"`
+	Payload         string `yaml:"payload"`
+	PayloadFromFile string `yaml:"payload_from_file"`
 }
 
 // ActionPublishKafka represents kafka return
 type ActionPublishKafka struct {
-	Topic   string `yaml:"topic"`
-	Payload string `yaml:"payload"`
+	Topic           string `yaml:"topic"`
+	Payload         string `yaml:"payload"`
+	PayloadFromFile string `yaml:"payload_from_file"`
 }
 
 // ActionSleep represents the sleep action

@@ -1,0 +1,15 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.10
+    working_directory: /go/src/github.com/checkr/openmock
+    steps:
+      - checkout
+      - run: make test
+
+workflows:
+  version: 2
+  build_and_docker_push:
+    jobs:
+      - build

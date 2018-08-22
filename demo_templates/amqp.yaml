@@ -1,0 +1,27 @@
+- key: test_amqp_1
+  expect:
+    amqp:
+      exchange: exchange_1
+      routing_key: key_in
+      queue: key_in
+  actions:
+    - publish_amqp:
+        exchange: exchange_1
+        routing_key: key_out
+        payload: >
+          {
+            "amqp": "OK",
+            "data": {}
+          }
+
+- key: test_amqp_2
+  expect:
+    amqp:
+      exchange: exchange_1
+      routing_key: key_in
+      queue: key_in
+  actions:
+    - publish_amqp:
+        exchange: exchange_1
+        routing_key: key_out
+        payload_from_file: './files/colors.json'

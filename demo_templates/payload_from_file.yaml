@@ -1,0 +1,8 @@
+- key: test_kafka_2
+  expect:
+    kafka:
+      topic: hello_kafka_in
+  actions:
+    - publish_kafka:
+        topic: hello_kafka_out_with_payload_file
+        payload_from_file: './files/colors.json' # relative to TemplatesDir

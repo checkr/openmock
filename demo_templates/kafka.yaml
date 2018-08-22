@@ -1,0 +1,12 @@
+- key: test_kafka_1
+  expect:
+    kafka:
+      topic: hello_kafka_in
+  actions:
+    - publish_kafka:
+        topic: hello_kafka_out
+        payload: >
+          {
+            "kafka": "OK",
+            "data": {}
+          }
