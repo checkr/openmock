@@ -2,6 +2,18 @@
 
 
 [[projects]]
+  name = "github.com/Masterminds/semver"
+  packages = ["."]
+  revision = "c7af12943936e8c39859482e61f0574c2fd7fc75"
+  version = "v1.4.2"
+
+[[projects]]
+  name = "github.com/Masterminds/sprig"
+  packages = ["."]
+  revision = "6b2a58267f6a8b1dc8e2eb5519b984008fa85e8c"
+  version = "v2.15.0"
+
+[[projects]]
   name = "github.com/Shopify/sarama"
   packages = ["."]
   revision = "35324cf48e33d8260e1c7c18854465a904ade249"
@@ -24,6 +36,12 @@
   name = "github.com/antchfx/xpath"
   packages = ["."]
   revision = "077bca4d2caaf391ee780136adae00f59153dcd2"
+
+[[projects]]
+  name = "github.com/aokoli/goutils"
+  packages = ["."]
+  revision = "3391d3790d23d03408670993e957e8f408993c34"
+  version = "v1.0.1"
 
 [[projects]]
   name = "github.com/bsm/sarama-cluster"
@@ -78,6 +96,24 @@
   name = "github.com/golang/snappy"
   packages = ["."]
   revision = "2e65f85255dbc3072edf28d6b5b8efc472979f5a"
+
+[[projects]]
+  name = "github.com/google/uuid"
+  packages = ["."]
+  revision = "064e2069ce9c359c118179501254f67d7d37ba24"
+  version = "0.2"
+
+[[projects]]
+  name = "github.com/huandu/xstrings"
+  packages = ["."]
+  revision = "2bf18b218c51864a87384c06996e40ff9dcff8e1"
+  version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/imdario/mergo"
+  packages = ["."]
+  revision = "9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4"
+  version = "v0.3.6"
 
 [[projects]]
   name = "github.com/labstack/echo"
@@ -182,6 +218,8 @@
   packages = [
     "acme",
     "acme/autocert",
+    "pbkdf2",
+    "scrypt",
     "ssh/terminal"
   ]
   revision = "614d502a4dac94afa3a6ce146bd1736da82514c6"
@@ -238,6 +276,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "43550373233a51421219b16e40d40043980d824d3d7ce959a9c9e3db039ba83e"
+  inputs-digest = "a4066c2aade3ce988eabdbfc656f269819c7eb477214996d943b6b0c9e798fa3"
   solver-name = "gps-cdcl"
   solver-version = 1
