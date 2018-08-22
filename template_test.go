@@ -166,7 +166,15 @@ func TestHelpers(t *testing.T) {
 		c := &Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
-		assert.Contains(t, r, "4")
+		assert.Contains(t, r, "-4")
+	})
+
+	t.Run("uuid4 helpers", func(t *testing.T) {
+		raw := `{{ "1234" | uuidv5 }}`
+		c := &Context{}
+		r, err := c.Render(raw)
+		assert.NoError(t, err)
+		assert.Contains(t, r, "-5")
 	})
 
 	t.Run("regexFind helpers", func(t *testing.T) {

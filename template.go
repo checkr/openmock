@@ -10,6 +10,7 @@ import (
 	"github.com/Masterminds/sprig"
 	"github.com/antchfx/jsonquery"
 	"github.com/antchfx/xmlquery"
+	"github.com/google/uuid"
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
 )
@@ -17,6 +18,7 @@ import (
 var localFuncMap = template.FuncMap{
 	"json_xpath": JSONXPath,
 	"xml_xpath":  XMLXPath,
+	"uuidv5":     uuidv5,
 }
 
 // Context represents the context of the mock expectation
@@ -137,4 +139,8 @@ func XMLXPath(tmpl string, expr string) (ret string, err error) {
 		return node.InnerText(), nil
 	}
 	return "", nil
+}
+
+func uuidv5(dat string) string {
+	return uuid.NewSHA1(uuid.NameSpaceOID, []byte(dat)).String()
 }
