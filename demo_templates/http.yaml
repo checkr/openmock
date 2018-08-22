@@ -1,0 +1,56 @@
+- key: ping
+  expect:
+    http:
+      method: GET
+      path: /ping
+  actions:
+    - reply_http:
+        status_code: 200
+        body: OK
+        headers:
+          Content-Type: text/xml
+
+- key: hello
+  expect:
+    http:
+      method: GET
+      path: /hello
+  actions:
+    - reply_http:
+        status_code: 200
+        body: >
+          { "hello": "world" }
+
+- key: slow_endpoint
+  expect:
+    http:
+      method: GET
+      path: /slow_endpoint
+  actions:
+    - sleep:
+        duration: 1s
+    - reply_http:
+        status_code: 200
+        body: OK
+
+- key: header-token
+  expect:
+    condition: '{{eq (.HTTPHeader.Get "X-Token") "t1234"}}'
+    http:
+      method: GET
+      path: /token
+  actions:
+    - reply_http:
+        status_code: 200
+        body: OK
+
+- key: header-token
+  expect:
+    condition: '{{ne (.HTTPHeader.Get "X-Token") "t1234"}}'
+    http:
+      method: GET
+      path: /token
+  actions:
+    - reply_http:
+        status_code: 401
+        body: Invalid X-Token
