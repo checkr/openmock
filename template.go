@@ -7,17 +7,17 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/Masterminds/sprig"
 	"github.com/antchfx/jsonquery"
 	"github.com/antchfx/xmlquery"
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	funcJSONXpath   = "json_xpath"
-	funcXMLXpath    = "xml_xpath"
-	funcMatchString = "match_string"
-)
+var localFuncMap = template.FuncMap{
+	"json_xpath": JSONXPath,
+	"xml_xpath":  XMLXPath,
+}
 
 // Context represents the context of the mock expectation
 type Context struct {
@@ -45,13 +45,10 @@ func removeLinebreaks(raw string) string {
 
 // Render renders the raw given the context
 func (c *Context) Render(raw string) (string, error) {
-	tmpl, err := template.
-		New("").
-		Funcs(template.FuncMap{
-			funcJSONXpath:   JSONXPath,
-			funcXMLXpath:    XMLXPath,
-			funcMatchString: regexp.MatchString,
-		}).Parse(removeLinebreaks(raw))
+	tmpl, err := template.New("").
+		Funcs(sprig.FuncMap()). // supported functions https://github.com/Masterminds/sprig/blob/master/functions.go
+		Funcs(localFuncMap).
+		Parse(removeLinebreaks(raw))
 	if err != nil {
 		return "", err
 	}

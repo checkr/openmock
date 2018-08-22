@@ -159,3 +159,21 @@ func TestJSONXPath(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, ret, "112879785776")
 }
+
+func TestHelpers(t *testing.T) {
+	t.Run("uuid4 helpers", func(t *testing.T) {
+		raw := `{{ uuidv4 }}`
+		c := &Context{}
+		r, err := c.Render(raw)
+		assert.NoError(t, err)
+		assert.Contains(t, r, "4")
+	})
+
+	t.Run("regexFind helpers", func(t *testing.T) {
+		raw := `{{ regexFind "foo.?" "seafood fool" }}`
+		c := &Context{}
+		r, err := c.Render(raw)
+		assert.NoError(t, err)
+		assert.Equal(t, r, "food")
+	})
+}
