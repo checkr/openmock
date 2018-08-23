@@ -76,7 +76,9 @@ func TestTemplateRender(t *testing.T) {
 	t.Run("xml in json", func(t *testing.T) {
 		raw := `
 {
-"payload": "<Record>
+"payload": "
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<Record>
 <r1>
 test
 </r1>
@@ -89,7 +91,7 @@ test
 		assert.NoError(t, err)
 		assert.JSONEq(t, r, `
 			{
-				"payload": "<Record><r1>test</r1></Record>"
+				"payload": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Record><r1>test</r1></Record>"
 			}
 		`)
 	})
