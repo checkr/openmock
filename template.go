@@ -2,10 +2,10 @@ package openmock
 
 import (
 	"bytes"
-	"html/template"
 	"net/http"
 	"regexp"
 	"strings"
+	"text/template"
 
 	"github.com/Masterminds/sprig"
 	"github.com/antchfx/jsonquery"
@@ -48,7 +48,7 @@ func removeLinebreaks(raw string) string {
 // Render renders the raw given the context
 func (c *Context) Render(raw string) (string, error) {
 	tmpl, err := template.New("").
-		Funcs(sprig.FuncMap()). // supported functions https://github.com/Masterminds/sprig/blob/master/functions.go
+		Funcs(sprig.TxtFuncMap()). // supported functions https://github.com/Masterminds/sprig/blob/master/functions.go
 		Funcs(localFuncMap).
 		Parse(removeLinebreaks(raw))
 	if err != nil {
