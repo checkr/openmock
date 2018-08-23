@@ -45,9 +45,10 @@ type Context struct {
 	om *OpenMock
 }
 
-func removeLinebreaks(raw string) string {
-	re := regexp.MustCompile(`\r?\n`)
-	return re.ReplaceAllString(raw, "")
+// cleanup replaces all the linebreaks and tabs with spaces
+func cleanup(raw string) string {
+	re := regexp.MustCompile(`\r?\n|\t`)
+	return re.ReplaceAllString(raw, " ")
 }
 
 // Render renders the raw given the context
@@ -55,7 +56,7 @@ func (c *Context) Render(raw string) (string, error) {
 	tmpl, err := template.New("").
 		Funcs(sprig.TxtFuncMap()). // supported functions https://github.com/Masterminds/sprig/blob/master/functions.go
 		Funcs(localFuncMap).
-		Parse(removeLinebreaks(raw))
+		Parse(cleanup(raw))
 	if err != nil {
 		return "", err
 	}
