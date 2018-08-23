@@ -24,12 +24,22 @@ type kafkaClient struct {
 	pFunc KafkaPipelineFunc
 }
 
-func (kc *kafkaClient) sendMessage(topic string, bytes []byte) error {
+func (kc *kafkaClient) sendMessage(topic string, bytes []byte) (err error) {
+	var out []byte
+	defer func() {
+		logrus.WithFields(logrus.Fields{
+			"err":         err,
+			"topic":       topic,
+			"payload":     string(bytes),
+			"out_message": string(out),
+		}).Info("try to publish to kafka")
+	}()
+
 	c := &Context{
 		KafkaTopic:   topic,
 		KafkaPayload: string(bytes),
 	}
-	out, err := kc.pFunc(c, bytes)
+	out, err = kc.pFunc(c, bytes)
 	if err != nil {
 		return err
 	}

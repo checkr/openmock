@@ -16,9 +16,14 @@ import (
 )
 
 var localFuncMap = template.FuncMap{
+	"jsonPath": func(path string, tmpl string) (string, error) { return JSONXPath(tmpl, path) },
+	"xmlPath":  func(path string, tmpl string) (string, error) { return XMLXPath(tmpl, path) },
+	"uuidv5":   uuidv5,
+
+	// deprecated because not compatible with pipeline
+	// TODO(remove them after cleanup)
 	"json_xpath": JSONXPath,
 	"xml_xpath":  XMLXPath,
-	"uuidv5":     uuidv5,
 }
 
 // Context represents the context of the mock expectation
@@ -95,7 +100,7 @@ func JSONXPath(tmpl string, expr string) (ret string, err error) {
 			"err":  err,
 			"tmpl": tmpl,
 			"expr": expr,
-		}).Info("running json_xpath")
+		}).Info("running json xpath")
 	}()
 
 	if tmpl == "" {
@@ -123,7 +128,7 @@ func XMLXPath(tmpl string, expr string) (ret string, err error) {
 			"err":  err,
 			"tmpl": tmpl,
 			"expr": expr,
-		}).Info("running xml_xpath")
+		}).Info("running xml xpath")
 	}()
 
 	if tmpl == "" {

@@ -15,13 +15,24 @@ var (
 const rabbitContentType = "application/octet-stream"
 
 func publishToAMQP(amqpURL string, exchange string, routingKey string, payload string) {
+	var err error
+
+	defer func() {
+		logrus.WithFields(logrus.Fields{
+			"err":        err,
+			"exchange":   exchange,
+			"routingKey": routingKey,
+			"payload":    payload,
+		}).Info("try to publish to amqp")
+	}()
+
 	ch := getAMQPChannel(amqpURL)
 	if err := prepareChannel(ch, exchange, routingKey, ""); err != nil {
 		logrus.Errorf("%s: %s", "failed to prepare the channel for amqp", err)
 		return
 	}
 
-	err := ch.Publish(
+	err = ch.Publish(
 		exchange,   // exchange
 		routingKey, // routing key
 		false,      // mandatory
