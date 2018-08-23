@@ -11,9 +11,9 @@ import (
 func TestTemplateRender(t *testing.T) {
 	t.Run("happy code path", func(t *testing.T) {
 		raw := `{
-				"transaction_id": "{{json_xpath .KafkaPayload "transaction_id"}}",
-				"first_name": "{{xml_xpath .AMQPPayload "user/first_name"}}",
-				"middle_name": "{{json_xpath .HTTPBody "user/middle_name"}}"
+				"transaction_id": "{{.KafkaPayload | jsonPath "transaction_id"}}",
+				"first_name": "{{.AMQPPayload | xmlPath "user/first_name"}}",
+				"middle_name": "{{.HTTPBody | jsonPath "user/middle_name"}}"
 				}`
 		c := &Context{
 			HTTPBody:     `{"user": {"middle_name": "H"}}`,
@@ -35,9 +35,9 @@ func TestTemplateRender(t *testing.T) {
 	t.Run("nil http body", func(t *testing.T) {
 		raw := `
 			{
-				"transaction_id": "{{json_xpath .KafkaPayload "transaction_id"}}",
-				"first_name": "{{xml_xpath .AMQPPayload "user/first_name"}}",
-				"middle_name": "{{json_xpath .HTTPBody "user/middle_name"}}"
+				"transaction_id": "{{.KafkaPayload | jsonPath "transaction_id"}}",
+				"first_name": "{{.AMQPPayload | xmlPath "user/first_name"}}",
+				"middle_name": "{{.HTTPBody | jsonPath "user/middle_name"}}"
 			}
 			`
 		c := &Context{}
@@ -99,7 +99,7 @@ test
 
 func TestRenderConditions(t *testing.T) {
 	t.Run("match conditions happy code path", func(t *testing.T) {
-		raw := `{{eq (json_xpath .AMQPPayload "dl_number") "K2879030"}}`
+		raw := `{{eq (.AMQPPayload | jsonPath "dl_number") "K2879030"}}`
 		c := &Context{
 			AMQPPayload: `{"dl_number": "K2879030"}`,
 		}
@@ -107,7 +107,7 @@ func TestRenderConditions(t *testing.T) {
 	})
 
 	t.Run("match conditions not eq", func(t *testing.T) {
-		raw := `{{eq (json_xpath .AMQPPayload "dl_number") "12345678"}}`
+		raw := `{{eq (.AMQPPayload | jsonPath "dl_number") "12345678"}}`
 		c := &Context{
 			AMQPPayload: `{"dl_number": "K2879030"}`,
 		}

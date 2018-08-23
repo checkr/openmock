@@ -12,6 +12,7 @@ import (
 
 func (om *OpenMock) startHTTP() {
 	e := echo.New()
+	e.HideBanner = true
 	e.Use(em.Logrus())
 	e.Use(middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
 		logrus.WithFields(logrus.Fields{
