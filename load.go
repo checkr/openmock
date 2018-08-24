@@ -106,6 +106,7 @@ func (m *Mock) loadFile(baseDir string) {
 			}
 		}
 	}
+	logrus.Infof("template with key:%s loaded.", m.Key)
 }
 
 func readFile(templateKey string, baseDir string, filePath string) string {
