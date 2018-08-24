@@ -1,5 +1,17 @@
 [<img src="docs/logo.svg">]()
 
+<p align="center">
+    <a href="https://goreportcard.com/report/github.com/checkr/openmock" target="_blank">
+        <img src="https://goreportcard.com/badge/github.com/checkr/openmock">
+    </a>
+    <a href="https://circleci.com/gh/checkr/openmock" target="_blank">
+        <img src="https://circleci.com/gh/checkr/openmock.svg?style=shield">
+    </a>
+    <a href="https://godoc.org/github.com/checkr/openmock" target="_blank">
+        <img src="https://img.shields.io/badge/godoc-reference-green.svg">
+    </a>
+</p>
+
 # OpenMock
 OpenMock is a Go service that can mock services in integraiton tests, staging environment, or anywhere.
 The goal is to simplify the processes of writing mocks in various channels.
@@ -18,11 +30,16 @@ $ OPENMOCK_TEMPLATES_DIR=./demo_templates om
 ```
 
 Use it with docker.
-```sh
+```bash
 $ docker run -it -p 9999:9999 -v $(pwd)/demo_templates:/data/templates checkr/openmock 
 ```
 
-Dependencies:
+Test it.
+```bash
+$ curl localhost:9999/ping
+```
+
+Dependencies.
 - HTTP (native supported, thanks to https://echo.labstack.com/)
 - Kafka (optional)
   - To enable mocking kafka, set env `OPENMOCK_KAFKA_ENABLED=true`

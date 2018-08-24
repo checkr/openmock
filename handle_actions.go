@@ -41,10 +41,9 @@ func (m *Mock) doAction(c *Context, a Action) error {
 	if err := m.doActionPublishAMQP(c, a); err != nil {
 		return err
 	}
-	if err := m.doActionReplyHTTP(c, a); err != nil {
-		return err
-	}
-	return nil
+
+	// lastly, do reply_http
+	return m.doActionReplyHTTP(c, a)
 }
 
 func (m *Mock) doActionReplyHTTP(c *Context, a Action) error {

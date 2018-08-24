@@ -16,14 +16,9 @@ import (
 )
 
 var localFuncMap = template.FuncMap{
-	"jsonPath": func(path string, tmpl string) (string, error) { return JSONXPath(tmpl, path) },
-	"xmlPath":  func(path string, tmpl string) (string, error) { return XMLXPath(tmpl, path) },
+	"jsonPath": JSONPath,
+	"xmlPath":  XMLPath,
 	"uuidv5":   uuidv5,
-
-	// deprecated because not compatible with pipeline
-	// TODO(remove them after cleanup)
-	"json_xpath": JSONXPath,
-	"xml_xpath":  XMLXPath,
 }
 
 // Context represents the context of the mock expectation
@@ -91,8 +86,8 @@ func (c *Context) MatchCondition(condition string) (r bool) {
 	return result == "true"
 }
 
-// JSONXPath uses xpath to find the info from JSON string
-func JSONXPath(tmpl string, expr string) (ret string, err error) {
+// JSONPath uses xpath to find the info from JSON string
+func JSONPath(expr string, tmpl string) (ret string, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = r.(error)
@@ -119,8 +114,8 @@ func JSONXPath(tmpl string, expr string) (ret string, err error) {
 	return "", nil
 }
 
-// XMLXPath uses xpath to find the info from XML string
-func XMLXPath(tmpl string, expr string) (ret string, err error) {
+// XMLPath uses xpath to find the info from XML string
+func XMLPath(expr string, tmpl string) (ret string, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = r.(error)
