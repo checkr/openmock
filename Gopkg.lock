@@ -50,6 +50,12 @@
   version = "v2.1.15"
 
 [[projects]]
+  name = "github.com/caarlos0/env"
+  packages = ["."]
+  revision = "1cddc31c48c56ecd700d873edb9fd5b6f5df922a"
+  version = "v3.3.0"
+
+[[projects]]
   name = "github.com/dafiti/echo-middleware"
   packages = ["."]
   revision = "e57a87d075eac2f1490212e8ad0e41be0de41fc1"
@@ -276,6 +282,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a4066c2aade3ce988eabdbfc656f269819c7eb477214996d943b6b0c9e798fa3"
+  inputs-digest = "94d59b75bb46a08a0931440b72a63a13b4068d4e40c5e007a83918d30c22ea53"
   solver-name = "gps-cdcl"
   solver-version = 1
