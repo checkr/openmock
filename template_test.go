@@ -127,37 +127,37 @@ func TestJSONXPath(t *testing.T) {
 	var tmpl string
 
 	tmpl = `{"transaction_id": "t1234"}`
-	ret, err = JSONXPath(tmpl, "/transaction_id")
+	ret, err = JSONPath("/transaction_id", tmpl)
 	assert.NoError(t, err)
 	assert.Equal(t, ret, "t1234")
 
 	tmpl = `{"transaction_id": "t1234"}`
-	ret, err = JSONXPath(tmpl, "/transaction_id/abc")
+	ret, err = JSONPath("/transaction_id/abc", tmpl)
 	assert.NoError(t, err)
 	assert.Equal(t, ret, "")
 
 	tmpl = `{"user": {"first_name": "John"}}`
-	ret, err = JSONXPath(tmpl, "/user/first_name")
+	ret, err = JSONPath("/user/first_name", tmpl)
 	assert.NoError(t, err)
 	assert.Equal(t, ret, "John")
 
 	tmpl = `{"user": {"first_name": "John"}}`
-	ret, err = JSONXPath(tmpl, "/*/first_name")
+	ret, err = JSONPath("/*/first_name", tmpl)
 	assert.NoError(t, err)
 	assert.Equal(t, ret, "John")
 
 	tmpl = `{"user": {"first_name": "John"}}`
-	ret, err = JSONXPath(tmpl, "//first_name")
+	ret, err = JSONPath("//first_name", tmpl)
 	assert.NoError(t, err)
 	assert.Equal(t, ret, "John")
 
 	tmpl = `[{"jsonrpc":"2.0","method":"classify","params":["GUILTY"],"id":112879785776}]`
-	ret, err = JSONXPath(tmpl, "*[1]/method")
+	ret, err = JSONPath("*[1]/method", tmpl)
 	assert.NoError(t, err)
 	assert.Equal(t, ret, "classify")
 
 	tmpl = `[{"jsonrpc":"2.0","method":"classify","params":["GUILTY"],"id":112879785776}]`
-	ret, err = JSONXPath(tmpl, "*[1]/id")
+	ret, err = JSONPath("*[1]/id", tmpl)
 	assert.NoError(t, err)
 	assert.Equal(t, ret, "112879785776")
 }
