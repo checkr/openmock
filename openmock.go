@@ -26,9 +26,14 @@ type OpenMock struct {
 	// The dir is relative to the runtime binary
 	TemplatesDir string
 
+	// Redis Key Value Store
+	RedisType string
+	RedisURL  string
+
 	// Prviates
 	repo        *MockRepo
 	kafkaClient *kafkaClient
+	redis       RedisDoer
 }
 
 // Start starts the openmock
@@ -37,6 +42,7 @@ func (om *OpenMock) Start() {
 	if err != nil {
 		logrus.Fatalf("%s: %s", "failed to load yaml templates for mocks", err)
 	}
+	om.SetRedis()
 
 	if om.HTTPEnabled {
 		go om.startHTTP()

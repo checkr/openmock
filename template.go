@@ -4,22 +4,12 @@ import (
 	"bytes"
 	"net/http"
 	"regexp"
-	"strings"
 	"text/template"
 
 	"github.com/Masterminds/sprig"
-	"github.com/antchfx/jsonquery"
-	"github.com/antchfx/xmlquery"
-	"github.com/google/uuid"
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
 )
-
-var localFuncMap = template.FuncMap{
-	"jsonPath": JSONPath,
-	"xmlPath":  XMLPath,
-	"uuidv5":   uuidv5,
-}
 
 // Context represents the context of the mock expectation
 type Context struct {
@@ -47,10 +37,10 @@ func cleanup(raw string) string {
 }
 
 // Render renders the raw given the context
-func (c *Context) Render(raw string) (string, error) {
+func (c *Context) Render(raw string) (out string, err error) {
 	tmpl, err := template.New("").
 		Funcs(sprig.TxtFuncMap()). // supported functions https://github.com/Masterminds/sprig/blob/master/functions.go
-		Funcs(localFuncMap).
+		Funcs(genLocalFuncMap(c.om)).
 		Parse(cleanup(raw))
 	if err != nil {
 		return "", err
@@ -84,64 +74,4 @@ func (c *Context) MatchCondition(condition string) (r bool) {
 		return false
 	}
 	return result == "true"
-}
-
-// JSONPath uses xpath to find the info from JSON string
-func JSONPath(expr string, tmpl string) (ret string, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = r.(error)
-		}
-		logrus.WithFields(logrus.Fields{
-			"err":  err,
-			"tmpl": tmpl,
-			"expr": expr,
-		}).Info("running json xpath")
-	}()
-
-	if tmpl == "" {
-		return "", nil
-	}
-
-	doc, err := jsonquery.Parse(strings.NewReader(tmpl))
-	if err != nil {
-		return "", err
-	}
-	node := jsonquery.FindOne(doc, expr)
-	if node != nil {
-		return node.InnerText(), nil
-	}
-	return "", nil
-}
-
-// XMLPath uses xpath to find the info from XML string
-func XMLPath(expr string, tmpl string) (ret string, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = r.(error)
-		}
-		logrus.WithFields(logrus.Fields{
-			"err":  err,
-			"tmpl": tmpl,
-			"expr": expr,
-		}).Info("running xml xpath")
-	}()
-
-	if tmpl == "" {
-		return "", nil
-	}
-
-	doc, err := xmlquery.Parse(strings.NewReader(tmpl))
-	if err != nil {
-		return "", err
-	}
-	node := xmlquery.FindOne(doc, expr)
-	if node != nil {
-		return node.InnerText(), nil
-	}
-	return "", nil
-}
-
-func uuidv5(dat string) string {
-	return uuid.NewSHA1(uuid.NameSpaceOID, []byte(dat)).String()
 }

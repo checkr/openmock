@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gomodule/redigo/redis"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 )
@@ -121,69 +122,37 @@ func TestRenderConditions(t *testing.T) {
 	})
 }
 
-func TestJSONXPath(t *testing.T) {
-	var ret string
-	var err error
-	var tmpl string
+func TestRenderRedis(t *testing.T) {
+	t.Run("Set redis in template", func(t *testing.T) {
+		raw := `{{.HTTPHeader.Get "X-TOKEN" | redisDo "SET" "k1"}}`
+		c := &Context{
+			om:         &OpenMock{},
+			HTTPHeader: http.Header{},
+		}
+		c.HTTPHeader.Set("X-TOKEN", "t123")
+		_, err := c.Render(raw)
+		assert.NoError(t, err)
+		v, _ := redis.String(c.om.redis.Do("GET", "k1"))
+		assert.Equal(t, "t123", v)
+	})
 
-	tmpl = `{"transaction_id": "t1234"}`
-	ret, err = JSONPath("/transaction_id", tmpl)
-	assert.NoError(t, err)
-	assert.Equal(t, ret, "t1234")
+	t.Run("Render arrays in template", func(t *testing.T) {
+		raw := `
+          {
+			"setup1": "{{redisDo "RPUSH" "random" uuidv4}}",
+			"setup2": "{{redisDo "RPUSH" "random" uuidv4}}",
+			"setup3": "{{redisDo "RPUSH" "random" uuidv4}}",
+            "random": [
+              {{range $i, $v := redisDo "LRANGE" "random" 0 -1 | split ";;"}}
+                "{{$v}}"
+              {{end}}
+            ]
+          }
+		  `
+		c := &Context{om: &OpenMock{}}
 
-	tmpl = `{"transaction_id": "t1234"}`
-	ret, err = JSONPath("/transaction_id/abc", tmpl)
-	assert.NoError(t, err)
-	assert.Equal(t, ret, "")
-
-	tmpl = `{"user": {"first_name": "John"}}`
-	ret, err = JSONPath("/user/first_name", tmpl)
-	assert.NoError(t, err)
-	assert.Equal(t, ret, "John")
-
-	tmpl = `{"user": {"first_name": "John"}}`
-	ret, err = JSONPath("/*/first_name", tmpl)
-	assert.NoError(t, err)
-	assert.Equal(t, ret, "John")
-
-	tmpl = `{"user": {"first_name": "John"}}`
-	ret, err = JSONPath("//first_name", tmpl)
-	assert.NoError(t, err)
-	assert.Equal(t, ret, "John")
-
-	tmpl = `[{"jsonrpc":"2.0","method":"classify","params":["GUILTY"],"id":112879785776}]`
-	ret, err = JSONPath("*[1]/method", tmpl)
-	assert.NoError(t, err)
-	assert.Equal(t, ret, "classify")
-
-	tmpl = `[{"jsonrpc":"2.0","method":"classify","params":["GUILTY"],"id":112879785776}]`
-	ret, err = JSONPath("*[1]/id", tmpl)
-	assert.NoError(t, err)
-	assert.Equal(t, ret, "112879785776")
-}
-
-func TestHelpers(t *testing.T) {
-	t.Run("uuid4 helpers", func(t *testing.T) {
-		raw := `{{ uuidv4 }}`
-		c := &Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
 		assert.Contains(t, r, "-4")
-	})
-
-	t.Run("uuid4 helpers", func(t *testing.T) {
-		raw := `{{ "1234" | uuidv5 }}`
-		c := &Context{}
-		r, err := c.Render(raw)
-		assert.NoError(t, err)
-		assert.Contains(t, r, "-5")
-	})
-
-	t.Run("regexFind helpers", func(t *testing.T) {
-		raw := `{{ regexFind "foo.?" "seafood fool" }}`
-		c := &Context{}
-		r, err := c.Render(raw)
-		assert.NoError(t, err)
-		assert.Equal(t, r, "food")
 	})
 }

@@ -21,6 +21,21 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/alicebob/gopher-json"
+  packages = ["."]
+  revision = "5a6b3ba71ee69b77cf64febf8b5a7526ca5eaef0"
+
+[[projects]]
+  name = "github.com/alicebob/miniredis"
+  packages = [
+    ".",
+    "server"
+  ]
+  revision = "8890fdcfa933258e09a5b9b897270118064d70fd"
+  version = "2.4.4"
+
+[[projects]]
+  branch = "master"
   name = "github.com/antchfx/jsonquery"
   packages = ["."]
   revision = "a2896be8c82bb2229d1cf26204863180e34b2b31"
@@ -102,6 +117,15 @@
   name = "github.com/golang/snappy"
   packages = ["."]
   revision = "2e65f85255dbc3072edf28d6b5b8efc472979f5a"
+
+[[projects]]
+  name = "github.com/gomodule/redigo"
+  packages = [
+    "internal",
+    "redis"
+  ]
+  revision = "9c11da706d9b7902c6da69c592f75637793fe121"
+  version = "v2.0.0"
 
 [[projects]]
   name = "github.com/google/uuid"
@@ -195,6 +219,12 @@
   version = "v1.0.6"
 
 [[projects]]
+  name = "github.com/spf13/cast"
+  packages = ["."]
+  revision = "8965335b8c7107321228e3e3702cab9832751bac"
+  version = "v1.2.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/streadway/amqp"
   packages = ["."]
@@ -217,6 +247,17 @@
   name = "github.com/valyala/fasttemplate"
   packages = ["."]
   revision = "dcecefd839c4193db0d35b88ec65b4c12d360ab0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/yuin/gopher-lua"
+  packages = [
+    ".",
+    "ast",
+    "parse",
+    "pm"
+  ]
+  revision = "b942cacc89fe49895d145e8b360612a9a51d0423"
 
 [[projects]]
   branch = "master"
@@ -282,6 +323,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "94d59b75bb46a08a0931440b72a63a13b4068d4e40c5e007a83918d30c22ea53"
+  inputs-digest = "4e102c208b213f66d083c9a78ae69fb931d3f698949870f90466e1cde1d94633"
   solver-name = "gps-cdcl"
   solver-version = 1
