@@ -1,4 +1,4 @@
-[<img src="docs/logo.svg">]()
+[<img src="docs/logo.svg">](https://github.com/checkr/openmock)
 
 <p align="center">
     <a href="https://goreportcard.com/report/github.com/checkr/openmock" target="_blank">
