@@ -60,27 +60,27 @@ type (
 
 // Action represents actions
 type Action struct {
-	ActionSleep        ActionSleep        `yaml:"sleep"`
-	ActionRedis        ActionRedis        `yaml:"redis"`
-	ActionPublishKafka ActionPublishKafka `yaml:"publish_kafka"`
 	ActionPublishAMQP  ActionPublishAMQP  `yaml:"publish_amqp"`
-	ActionSendWebhook  ActionSendWebhook  `yaml:"send_webhook"`
+	ActionPublishKafka ActionPublishKafka `yaml:"publish_kafka"`
+	ActionRedis        ActionRedis        `yaml:"redis"`
 	ActionReplyHTTP    ActionReplyHTTP    `yaml:"reply_http"`
+	ActionSendHTTP     ActionSendHTTP     `yaml:"send_http"`
+	ActionSleep        ActionSleep        `yaml:"sleep"`
 }
 
 // ActionRedis represents a list of redis commands
 type ActionRedis []string
 
-// ActionSendWebhook represents the webhook return
-type ActionSendWebhook struct {
+// ActionSendHTTP represents the send http action
+type ActionSendHTTP struct {
 	URL          string            `yaml:"url"`
-	StatusCode   int               `yaml:"status_code"`
+	Method       string            `yaml:"method"`
 	Headers      map[string]string `yaml:"headers"`
 	Body         string            `yaml:"body"`
 	BodyFromFile string            `yaml:"body_from_file"`
 }
 
-// ActionReplyHTTP represents http return
+// ActionReplyHTTP represents reply http action
 type ActionReplyHTTP struct {
 	StatusCode   int               `yaml:"status_code"`
 	Headers      map[string]string `yaml:"headers"`
@@ -88,7 +88,7 @@ type ActionReplyHTTP struct {
 	BodyFromFile string            `yaml:"body_from_file"`
 }
 
-// ActionPublishAMQP represents AMQP return
+// ActionPublishAMQP represents publish AMQP action
 type ActionPublishAMQP struct {
 	Exchange        string `yaml:"exchange"`
 	RoutingKey      string `yaml:"routing_key"`
@@ -96,7 +96,7 @@ type ActionPublishAMQP struct {
 	PayloadFromFile string `yaml:"payload_from_file"`
 }
 
-// ActionPublishKafka represents kafka return
+// ActionPublishKafka represents publish kafka action
 type ActionPublishKafka struct {
 	Topic           string `yaml:"topic"`
 	Payload         string `yaml:"payload"`
