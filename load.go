@@ -81,7 +81,7 @@ func loadYAML(searchDir string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return []byte(os.ExpandEnv(w.String())), nil
+	return []byte(w.String()), nil
 }
 
 func (m *Mock) loadFile(baseDir string) {

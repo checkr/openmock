@@ -1,0 +1,28 @@
+- key: hello_redis
+  expect:
+    http:
+      method: GET
+      path: /test_redis
+  actions:
+    - redis:
+      - '{{.HTTPHeader.Get "X-TOKEN" | redisDo "SET" "k1"}}'
+      - '{{redisDo "RPUSH" "random" uuidv4}}'
+      - '{{redisDo "RPUSH" "random" uuidv4}}'
+      - '{{redisDo "RPUSH" "random" uuidv4}}'
+    - reply_http:
+        status_code: 200
+        body: >
+          {
+            "k1": "{{redisDo "GET" "k1"}}",
+            "randomStr": "{{redisDo "LRANGE" "random" 0 -1}}",
+            "random": [
+              {{ $arr := redisDo "LRANGE" "random" 0 -1 | splitList ";;" }}
+              {{ range $i, $v := $arr }}
+                {{if isLastIndex $i $arr}}
+                  "{{$v}}"
+                {{else}}
+                  "{{$v}}",
+                {{end}}
+              {{end}}
+            ]
+          }

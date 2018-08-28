@@ -35,6 +35,9 @@ func (m *Mock) doAction(c *Context, a Action) error {
 	if err := m.doActionSleep(c, a); err != nil {
 		return err
 	}
+	if err := m.doActionRedis(c, a); err != nil {
+		return err
+	}
 	if err := m.doActionPublishKafka(c, a); err != nil {
 		return err
 	}
@@ -65,6 +68,19 @@ func (m *Mock) doActionReplyHTTP(c *Context, a Action) error {
 		return err
 	}
 	return ec.Blob(h.StatusCode, contentType, []byte(msg))
+}
+
+func (m *Mock) doActionRedis(c *Context, a Action) error {
+	if len(a.ActionRedis) == 0 {
+		return nil
+	}
+	for _, cmd := range a.ActionRedis {
+		_, err := c.Render(cmd)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (m *Mock) doActionSleep(c *Context, a Action) error {

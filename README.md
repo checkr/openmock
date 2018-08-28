@@ -99,6 +99,7 @@ will recursively (including subdirectories) load all the YAML files. For example
   ##   Actions are a series of functions to run, which defines the
   ##   behaviors of the mock. Availabe actions are:
   ##     - sleep
+  ##     - set_data
   ##     - reply_http
   ##     - publish_kafka
   ##     - publish_amqp
@@ -144,11 +145,13 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
   ```
 - Use helper functions inside `{{ expr }}`. We recommend pipeline format (`|`) of the functions.
   ```bash
-  # Supported functions defined in ./template.go
+  # Supported functions defined in ./template_helper.go
 
     - jsonPath # doc: https://github.com/antchfx/xpath
     - xmlPath  # doc: https://github.com/antchfx/xpath
     - uuidv5   # uuid v5 sha1 hash
+    - redisDo  # run redis commands. For example {{redisDo "RPUSH" "arr" "hi"}}
+    - ...
 
   # Supported functions inherited from
   # https://github.com/Masterminds/sprig/blob/master/functions.go
@@ -263,6 +266,43 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
         exchange: exchange_1
         routing_key: key_out
         payload_from_file: './files/colors.json'
+```
+
+### Example: using redis (by default, it uses an in-memory miniredis)
+```
+# demo_templates/redis.yaml
+
+- key: hello_redis
+  expect:
+    http:
+      method: GET
+      path: /test_redis
+  actions:
+    - redis:
+      - '{{.HTTPHeader.Get "X-TOKEN" | redisDo "SET" "k1"}}'
+      - '{{redisDo "RPUSH" "random" uuidv4}}'
+      - '{{redisDo "RPUSH" "random" uuidv4}}'
+      - '{{redisDo "RPUSH" "random" uuidv4}}'
+    - reply_http:
+        status_code: 200
+        body: >
+          {
+            "k1": "{{redisDo "GET" "k1"}}",
+            "randomStr": "{{redisDo "LRANGE" "random" 0 -1}}",
+            "random": [
+              {{ $arr := redisDo "LRANGE" "random" 0 -1 | splitList ";;" }}
+              {{ range $i, $v := $arr }}
+                {{if isLastIndex $i $arr}}
+                  "{{$v}}"
+                {{else}}
+                  "{{$v}}",
+                {{end}}
+              {{end}}
+            ]
+          }
+
+# To test
+# curl localhost:9999/test_redis -H "X-TOKEN:t123"  | jq .
 ```
 
 # Advanced pipeline functions

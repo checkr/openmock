@@ -61,11 +61,15 @@ type (
 // Action represents actions
 type Action struct {
 	ActionSleep        ActionSleep        `yaml:"sleep"`
+	ActionRedis        ActionRedis        `yaml:"redis"`
 	ActionPublishKafka ActionPublishKafka `yaml:"publish_kafka"`
 	ActionPublishAMQP  ActionPublishAMQP  `yaml:"publish_amqp"`
 	ActionSendWebhook  ActionSendWebhook  `yaml:"send_webhook"`
 	ActionReplyHTTP    ActionReplyHTTP    `yaml:"reply_http"`
 }
+
+// ActionRedis represents a list of redis commands
+type ActionRedis []string
 
 // ActionSendWebhook represents the webhook return
 type ActionSendWebhook struct {
