@@ -1,0 +1,15 @@
+- key: webhooks
+  expect:
+    http:
+      method: GET
+      path: /send_webhook_to_httpbin
+  actions:
+    - send_http:
+        url: "https://httpbin.org/post"
+        method: POST
+        body: '{"hello": "world"}'
+        headers:
+          X-Token: t123
+    - reply_http:
+        status_code: 200
+        body: 'webhooks sent'

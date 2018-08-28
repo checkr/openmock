@@ -98,12 +98,12 @@ will recursively (including subdirectories) load all the YAML files. For example
   ## Actions:
   ##   Actions are a series of functions to run, which defines the
   ##   behaviors of the mock. Availabe actions are:
-  ##     - sleep
-  ##     - set_data
-  ##     - reply_http
-  ##     - publish_kafka
   ##     - publish_amqp
-  ##     - publish_webhook
+  ##     - publish_kafka
+  ##     - redis
+  ##     - reply_http
+  ##     - send_http
+  ##     - sleep
   ####################################################################
   actions:
     - publish_kafka:
@@ -268,7 +268,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
         payload_from_file: './files/colors.json'
 ```
 
-### Example: using redis (by default, it uses an in-memory miniredis)
+### Example: Using Redis (by default, it uses an in-memory miniredis)
 ```
 # demo_templates/redis.yaml
 
@@ -303,6 +303,30 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 
 # To test
 # curl localhost:9999/test_redis -H "X-TOKEN:t123"  | jq .
+```
+
+### Example: Send Webhooks
+```
+# demo_templates/webhook.yaml
+
+- key: webhooks
+  expect:
+    http:
+      method: GET
+      path: /send_webhook_to_httpbin
+  actions:
+    - send_http:
+        url: "https://httpbin.org/post"
+        method: POST
+        body: '{"hello": "world"}'
+        headers:
+          X-Token: t123
+    - reply_http:
+        status_code: 200
+        body: 'webhooks sent'
+
+# To test
+# curl localhost:9999/send_webhook_to_httpbin
 ```
 
 # Advanced pipeline functions

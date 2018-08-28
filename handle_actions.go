@@ -1,6 +1,11 @@
 package openmock
 
 import (
+	"io/ioutil"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/fatih/structs"
@@ -44,9 +49,52 @@ func (m *Mock) doAction(c *Context, a Action) error {
 	if err := m.doActionPublishAMQP(c, a); err != nil {
 		return err
 	}
+	if err := m.doActionSendHTTP(c, a); err != nil {
+		return err
+	}
 
 	// lastly, do reply_http
 	return m.doActionReplyHTTP(c, a)
+}
+
+func (m *Mock) doActionSendHTTP(c *Context, a Action) error {
+	if structs.IsZero(a.ActionSendHTTP) {
+		return nil
+	}
+
+	sendHTTP := a.ActionSendHTTP
+
+	header := http.Header{}
+	for k, v := range sendHTTP.Headers {
+		header.Set(k, v)
+	}
+
+	url, err := url.Parse(sendHTTP.URL)
+	if err != nil {
+		return err
+	}
+
+	bodyStr, err := c.Render(sendHTTP.Body)
+	if err != nil {
+		return err
+	}
+
+	body := ioutil.NopCloser(strings.NewReader(bodyStr))
+	req := &http.Request{
+		Method: sendHTTP.Method,
+		Header: header,
+		URL:    url,
+		Body:   body,
+	}
+	res, err := http.DefaultClient.Do(req)
+
+	dumpReq, _ := httputil.DumpRequestOut(req, true)
+	dumpRes, _ := httputil.DumpResponse(res, true)
+	logrus.WithFields(logrus.Fields{
+		"req": string(dumpReq),
+		"res": string(dumpRes),
+	}).Info("sendHTTP")
+	return err
 }
 
 func (m *Mock) doActionReplyHTTP(c *Context, a Action) error {
