@@ -56,12 +56,20 @@ func TestHelpers(t *testing.T) {
 		assert.Contains(t, r, "-4")
 	})
 
-	t.Run("uuid4 helpers", func(t *testing.T) {
+	t.Run("uuid5 helpers", func(t *testing.T) {
 		raw := `{{ "1234" | uuidv5 }}`
 		c := &Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
 		assert.Contains(t, r, "-5")
+	})
+
+	t.Run("isLastIndex helpers", func(t *testing.T) {
+		raw := `{{ "abc;;def" | splitList ";;" | isLastIndex 1 }}`
+		c := &Context{}
+		r, err := c.Render(raw)
+		assert.NoError(t, err)
+		assert.Contains(t, r, "true")
 	})
 
 	t.Run("regexFind helpers", func(t *testing.T) {
@@ -71,20 +79,45 @@ func TestHelpers(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, r, "food")
 	})
-}
 
-func TestRedisDo(t *testing.T) {
-	om := &OpenMock{}
-	r := redisDo(om)
-
-	t.Run("get non-exists", func(t *testing.T) {
-		v := r("GET", "non-exists")
-		assert.Empty(t, v)
+	t.Run("regexFindFirstSubmatch helpers", func(t *testing.T) {
+		raw := `{{ "peach" | regexFindFirstSubmatch "p([a-z]+)ch" }}`
+		c := &Context{}
+		r, err := c.Render(raw)
+		assert.NoError(t, err)
+		assert.Equal(t, r, "ea")
 	})
 
-	t.Run("set and then get", func(t *testing.T) {
-		r("SET", "hello", "456")
-		v := r("GET", "hello")
-		assert.Equal(t, "456", v)
+	t.Run("regexFindAllSubmatch helpers", func(t *testing.T) {
+		raw := `{{ "peach" | regexFindAllSubmatch "p([a-z]+)ch" }}`
+		c := &Context{}
+		r, err := c.Render(raw)
+		assert.NoError(t, err)
+		assert.Equal(t, r, "[peach ea]")
+	})
+
+	t.Run("regexFindAllSubmatch helpers with index", func(t *testing.T) {
+		raw := `h{{index (.HTTPBody | regexFindAllSubmatch "(p)([a-z]+)ch") 2}}l`
+		c := &Context{
+			HTTPBody: "peach",
+		}
+		r, err := c.Render(raw)
+		assert.NoError(t, err)
+		assert.Equal(t, r, "heal")
+	})
+
+	t.Run("htmlEscapeString helpers", func(t *testing.T) {
+		raw := `{{ "<note>
+					<to>Tove</to>
+					<from>Jani</from>
+					<heading name=\"heading\">Reminder</heading>
+					<body>Don't forget me this weekend!</body>
+					</note>" | htmlEscapeString }}`
+		c := &Context{}
+		r, err := c.Render(raw)
+		assert.NoError(t, err)
+		assert.NotContains(t, r, "<")
+		assert.NotContains(t, r, ">")
+		assert.NotContains(t, r, "\"")
 	})
 }

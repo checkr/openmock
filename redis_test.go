@@ -41,3 +41,19 @@ func TestRedis(t *testing.T) {
 		assert.Equal(t, "v1;;v2", v)
 	})
 }
+
+func TestRedisDo(t *testing.T) {
+	om := &OpenMock{}
+	r := redisDo(om)
+
+	t.Run("get non-exists", func(t *testing.T) {
+		v := r("GET", "non-exists")
+		assert.Empty(t, v)
+	})
+
+	t.Run("set and then get", func(t *testing.T) {
+		r("SET", "hello", "456")
+		v := r("GET", "hello")
+		assert.Equal(t, "456", v)
+	})
+}

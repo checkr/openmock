@@ -1,15 +1,11 @@
 package openmock
 
 import (
-	"io/ioutil"
-	"net/http"
-	"net/http/httputil"
-	"net/url"
-	"strings"
 	"time"
 
 	"github.com/fatih/structs"
 	"github.com/labstack/echo"
+	"github.com/parnurzeal/gorequest"
 	"github.com/sirupsen/logrus"
 )
 
@@ -64,37 +60,24 @@ func (m *Mock) doActionSendHTTP(c *Context, a Action) error {
 
 	sendHTTP := a.ActionSendHTTP
 
-	header := http.Header{}
-	for k, v := range sendHTTP.Headers {
-		header.Set(k, v)
-	}
-
-	url, err := url.Parse(sendHTTP.URL)
-	if err != nil {
-		return err
-	}
-
 	bodyStr, err := c.Render(sendHTTP.Body)
 	if err != nil {
 		return err
 	}
 
-	body := ioutil.NopCloser(strings.NewReader(bodyStr))
-	req := &http.Request{
-		Method: sendHTTP.Method,
-		Header: header,
-		URL:    url,
-		Body:   body,
-	}
-	res, err := http.DefaultClient.Do(req)
+	request := gorequest.New().
+		SetDebug(true).
+		CustomMethod(sendHTTP.Method, sendHTTP.URL)
 
-	dumpReq, _ := httputil.DumpRequestOut(req, true)
-	dumpRes, _ := httputil.DumpResponse(res, true)
-	logrus.WithFields(logrus.Fields{
-		"req": string(dumpReq),
-		"res": string(dumpRes),
-	}).Info("sendHTTP")
-	return err
+	for k, v := range sendHTTP.Headers {
+		request.Set(k, v)
+	}
+
+	_, _, errs := request.Send(bodyStr).End()
+	if len(errs) != 0 {
+		return errs[0]
+	}
+	return nil
 }
 
 func (m *Mock) doActionReplyHTTP(c *Context, a Action) error {

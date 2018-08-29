@@ -69,6 +69,10 @@
   name = "gopkg.in/yaml.v2"
   version = "2.2.1"
 
+[[constraint]]
+  branch = "develop"
+  name = "github.com/parnurzeal/gorequest"
+
 [prune]
   go-tests = true
   unused-packages = true

@@ -178,6 +178,12 @@
   version = "v0.0.3"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/moul/http2curl"
+  packages = ["."]
+  revision = "9ac6cf4d929b2fa8fd2d2e6dec5bb0feb4f4911d"
+
+[[projects]]
   name = "github.com/newrelic/go-agent"
   packages = [
     ".",
@@ -192,6 +198,12 @@
   version = "v2.0.0"
 
 [[projects]]
+  branch = "develop"
+  name = "github.com/parnurzeal/gorequest"
+  packages = ["."]
+  revision = "8e3aed27fe49f7fdc765dad067845f600fc984e8"
+
+[[projects]]
   name = "github.com/pierrec/lz4"
   packages = [
     ".",
@@ -199,6 +211,12 @@
   ]
   revision = "1958fd8fff7f115e79725b1288e0b878b3e06b00"
   version = "v2.0.3"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -277,7 +295,9 @@
   packages = [
     "html",
     "html/atom",
-    "html/charset"
+    "html/charset",
+    "idna",
+    "publicsuffix"
   ]
   revision = "922f4815f713f213882e8ef45e0d315b164d705c"
 
@@ -293,6 +313,8 @@
 [[projects]]
   name = "golang.org/x/text"
   packages = [
+    "collate",
+    "collate/build",
     "encoding",
     "encoding/charmap",
     "encoding/htmlindex",
@@ -303,13 +325,20 @@
     "encoding/simplifiedchinese",
     "encoding/traditionalchinese",
     "encoding/unicode",
+    "internal/colltab",
     "internal/gen",
     "internal/tag",
+    "internal/triegen",
+    "internal/ucd",
     "internal/utf8internal",
     "language",
     "runes",
+    "secure/bidirule",
     "transform",
-    "unicode/cldr"
+    "unicode/bidi",
+    "unicode/cldr",
+    "unicode/norm",
+    "unicode/rangetable"
   ]
   revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
   version = "v0.3.0"
@@ -323,6 +352,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4e102c208b213f66d083c9a78ae69fb931d3f698949870f90466e1cde1d94633"
+  inputs-digest = "915a295b5761a4d5a0f1ce540b08cacf8c7263ad91a1c7b52b2beed61948d24c"
   solver-name = "gps-cdcl"
   solver-version = 1

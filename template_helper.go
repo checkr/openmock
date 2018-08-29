@@ -2,23 +2,26 @@ package openmock
 
 import (
 	"reflect"
+	"regexp"
 	"strings"
 	"text/template"
 
 	"github.com/antchfx/jsonquery"
 	"github.com/antchfx/xmlquery"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
 func genLocalFuncMap(om *OpenMock) template.FuncMap {
 	return template.FuncMap{
-		"jsonPath":    jsonPath,
-		"xmlPath":     xmlPath,
-		"uuidv5":      uuidv5,
-		"redisDo":     redisDo(om),
-		"isLastIndex": isLastIndex,
+		"htmlEscapeString":       template.HTMLEscapeString,
+		"isLastIndex":            isLastIndex,
+		"jsonPath":               jsonPath,
+		"redisDo":                redisDo(om),
+		"regexFindAllSubmatch":   regexFindAllSubmatch,
+		"regexFindFirstSubmatch": regexFindFirstSubmatch,
+		"uuidv5":                 uuidv5,
+		"xmlPath":                xmlPath,
 	}
 }
 
@@ -76,11 +79,37 @@ func xmlPath(expr string, tmpl string) (ret string, err error) {
 	return "", nil
 }
 
+// uuidv5 uses SHA1 and NameSpaceOID to generate consistent uuid
 func uuidv5(dat string) string {
 	return uuid.NewSHA1(uuid.NameSpaceOID, []byte(dat)).String()
 }
 
-func isLastIndex(i interface{}, a interface{}) bool {
-	spew.Dump(a)
+// isLastIndex checks if the index is the last of the slice
+// For example:
+//  {{ range $i, $v := $arr }}
+//    {{if isLastIndex $i $arr}}
+//      "{{$v}}"
+//    {{else}}
+//      "{{$v}}",
+//    {{end}}
+//  {{end}}
+func isLastIndex(i int, a interface{}) bool {
 	return i == reflect.ValueOf(a).Len()-1
+}
+
+// regexFindAllSubmatch returns all the matching groups
+// [0] string matches the whole regex
+// [1:] strings matches the n-th group
+func regexFindAllSubmatch(regex string, s string) []string {
+	r := regexp.MustCompile(regex)
+	return r.FindStringSubmatch(s)
+}
+
+// regexFindFirstSubmatch returns the first matching group
+func regexFindFirstSubmatch(regex string, s string) string {
+	matches := regexFindAllSubmatch(regex, s)
+	if len(matches) <= 1 {
+		return ""
+	}
+	return matches[1]
 }
