@@ -1,0 +1,24 @@
+- key: regex
+  expect:
+    http:
+      method: POST
+      path: /regex
+  actions:
+    - reply_http:
+        status_code: 200
+        body: >
+          {
+            "match first string": "{{.HTTPBody | regexFind "peach"}}",
+            "match and get first group": "{{.HTTPBody | regexFindFirstSubmatch "p([a-z]+)ch" }}",
+            "match and get all groups": "{{.HTTPBody | regexFindAllSubmatch "p([a-z]+)ch" }}",
+            "match and get the second group": "{{index (.HTTPBody | regexFindAllSubmatch "p([a-z]+)(ch)") 2}}"
+          }
+
+# Example:
+# curl -XPOST -d 'peach' localhost:9999/regex | jq .
+# {
+#   "match first string": "peach",
+#   "match and get first group": "ea",
+#   "match and get all groups": "[peach ea]",
+#   "match and get the second group": "ch"
+# }

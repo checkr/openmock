@@ -54,3 +54,24 @@
     - reply_http:
         status_code: 401
         body: Invalid X-Token
+
+- key: large_xml
+  expect:
+    http:
+      method: GET
+      path: /large_xml
+  actions:
+    - reply_http:
+        status_code: 200
+        headers:
+          Content-Type: text/xml
+        body: >
+          <xml>
+            {{` <note>
+                  <to>Tove</to>
+                  <from>Jani</from>
+                  <heading name=\"heading\">Reminder</heading>
+                  <body>Don't forget me this weekend!</body>
+                </note>
+              ` | htmlEscapeString }}
+          </xml>
