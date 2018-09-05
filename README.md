@@ -268,7 +268,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
         payload_from_file: './files/colors.json'
 ```
 
-### Example: Using Redis (by default, it uses an in-memory miniredis)
+### Example: Use Redis for stateful things (by default, OpenMock uses an in-memory miniredis)
 ```
 # demo_templates/redis.yaml
 
