@@ -32,25 +32,45 @@ func (m *Mock) DoActions(c *Context) error {
 	return nil
 }
 
-func (m *Mock) doAction(c *Context, a Action) error {
+func (m *Mock) doAction(c *Context, a Action) (err error) {
+	var action string
+
+	defer func() {
+		if err != nil {
+			logrus.WithFields(logrus.Fields{
+				"err":    err,
+				"action": action,
+			}).Errorf("failed to do action")
+		}
+	}()
+
 	if err := m.doActionSleep(c, a); err != nil {
+		action = "sleep"
 		return err
 	}
 	if err := m.doActionRedis(c, a); err != nil {
+		action = "redis"
 		return err
 	}
 	if err := m.doActionPublishKafka(c, a); err != nil {
+		action = "publish_kafka"
 		return err
 	}
 	if err := m.doActionPublishAMQP(c, a); err != nil {
+		action = "publish_amqp"
 		return err
 	}
 	if err := m.doActionSendHTTP(c, a); err != nil {
+		action = "send_http"
 		return err
 	}
 
-	// lastly, do reply_http
-	return m.doActionReplyHTTP(c, a)
+	if err := m.doActionReplyHTTP(c, a); err != nil {
+		action = "reply_http"
+		return err
+	}
+
+	return nil
 }
 
 func (m *Mock) doActionSendHTTP(c *Context, a Action) error {
@@ -65,9 +85,14 @@ func (m *Mock) doActionSendHTTP(c *Context, a Action) error {
 		return err
 	}
 
+	urlStr, err := c.Render(sendHTTP.URL)
+	if err != nil {
+		return err
+	}
+
 	request := gorequest.New().
 		SetDebug(true).
-		CustomMethod(sendHTTP.Method, sendHTTP.URL)
+		CustomMethod(sendHTTP.Method, urlStr)
 
 	for k, v := range sendHTTP.Headers {
 		request.Set(k, v)
