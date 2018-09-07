@@ -35,7 +35,7 @@
 
 - key: header-token
   expect:
-    condition: '{{.HTTPHeader.Get "X-Token" | eq "t1234"}}'
+    condition: '{{.HTTPHeader.Get "X-Token" | eq "t1234" | and (.HTTPHeader.Get "Y-Token" | eq "t1234")}}'
     http:
       method: GET
       path: /token

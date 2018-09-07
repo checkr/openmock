@@ -31,7 +31,7 @@ type RedisDoer interface {
 func (om *OpenMock) SetRedis() {
 	switch om.RedisType {
 	case "redis":
-		client, err := redis.Dial("tcp", om.RedisURL)
+		client, err := redis.DialURL(om.RedisURL)
 		if err != nil {
 			logrus.Fatalf("cannot connect to redis %s. err: %v", om.RedisURL, err)
 		}
