@@ -14,37 +14,37 @@ func TestJSONPath(t *testing.T) {
 	tmpl = `{"transaction_id": "t1234"}`
 	ret, err = jsonPath("/transaction_id", tmpl)
 	assert.NoError(t, err)
-	assert.Equal(t, ret, "t1234")
+	assert.Equal(t, "t1234", ret)
 
 	tmpl = `{"transaction_id": "t1234"}`
 	ret, err = jsonPath("/transaction_id/abc", tmpl)
 	assert.NoError(t, err)
-	assert.Equal(t, ret, "")
+	assert.Equal(t, "", ret)
 
 	tmpl = `{"user": {"first_name": "John"}}`
 	ret, err = jsonPath("/user/first_name", tmpl)
 	assert.NoError(t, err)
-	assert.Equal(t, ret, "John")
+	assert.Equal(t, "John", ret)
 
 	tmpl = `{"user": {"first_name": "John"}}`
 	ret, err = jsonPath("/*/first_name", tmpl)
 	assert.NoError(t, err)
-	assert.Equal(t, ret, "John")
+	assert.Equal(t, "John", ret)
 
 	tmpl = `{"user": {"first_name": "John"}}`
 	ret, err = jsonPath("//first_name", tmpl)
 	assert.NoError(t, err)
-	assert.Equal(t, ret, "John")
+	assert.Equal(t, "John", ret)
 
 	tmpl = `[{"jsonrpc":"2.0","method":"classify","params":["GUILTY"],"id":112879785776}]`
 	ret, err = jsonPath("*[1]/method", tmpl)
 	assert.NoError(t, err)
-	assert.Equal(t, ret, "classify")
+	assert.Equal(t, "classify", ret)
 
 	tmpl = `[{"jsonrpc":"2.0","method":"classify","params":["GUILTY"],"id":112879785776}]`
 	ret, err = jsonPath("*[1]/id", tmpl)
 	assert.NoError(t, err)
-	assert.Equal(t, ret, "112879785776")
+	assert.Equal(t, "112879785776", ret)
 }
 
 func TestHelpers(t *testing.T) {
@@ -77,15 +77,24 @@ func TestHelpers(t *testing.T) {
 		c := &Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
-		assert.Equal(t, r, "food")
+		assert.Equal(t, "food", r)
 	})
 
 	t.Run("regexFindFirstSubmatch helpers", func(t *testing.T) {
-		raw := `{{ "peach" | regexFindFirstSubmatch "p([a-z]+)ch" }}`
-		c := &Context{}
-		r, err := c.Render(raw)
-		assert.NoError(t, err)
-		assert.Equal(t, r, "ea")
+		t.Run("normal [a-z]", func(t *testing.T) {
+			raw := `{{ "peach" | regexFindFirstSubmatch "p([a-z]+)ch" }}`
+			c := &Context{}
+			r, err := c.Render(raw)
+			assert.NoError(t, err)
+			assert.Equal(t, "ea", r)
+		})
+		t.Run("\\w", func(t *testing.T) {
+			raw := `{{ "peach" | regexFindFirstSubmatch "p(\\w+)ch" }}`
+			c := &Context{}
+			r, err := c.Render(raw)
+			assert.NoError(t, err)
+			assert.Equal(t, "ea", r)
+		})
 	})
 
 	t.Run("regexFindAllSubmatch helpers", func(t *testing.T) {
@@ -93,7 +102,7 @@ func TestHelpers(t *testing.T) {
 		c := &Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
-		assert.Equal(t, r, "[peach ea]")
+		assert.Equal(t, "[peach ea]", r)
 	})
 
 	t.Run("regexFindAllSubmatch helpers with index", func(t *testing.T) {
@@ -103,7 +112,7 @@ func TestHelpers(t *testing.T) {
 		}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
-		assert.Equal(t, r, "heal")
+		assert.Equal(t, "heal", r)
 	})
 
 	t.Run("htmlEscapeString helpers", func(t *testing.T) {

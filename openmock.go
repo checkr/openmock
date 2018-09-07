@@ -1,39 +1,38 @@
 package openmock
 
 import (
+	"github.com/caarlos0/env"
 	"github.com/sirupsen/logrus"
 )
 
 // OpenMock holds all the configuration of running openmock
 type OpenMock struct {
-	// HTTP host and port to serve http mocks
-	HTTPEnabled bool
-	HTTPPort    int
-	HTTPHost    string
+	// Env configuration
+	TemplatesDir     string   `env:"OPENMOCK_TEMPLATES_DIR" envDefault:"./templates"`
+	HTTPEnabled      bool     `env:"OPENMOCK_HTTP_ENABLED" envDefault:"true"`
+	HTTPPort         int      `env:"OPENMOCK_HTTP_PORT" envDefault:"9999"`
+	HTTPHost         string   `env:"OPENMOCK_HTTP_HOST" envDefault:"0.0.0.0"`
+	KafkaEnabled     bool     `env:"OPENMOCK_KAFKA_ENABLED" envDefault:"false"`
+	KafkaClientID    string   `env:"OPENMOCK_KAFKA_CLIENT_ID" envDefault:"openmock"`
+	KafkaSeedBrokers []string `env:"OPENMOCK_KAFKA_SEED_BROKERS" envDefault:"kafka:9092,localhost:9092" envSeparator:","`
+	AMQPEnabled      bool     `env:"OPENMOCK_AMQP_ENABLED" envDefault:"false"`
+	AMQPURL          string   `env:"OPENMOCK_AMQP_URL" envDefault:"amqp://guest:guest@rabbitmq:5672"`
+	RedisType        string   `env:"OPENMOCK_REDIS_TYPE" envDefault:"memory"`
+	RedisURL         string   `env:"OPENMOCK_REDIS_URL" envDefault:"redis://redis:6379"`
 
-	// Kafka Settings
-	KafkaEnabled             bool
-	KafkaClientID            string
-	KafkaSeedBrokers         []string
+	// Customized pipeline functions
 	KafkaConsumePipelineFunc KafkaPipelineFunc
 	KafkaPublishPipelineFunc KafkaPipelineFunc
-
-	// AMQP URL
-	AMQPEnabled bool
-	AMQPURL     string
-
-	// The templates directory to load the YAML files
-	// The dir is relative to the runtime binary
-	TemplatesDir string
-
-	// Redis Key Value Store
-	RedisType string
-	RedisURL  string
 
 	// Prviates
 	repo        *MockRepo
 	kafkaClient *kafkaClient
 	redis       RedisDoer
+}
+
+// ParseEnv loads env vars into the openmock struct
+func (om *OpenMock) ParseEnv() {
+	env.Parse(om)
 }
 
 // Start starts the openmock
