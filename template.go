@@ -55,13 +55,16 @@ func (c *Context) Render(raw string) (out string, err error) {
 // MatchCondition checks the condition given the context
 func (c *Context) MatchCondition(condition string) (r bool) {
 	defer func() {
-		logrus.WithFields(logrus.Fields{
-			"HTTPBody":     c.HTTPBody,
-			"KafkaPayload": c.KafkaPayload,
-			"AMQPPayload":  c.AMQPPayload,
-			"condition":    condition,
-			"result":       r,
-		}).Info("running MatchCondition")
+		if r {
+			logrus.WithFields(logrus.Fields{
+				"HTTPHeader":   c.HTTPHeader,
+				"HTTPBody":     c.HTTPBody,
+				"KafkaPayload": c.KafkaPayload,
+				"AMQPPayload":  c.AMQPPayload,
+				"condition":    condition,
+				"result":       r,
+			}).Debug("running MatchCondition")
+		}
 	}()
 
 	if condition == "" {
