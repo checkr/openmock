@@ -16,8 +16,8 @@ func (om *OpenMock) startHTTP() {
 	e.Use(em.Logrus())
 	e.Use(middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
 		logrus.WithFields(logrus.Fields{
-			"req": string(reqBody),
-			"res": string(resBody),
+			"http_req": string(reqBody),
+			"http_res": string(resBody),
 		}).Info()
 	}))
 

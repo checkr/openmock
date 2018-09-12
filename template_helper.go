@@ -34,7 +34,7 @@ func jsonPath(expr string, tmpl string) (ret string, err error) {
 			"err":  err,
 			"tmpl": tmpl,
 			"expr": expr,
-		}).Info("running json xpath")
+		}).Debug("running json xpath")
 	}()
 
 	if tmpl == "" {
@@ -61,7 +61,7 @@ func xmlPath(expr string, tmpl string) (ret string, err error) {
 			"err":  err,
 			"tmpl": tmpl,
 			"expr": expr,
-		}).Info("running xml xpath")
+		}).Debug("running xml xpath")
 	}()
 
 	if tmpl == "" {
