@@ -1,6 +1,8 @@
 package openmock
 
 import (
+	"os"
+
 	"github.com/caarlos0/env"
 	"github.com/sirupsen/logrus"
 )
@@ -8,6 +10,7 @@ import (
 // OpenMock holds all the configuration of running openmock
 type OpenMock struct {
 	// Env configuration
+	LogLevel         string   `env:"OPENMOCK_LOG_LEVEL" envDefault:"info"`
 	TemplatesDir     string   `env:"OPENMOCK_TEMPLATES_DIR" envDefault:"./templates"`
 	HTTPEnabled      bool     `env:"OPENMOCK_HTTP_ENABLED" envDefault:"true"`
 	HTTPPort         int      `env:"OPENMOCK_HTTP_PORT" envDefault:"9999"`
@@ -35,8 +38,18 @@ func (om *OpenMock) ParseEnv() {
 	env.Parse(om)
 }
 
+func (om *OpenMock) setupLogrus() {
+	l, err := logrus.ParseLevel(om.LogLevel)
+	if err != nil {
+		logrus.WithField("err", err).Fatalf("failed to set logrus level:%s", om.LogLevel)
+	}
+	logrus.SetLevel(l)
+	logrus.SetOutput(os.Stdout)
+}
+
 // Start starts the openmock
 func (om *OpenMock) Start() {
+	om.setupLogrus()
 	err := om.Load()
 	if err != nil {
 		logrus.Fatalf("%s: %s", "failed to load yaml templates for mocks", err)
