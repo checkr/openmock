@@ -66,6 +66,8 @@ func (om *OpenMock) populateMockRepo(mocks []*Mock) {
 }
 
 func loadYAML(searchDir string) ([]byte, error) {
+	logrus.Infof("Start to load templates from: %s", searchDir)
+
 	w := &bytes.Buffer{}
 	err := filepath.Walk(searchDir, func(path string, f os.FileInfo, err error) error {
 		if f != nil && (strings.HasSuffix(f.Name(), ".yaml") || strings.HasSuffix(f.Name(), ".yml")) {
@@ -81,6 +83,7 @@ func loadYAML(searchDir string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	logrus.Infof("Done with loading templates from: %s", searchDir)
 	return []byte(w.String()), nil
 }
 
