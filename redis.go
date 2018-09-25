@@ -1,7 +1,9 @@
 package openmock
 
 import (
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/alicebob/miniredis"
 	"github.com/gomodule/redigo/redis"
@@ -11,41 +13,51 @@ import (
 
 const redisStringsSeparator = ";;"
 
-func parseCommand(cmd string) (name string, args []interface{}) {
-	cmds := strings.Split(cmd, " ")
-	if len(cmds) == 1 {
-		return cmds[0], nil
+type (
+	// RedisDoer can run redis commands
+	RedisDoer interface {
+		Do(commandName string, args ...interface{}) (reply interface{}, err error)
 	}
-	for _, a := range cmds[1:] {
-		args = append(args, a)
+
+	redisDoer struct {
+		pool *redis.Pool
 	}
-	return cmds[0], args
+)
+
+// NewRedisDoer creates a new RedisDoer
+func NewRedisDoer(redisURL string) RedisDoer {
+	pool := &redis.Pool{
+		MaxIdle:     3,
+		IdleTimeout: 240 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			conn, err := redis.DialURL(redisURL)
+			if err != nil {
+				logrus.Errorf("cannot connect to redis %s. err: %v", redisURL, err)
+				return nil, err
+			}
+			return conn, nil
+		},
+	}
+	return &redisDoer{pool: pool}
 }
 
-// RedisDoer can run redis commands
-type RedisDoer interface {
-	Do(commandName string, args ...interface{}) (reply interface{}, err error)
+func (rd *redisDoer) Do(commandName string, args ...interface{}) (reply interface{}, err error) {
+	conn := rd.pool.Get()
+	defer conn.Close()
+	return conn.Do(commandName, args...)
 }
 
 // SetRedis sets the Redis store for OpenMock
 func (om *OpenMock) SetRedis() {
 	switch om.RedisType {
 	case "redis":
-		client, err := redis.DialURL(om.RedisURL)
-		if err != nil {
-			logrus.Fatalf("cannot connect to redis %s. err: %v", om.RedisURL, err)
-		}
-		om.redis = client
+		om.redis = NewRedisDoer(om.RedisURL)
 	default:
 		s, err := miniredis.Run()
 		if err != nil {
 			logrus.Fatalf("cannot create miniredis", om.RedisURL, err)
 		}
-		client, err := redis.Dial("tcp", s.Addr())
-		if err != nil {
-			logrus.Fatalf("cannot connect to miniredis %s. err: %v", s.Addr(), err)
-		}
-		om.redis = client
+		om.redis = NewRedisDoer(fmt.Sprintf("redis://%s:%s", s.Host(), s.Port()))
 	}
 }
 
@@ -77,4 +89,15 @@ func redisDo(om *OpenMock) func(keyAndArgs ...interface{}) interface{} {
 		}
 		return v
 	}
+}
+
+func parseCommand(cmd string) (name string, args []interface{}) {
+	cmds := strings.Split(cmd, " ")
+	if len(cmds) == 1 {
+		return cmds[0], nil
+	}
+	for _, a := range cmds[1:] {
+		args = append(args, a)
+	}
+	return cmds[0], args
 }
