@@ -55,7 +55,7 @@ func (om *OpenMock) SetRedis() {
 	default:
 		s, err := miniredis.Run()
 		if err != nil {
-			logrus.Fatalf("cannot create miniredis", om.RedisURL, err)
+			logrus.Fatalf("cannot create miniredis. url:%s, err:%s", om.RedisURL, err)
 		}
 		om.redis = NewRedisDoer(fmt.Sprintf("redis://%s:%s", s.Host(), s.Port()))
 	}
