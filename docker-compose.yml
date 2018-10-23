@@ -28,7 +28,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.6.6-management
-    container_name: openmock-zookeeper
+    container_name: openmock-rabbitmq
     ports:
       - 4369:4369
       - 5671-5672:5671-5672
