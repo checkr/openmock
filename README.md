@@ -41,6 +41,7 @@ $ curl localhost:9999/ping
 
 Dependencies.
 - HTTP (native supported, thanks to https://echo.labstack.com/)
+  - One can configure HTTP port, set env `OPENMOCK_HTTP_PORT=80`
 - Kafka (optional)
   - To enable mocking kafka, set env `OPENMOCK_KAFKA_ENABLED=true`.
   - One can also config `OPENMOCK_KAFKA_CLIENT_ID` and `OPENMOCK_KAFKA_SEED_BROKERS`.
