@@ -45,3 +45,15 @@ services:
     container_name: openmock-redis
     ports:
       - "6379:6379"
+
+  openmock:
+    build: .
+    container_name: openmock
+    restart: "on-failure"
+    environment:
+      OPENMOCK_REDIS_TYPE: "redis"
+    volumes:
+      - ./demo_templates:/data/templates
+    ports:
+      - "9999:9999"
+      - "9998:9998"

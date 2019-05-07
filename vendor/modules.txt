@@ -1,0 +1,134 @@
+# github.com/Masterminds/semver v1.4.2
+github.com/Masterminds/semver
+# github.com/Masterminds/sprig v2.15.0+incompatible
+github.com/Masterminds/sprig
+# github.com/Shopify/sarama v1.17.0
+github.com/Shopify/sarama
+# github.com/alicebob/gopher-json v0.0.0-20180125190556-5a6b3ba71ee6
+github.com/alicebob/gopher-json
+# github.com/alicebob/miniredis v0.0.0-20180623114124-8890fdcfa933
+github.com/alicebob/miniredis
+github.com/alicebob/miniredis/server
+# github.com/antchfx/jsonquery v0.0.0-20180821084212-a2896be8c82b
+github.com/antchfx/jsonquery
+# github.com/antchfx/xmlquery v0.0.0-20180726134140-2805f22c26c4
+github.com/antchfx/xmlquery
+# github.com/antchfx/xpath v0.0.0-20180524052354-077bca4d2caa
+github.com/antchfx/xpath
+# github.com/aokoli/goutils v1.0.1
+github.com/aokoli/goutils
+# github.com/bsm/sarama-cluster v2.1.15+incompatible
+github.com/bsm/sarama-cluster
+# github.com/caarlos0/env v3.3.0+incompatible
+github.com/caarlos0/env
+# github.com/dafiti/echo-middleware v0.0.0-20180423194757-e57a87d075ea
+github.com/dafiti/echo-middleware
+# github.com/davecgh/go-spew v1.1.1
+github.com/davecgh/go-spew/spew
+# github.com/dgrijalva/jwt-go v3.2.0+incompatible
+github.com/dgrijalva/jwt-go
+# github.com/eapache/go-resiliency v1.1.0
+github.com/eapache/go-resiliency/breaker
+# github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21
+github.com/eapache/go-xerial-snappy
+# github.com/eapache/queue v1.1.0
+github.com/eapache/queue
+# github.com/fatih/structs v1.0.0
+github.com/fatih/structs
+# github.com/fsnotify/fsnotify v1.4.7
+github.com/fsnotify/fsnotify
+# github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db
+github.com/golang/snappy
+# github.com/gomodule/redigo v2.0.0+incompatible
+github.com/gomodule/redigo/redis
+github.com/gomodule/redigo/internal
+# github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c
+github.com/google/uuid
+# github.com/huandu/xstrings v1.0.0
+github.com/huandu/xstrings
+# github.com/imdario/mergo v0.3.6
+github.com/imdario/mergo
+# github.com/labstack/echo v3.3.5+incompatible
+github.com/labstack/echo
+github.com/labstack/echo/middleware
+# github.com/labstack/gommon v0.0.0-20180613044413-d6898124de91
+github.com/labstack/gommon/color
+github.com/labstack/gommon/log
+github.com/labstack/gommon/bytes
+github.com/labstack/gommon/random
+# github.com/mattn/go-colorable v0.0.9
+github.com/mattn/go-colorable
+# github.com/mattn/go-isatty v0.0.3
+github.com/mattn/go-isatty
+# github.com/moul/http2curl v1.0.0
+github.com/moul/http2curl
+# github.com/newrelic/go-agent v2.0.0+incompatible
+github.com/newrelic/go-agent
+github.com/newrelic/go-agent/internal
+github.com/newrelic/go-agent/internal/logger
+github.com/newrelic/go-agent/internal/utilization
+github.com/newrelic/go-agent/internal/cat
+github.com/newrelic/go-agent/internal/jsonx
+github.com/newrelic/go-agent/internal/sysinfo
+# github.com/parnurzeal/gorequest v0.0.0-20171015110455-8e3aed27fe49
+github.com/parnurzeal/gorequest
+# github.com/pierrec/lz4 v2.0.3+incompatible
+github.com/pierrec/lz4
+github.com/pierrec/lz4/internal/xxh32
+# github.com/pkg/errors v0.8.0
+github.com/pkg/errors
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/rcrowley/go-metrics v0.0.0-20180503174638-e2704e165165
+github.com/rcrowley/go-metrics
+# github.com/sirupsen/logrus v1.0.6
+github.com/sirupsen/logrus
+# github.com/spf13/cast v1.2.0
+github.com/spf13/cast
+# github.com/streadway/amqp v0.0.0-20180806233856-70e15c650864
+github.com/streadway/amqp
+# github.com/stretchr/testify v1.2.2
+github.com/stretchr/testify/assert
+# github.com/teamwork/reload v0.0.0-20190319183701-e8d47ccac39e
+github.com/teamwork/reload
+# github.com/valyala/bytebufferpool v1.0.0
+github.com/valyala/bytebufferpool
+# github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4
+github.com/valyala/fasttemplate
+# github.com/yuin/gopher-lua v0.0.0-20180827083657-b942cacc89fe
+github.com/yuin/gopher-lua
+github.com/yuin/gopher-lua/parse
+github.com/yuin/gopher-lua/ast
+github.com/yuin/gopher-lua/pm
+# golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+golang.org/x/crypto/scrypt
+golang.org/x/crypto/acme/autocert
+golang.org/x/crypto/ssh/terminal
+golang.org/x/crypto/pbkdf2
+golang.org/x/crypto/acme
+# golang.org/x/net v0.0.0-20190311183353-d8887717615a
+golang.org/x/net/html/charset
+golang.org/x/net/publicsuffix
+golang.org/x/net/html
+golang.org/x/net/html/atom
+# golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a
+golang.org/x/sys/unix
+golang.org/x/sys/windows
+# golang.org/x/text v0.3.0
+golang.org/x/text/encoding
+golang.org/x/text/encoding/charmap
+golang.org/x/text/encoding/htmlindex
+golang.org/x/text/transform
+golang.org/x/text/encoding/internal/identifier
+golang.org/x/text/encoding/internal
+golang.org/x/text/encoding/japanese
+golang.org/x/text/encoding/korean
+golang.org/x/text/encoding/simplifiedchinese
+golang.org/x/text/encoding/traditionalchinese
+golang.org/x/text/encoding/unicode
+golang.org/x/text/language
+golang.org/x/text/internal/utf8internal
+golang.org/x/text/runes
+golang.org/x/text/internal/tag
+# gopkg.in/yaml.v2 v2.2.1
+gopkg.in/yaml.v2

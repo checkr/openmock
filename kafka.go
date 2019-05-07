@@ -16,9 +16,10 @@ var DefaultPipelineFunc = func(c *Context, in []byte) (out []byte, err error) {
 }
 
 type kafkaClient struct {
-	clientID string
-	brokers  []string
-	producer sarama.SyncProducer
+	clientID  string
+	brokers   []string
+	producer  sarama.SyncProducer
+	consumers []*cluster.Consumer
 
 	cFunc KafkaPipelineFunc
 	pFunc KafkaPipelineFunc
@@ -49,6 +50,18 @@ func (kc *kafkaClient) sendMessage(topic string, bytes []byte) (err error) {
 	}
 	_, _, err = kc.producer.SendMessage(msg)
 	return err
+}
+
+func (kc *kafkaClient) close() error {
+	for _, consumer := range kc.consumers {
+		if err := consumer.Close(); err != nil {
+			return err
+		}
+	}
+	if err := kc.producer.Close(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (om *OpenMock) configKafka() error {
@@ -96,6 +109,7 @@ func (om *OpenMock) startKafka() {
 				return
 			}
 			logrus.Infof("consumer started for topic:%s", kafka.Topic)
+			om.kafkaClient.consumers = append(om.kafkaClient.consumers, consumer)
 			for {
 				select {
 				case msg, ok := <-consumer.Messages():
