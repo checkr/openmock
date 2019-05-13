@@ -1,8 +1,13 @@
+.PHONY: vendor
+vendor:
+	@GO111MODULE=on go mod tidy
+	@GO111MODULE=on go mod vendor
+
 build:
-	go build -o $(PWD)/om github.com/checkr/openmock/cmd/om
+	@GO111MODULE=on go build -mod=vendor -o $(PWD)/om github.com/checkr/openmock/cmd/om
 
 test:
-	go test -race -covermode=atomic .
+	@GO111MODULE=on go test -mod=vendor -race -covermode=atomic .
 
 run: build
 	OPENMOCK_TEMPLATES_DIR=./demo_templates ./om

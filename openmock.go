@@ -5,6 +5,7 @@ import (
 
 	"github.com/caarlos0/env"
 	"github.com/sirupsen/logrus"
+	"github.com/teamwork/reload"
 )
 
 // OpenMock holds all the configuration of running openmock
@@ -15,6 +16,9 @@ type OpenMock struct {
 	HTTPEnabled      bool     `env:"OPENMOCK_HTTP_ENABLED" envDefault:"true"`
 	HTTPPort         int      `env:"OPENMOCK_HTTP_PORT" envDefault:"9999"`
 	HTTPHost         string   `env:"OPENMOCK_HTTP_HOST" envDefault:"0.0.0.0"`
+	AdminHTTPEnabled bool     `env:"OPENMOCK_ADMIN_HTTP_ENABLED" envDefault:"true"`
+	AdminHTTPPort    int      `env:"OPENMOCK_ADMIN_HTTP_PORT" envDefault:"9998"`
+	AdminHTTPHost    string   `env:"OPENMOCK_ADMIN_HTTP_HOST" envDefault:"0.0.0.0"`
 	KafkaEnabled     bool     `env:"OPENMOCK_KAFKA_ENABLED" envDefault:"false"`
 	KafkaClientID    string   `env:"OPENMOCK_KAFKA_CLIENT_ID" envDefault:"openmock"`
 	KafkaSeedBrokers []string `env:"OPENMOCK_KAFKA_SEED_BROKERS" envDefault:"kafka:9092,localhost:9092" envSeparator:","`
@@ -50,11 +54,13 @@ func (om *OpenMock) setupLogrus() {
 // Start starts the openmock
 func (om *OpenMock) Start() {
 	om.setupLogrus()
+	om.SetRedis()
+	om.StartAdmin()
+
 	err := om.Load()
 	if err != nil {
 		logrus.Fatalf("%s: %s", "failed to load yaml templates for mocks", err)
 	}
-	om.SetRedis()
 
 	if om.HTTPEnabled {
 		go om.startHTTP()
@@ -66,5 +72,11 @@ func (om *OpenMock) Start() {
 		go om.startAMQP()
 	}
 
+	go func() {
+		err := reload.Do(logrus.Infof, reload.Dir(om.TemplatesDir, reload.Exec))
+		if err != nil {
+			logrus.Fatal(err)
+		}
+	}()
 	select {}
 }

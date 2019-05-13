@@ -9,8 +9,13 @@ import (
 	"strings"
 
 	"github.com/fatih/structs"
+	"github.com/gomodule/redigo/redis"
 	"github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
+)
+
+const (
+	redisTemplatesStore = "redis_templates_store"
 )
 
 // Load returns a map of Mocks
@@ -19,8 +24,16 @@ func (om *OpenMock) Load() error {
 	if err != nil {
 		return err
 	}
+
+	r, err := loadRedis(om.redis)
+	if err != nil {
+		return err
+	}
+
+	b := bytes.Join([][]byte{f, r}, []byte("\n"))
+
 	mocks := []*Mock{}
-	if err := yaml.UnmarshalStrict(f, &mocks); err != nil {
+	if err := yaml.UnmarshalStrict(b, &mocks); err != nil {
 		return err
 	}
 	om.populateMockRepo(mocks)
@@ -63,6 +76,21 @@ func (om *OpenMock) populateMockRepo(mocks []*Mock) {
 		}
 	}
 	om.repo = r
+}
+
+func loadRedis(doer RedisDoer) ([]byte, error) {
+	if doer == nil {
+		return nil, nil
+	}
+
+	logrus.Infof("Start to load templates from redis")
+	v, err := doer.Do("HGETALL", redisTemplatesStore)
+	m, err := redis.StringMap(v, err)
+	ss := []string{}
+	for _, s := range m {
+		ss = append(ss, s)
+	}
+	return []byte(strings.Join(ss, "\n")), nil
 }
 
 func loadYAML(searchDir string) ([]byte, error) {
