@@ -129,12 +129,4 @@ func TestHelpers(t *testing.T) {
 		assert.NotContains(t, r, ">")
 		assert.NotContains(t, r, "\"")
 	})
-
-	t.Run("hmacv1 helpers", func(t *testing.T) {
-		raw := `{{ "some data to be signed" | hmacv1 "secret-key" }}`
-		c := &Context{}
-		r, err := c.Render(raw)
-		assert.NoError(t, err)
-		assert.Equal(t, "a5e93ff4bc1ef4e57ade71c759617fec0897b7d480add9a13ae37694ce319aed", r)
-	})
 }
