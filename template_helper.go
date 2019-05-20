@@ -5,6 +5,9 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 
 	"github.com/antchfx/jsonquery"
 	"github.com/antchfx/xmlquery"
@@ -22,6 +25,7 @@ func genLocalFuncMap(om *OpenMock) template.FuncMap {
 		"regexFindFirstSubmatch": regexFindFirstSubmatch,
 		"uuidv5":                 uuidv5,
 		"xmlPath":                xmlPath,
+		"hmacSHA256":             hmacSHA256,
 	}
 }
 
@@ -112,4 +116,11 @@ func regexFindFirstSubmatch(regex string, s string) string {
 		return ""
 	}
 	return matches[1]
+}
+
+// hmacSHA256 computes SHA256 HMAC of data using secret
+func hmacSHA256(secret string, data string) string {
+	h := hmac.New(sha256.New, []byte(secret))
+	h.Write([]byte(data))
+	return hex.EncodeToString(h.Sum(nil))
 }
