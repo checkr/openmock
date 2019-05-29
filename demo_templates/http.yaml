@@ -33,6 +33,17 @@
         status_code: 200
         body: OK
 
+- key: query_string
+  expect:
+    condition: '{{.HTTPQueryString | contains "foo=bar" }}'
+    http:
+      method: POST
+      path: /query_string
+  actions:
+    - reply_http:
+        status_code: 200
+        body: '{{.HTTPQueryString}}'
+
 - key: header-token
   expect:
     condition: '{{.HTTPHeader.Get "X-Token" | eq "t1234" | and (.HTTPHeader.Get "Y-Token" | eq "t1234")}}'
