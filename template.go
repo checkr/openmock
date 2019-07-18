@@ -30,6 +30,8 @@ type Context struct {
 	om *OpenMock
 }
 
+var globalTemplate = template.New("__global__")
+
 // cleanup replaces all the linebreaks and tabs with spaces
 func cleanup(raw string) string {
 	re := regexp.MustCompile(`\r?\n|\t`)
@@ -38,7 +40,7 @@ func cleanup(raw string) string {
 
 // Render renders the raw given the context
 func (c *Context) Render(raw string) (out string, err error) {
-	tmpl, err := template.New("").
+	tmpl, err := globalTemplate.New("").
 		Funcs(sprig.TxtFuncMap()). // supported functions https://github.com/Masterminds/sprig/blob/master/functions.go
 		Funcs(genLocalFuncMap(c.om)).
 		Parse(cleanup(raw))
