@@ -96,6 +96,35 @@ func TestTemplateRender(t *testing.T) {
 			}
 		`)
 	})
+
+	t.Run("temp templates defined in templates", func(t *testing.T) {
+		raw := `
+{{define "T1"}}ONE{{end}}
+{{define "T2"}}TWO{{end}}
+{{define "T3"}}{{template "T1"}} {{template "T2"}}{{end}}
+{{template "T3"}}
+`
+		c := &Context{}
+		r, err := c.Render(raw)
+		assert.NoError(t, err)
+		assert.Equal(t, r, `    ONE TWO `)
+	})
+
+	t.Run("predefined templates reused in other templates", func(t *testing.T) {
+		t1 := `{{define "T1"}}T1{{end}}`
+		t2 := `{{define "T2"}}T2{{end}}`
+		t3 := `{{template "T1"}}{{template "T2"}}`
+
+		c := &Context{}
+		var err error
+		_, err = c.Render(t1)
+		assert.NoError(t, err)
+		_, err = c.Render(t2)
+		assert.NoError(t, err)
+		r, err := c.Render(t3)
+		assert.NoError(t, err)
+		assert.Equal(t, r, `T1T2`)
+	})
 }
 
 func TestRenderConditions(t *testing.T) {
