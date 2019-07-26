@@ -1,16 +1,63 @@
 package openmock
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/fatih/structs"
 	yaml "gopkg.in/yaml.v2"
+)
+
+const (
+	// KindBehavior is the default kind
+	KindBehavior = "Behavior"
+
+	// KindTemplate is the template kind
+	KindTemplate = "Template"
 )
 
 // Mock represents a mock struct
 type Mock struct {
-	Key     string   `yaml:"key,omitempty"`
+	// Common fields
+	Kind string `yaml:"kind,omitempty"`
+	Key  string `yaml:"key,omitempty"`
+
+	// KindBehavior fields
 	Expect  Expect   `yaml:"expect,omitempty"`
 	Actions []Action `yaml:"actions,omitempty"`
+
+	// KindTemplate fields
+	Template string `yaml:"template,omitempty"`
+}
+
+// Validate validates the mock
+func (m *Mock) Validate() error {
+	if m.Kind == "" {
+		m.Kind = KindBehavior
+	}
+
+	if m.Key == "" {
+		return fmt.Errorf("key cannot be empty")
+	}
+
+	switch m.Kind {
+	case KindTemplate:
+		if !structs.IsZero(m.Expect) || len(m.Actions) != 0 {
+			return fmt.Errorf("kind template is only permitted to have `key` and `template` fields. found in: %s", m.Key)
+		}
+	case KindBehavior:
+		if len(m.Template) != 0 {
+			return fmt.Errorf("kind behavior is only permitted to have `key`, `expect` and `actions` fields. found in: %s", m.Key)
+		}
+	default:
+		return fmt.Errorf(
+			"invalid kind: %s with key: %s. only supported kinds are %v",
+			m.Kind, m.Key,
+			[]string{KindBehavior, KindTemplate},
+		)
+	}
+
+	return nil
 }
 
 type (
@@ -31,16 +78,17 @@ type (
 		HTTPMocks  HTTPMocks
 		KafkaMocks KafkaMocks
 		AMQPMocks  AMQPMocks
+		Templates  MocksArray
 	}
 )
 
 type (
 	// Expect represents what to expect from a mock
 	Expect struct {
+		Condition string      `yaml:"condition,omitempty"`
 		HTTP      ExpectHTTP  `yaml:"http,omitempty"`
 		Kafka     ExpectKafka `yaml:"kafka,omitempty"`
 		AMQP      ExpectAMQP  `yaml:"amqp,omitempty"`
-		Condition string      `yaml:"condition,omitempty"`
 	}
 
 	// ExpectKafka represents kafka expectation
@@ -115,6 +163,10 @@ type ActionSleep struct {
 // ToYAML outputs MockRepo to yaml bytes
 func (repo *MockRepo) ToYAML() []byte {
 	ret := []*Mock{}
+
+	for _, item := range repo.Templates {
+		ret = append(ret, item)
+	}
 
 	for _, arr := range repo.HTTPMocks {
 		for _, m := range arr {

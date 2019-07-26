@@ -125,6 +125,42 @@ func TestTemplateRender(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, r, `T1T2`)
 	})
+
+	t.Run("predefined templates reused in other templates with context", func(t *testing.T) {
+		t1 := `{{define "T1"}}{{.HTTPPath}}{{end}}`
+		t2 := `{{define "T2"}} and T2{{end}}`
+		t3 := `{{template "T1" .}}{{template "T2"}}`
+
+		c := &Context{
+			HTTPPath: "/path_to_t1",
+		}
+		var err error
+		_, err = c.Render(t1)
+		assert.NoError(t, err)
+		_, err = c.Render(t2)
+		assert.NoError(t, err)
+		r, err := c.Render(t3)
+		assert.NoError(t, err)
+		assert.Equal(t, r, `/path_to_t1 and T2`)
+	})
+
+	t.Run("templates reused in other templates", func(t *testing.T) {
+		t1 := `{{define "T1"}}{{.HTTPPath}}{{end}}`
+		t2 := `{{define "T2"}}{{template "T1" .}}{{end}}` // use T1 in definition of T2
+		t3 := `{{template "T2" .}}`
+
+		c := &Context{
+			HTTPPath: "/path_to_t1",
+		}
+		var err error
+		_, err = c.Render(t1)
+		assert.NoError(t, err)
+		_, err = c.Render(t2)
+		assert.NoError(t, err)
+		r, err := c.Render(t3)
+		assert.NoError(t, err)
+		assert.Equal(t, r, `/path_to_t1`)
+	})
 }
 
 func TestRenderConditions(t *testing.T) {

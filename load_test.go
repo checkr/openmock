@@ -83,6 +83,7 @@ func TestLoad(t *testing.T) {
 		om := &OpenMock{
 			TemplatesDir: "demo_templates",
 		}
+		om.setupRepo()
 		err := om.Load()
 		assert.NoError(t, err)
 		assert.NotZero(t, len(om.repo.AMQPMocks))
