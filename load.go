@@ -98,6 +98,10 @@ func loadYAML(searchDir string) ([]byte, error) {
 
 	w := &bytes.Buffer{}
 	err := filepath.Walk(searchDir, func(path string, f os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
 		if f != nil && (strings.HasSuffix(f.Name(), ".yaml") || strings.HasSuffix(f.Name(), ".yml")) {
 			content, err := ioutil.ReadFile(path)
 			if err != nil {

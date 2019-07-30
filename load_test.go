@@ -72,9 +72,10 @@ func TestLoadYAML(t *testing.T) {
 	})
 
 	t.Run("path not exists", func(t *testing.T) {
-		bytes, err := loadYAML("")
-		assert.NoError(t, err)
-		assert.Len(t, bytes, 0)
+		_, err := loadYAML("")
+		if assert.Error(t, err) {
+			assert.Equal(t, "lstat : no such file or directory", err.Error())
+		}
 	})
 }
 
