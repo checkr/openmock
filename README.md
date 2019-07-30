@@ -73,6 +73,7 @@ will recursively (including subdirectories) load all the YAML files. For example
 ### Templates Schema
 ```yaml
 - key: name # the name of the mock
+  kind: Behavior # "Behavior" or "Template". Behavior is the default Kind.
 
   ####################################################################
   ## Expect:
@@ -173,6 +174,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 # demo_templates/http.yaml
 
 - key: ping
+  kind: Behavior
   expect:
     http:
       method: GET
@@ -185,6 +187,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
           Content-Type: text/html
 
 - key: header-token-ok
+  kind: Behavior
   expect:
     condition: '{{.HTTPHeader.Get "X-Token" | eq "t1234"}}'
     http:
@@ -199,6 +202,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
           { "hello": "you have a valid X-Token in the header" }
 
 - key: header-token-not-ok
+  kind: Behavior
   expect:
     condition: '{{.HTTPHeader.Get "X-Token" | ne "t1234"}}'
     http:
@@ -214,6 +218,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 # demo_templates/kafka.yaml
 
 - key: test_kafka_1
+  kind: Behavior
   expect:
     kafka:
       topic: hello_kafka_in
@@ -227,6 +232,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
           }
 
 - key: test_kafka_2
+  kind: Behavior
   expect:
     kafka:
       topic: hello_kafka_in
@@ -241,6 +247,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 # demo_templates/amqp.yaml
 
 - key: test_amqp_1
+  kind: Behavior
   expect:
     amqp:
       exchange: exchange_1
@@ -257,6 +264,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
           }
 
 - key: test_amqp_2
+  kind: Behavior
   expect:
     amqp:
       exchange: exchange_1
@@ -274,6 +282,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 # demo_templates/redis.yaml
 
 - key: hello_redis
+  kind: Behavior
   expect:
     http:
       method: GET
@@ -311,6 +320,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 # demo_templates/webhook.yaml
 
 - key: webhooks
+  kind: Behavior
   expect:
     http:
       method: GET
@@ -328,6 +338,31 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 
 # To test
 # curl localhost:9999/send_webhook_to_httpbin
+```
+
+### Example: Define and reuse template kind
+```
+# demo_templates/http.yaml
+
+- key: my_template_1
+  kind: Template
+  template: >
+    { "foo": "bar", "name": "my_template_1", "http_path": "{{.HTTPPath}}" }
+
+- key: get_with_template
+  kind: Behavior
+  expect:
+    http:
+      method: GET
+      path: /get_with_template
+  actions:
+    - reply_http:
+        status_code: 200
+        body: >
+          {{template "my_template_1" .}}
+
+# To test
+# curl localhost:9999/get_with_template
 ```
 
 # Advanced pipeline functions

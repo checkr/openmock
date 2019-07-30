@@ -1,4 +1,5 @@
 - key: test_kafka_2
+  kind: Behavior
   expect:
     kafka:
       topic: hello_kafka_in

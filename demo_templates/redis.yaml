@@ -1,4 +1,5 @@
 - key: hello_redis
+  kind: Behavior
   expect:
     http:
       method: GET
