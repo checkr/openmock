@@ -1,4 +1,5 @@
 - key: jsonrpc_test_1
+  kind: Behavior
   expect:
     condition: '{{.HTTPBody | jsonPath "params/user/first_name" | eq "foo"}}'
     http:
@@ -11,6 +12,7 @@
           {"jsonrpc": "2.0", "result": "consider", "id": 1}
 
 - key: jsonrpc_test_2
+  kind: Behavior
   expect:
     condition: '{{.HTTPBody | jsonPath "params/user/first_name" | ne "foo"}}'
     http:
@@ -23,6 +25,7 @@
           {"jsonrpc": "2.0", "result": "clear", "id": 1}
 
 - key: jsonrpc_test_3
+  kind: Behavior
   expect:
     condition: '{{.HTTPBody | jsonPath "*[1]/method" | eq "classify"}}'
     http:

@@ -1,4 +1,5 @@
 - key: ping
+  kind: Behavior
   expect:
     http:
       method: GET
@@ -11,6 +12,7 @@
           Content-Type: text/xml
 
 - key: hello
+  kind: Behavior
   expect:
     http:
       method: GET
@@ -22,6 +24,7 @@
           { "hello": "world" }
 
 - key: slow_endpoint
+  kind: Behavior
   expect:
     http:
       method: GET
@@ -34,6 +37,7 @@
         body: OK
 
 - key: query_string
+  kind: Behavior
   expect:
     condition: '{{.HTTPQueryString | contains "foo=bar" }}'
     http:
@@ -45,6 +49,7 @@
         body: '{{.HTTPQueryString}}'
 
 - key: header-token
+  kind: Behavior
   expect:
     condition: '{{.HTTPHeader.Get "X-Token" | eq "t1234" | and (.HTTPHeader.Get "Y-Token" | eq "t1234")}}'
     http:
@@ -56,6 +61,7 @@
         body: OK
 
 - key: header-token
+  kind: Behavior
   expect:
     condition: '{{.HTTPHeader.Get "X-Token" | ne "t1234"}}'
     http:
@@ -67,6 +73,7 @@
         body: Invalid X-Token
 
 - key: large_xml
+  kind: Behavior
   expect:
     http:
       method: GET
@@ -89,6 +96,7 @@
 
 
 - key: soap_example
+  kind: Behavior
   expect:
     http:
       method: POST
@@ -119,6 +127,7 @@
 
 
 - key: get_with_template
+  kind: Behavior
   expect:
     http:
       method: GET

@@ -1,4 +1,5 @@
 - key: webhooks
+  kind: Behavior
   expect:
     http:
       method: GET

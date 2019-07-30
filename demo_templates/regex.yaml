@@ -1,4 +1,5 @@
 - key: regex
+  kind: Behavior
   expect:
     http:
       method: POST
