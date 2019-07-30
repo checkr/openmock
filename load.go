@@ -36,16 +36,36 @@ func (om *OpenMock) Load() error {
 	if err := yaml.UnmarshalStrict(b, &mocks); err != nil {
 		return err
 	}
-	om.populateMockRepo(mocks)
+	for _, m := range mocks {
+		if err := m.Validate(); err != nil {
+			return err
+		}
+	}
+	if err := om.populateTemplates(mocks); err != nil {
+		return err
+	}
+	om.populateBehaviors(mocks)
 	return nil
 }
 
-func (om *OpenMock) populateMockRepo(mocks []*Mock) {
-	r := &MockRepo{
-		HTTPMocks:  HTTPMocks{},
-		KafkaMocks: KafkaMocks{},
-		AMQPMocks:  AMQPMocks{},
+func (om *OpenMock) populateTemplates(mocks []*Mock) error {
+	c := &Context{}
+	for i := range mocks {
+		m := mocks[i]
+		if m.Kind == KindTemplate {
+			_, err := c.Render(fmt.Sprintf(`{{define "%s"}}%s{{end}}`, m.Key, m.Template))
+			if err != nil {
+				return err
+			}
+			om.repo.Templates = append(om.repo.Templates, m)
+		}
 	}
+	return nil
+}
+
+func (om *OpenMock) populateBehaviors(mocks []*Mock) {
+	r := om.repo
+
 	for i := range mocks {
 		m := mocks[i]
 		m.loadFile(om.TemplatesDir)
@@ -75,7 +95,6 @@ func (om *OpenMock) populateMockRepo(mocks []*Mock) {
 			}
 		}
 	}
-	om.repo = r
 }
 
 func loadRedis(doer RedisDoer) ([]byte, error) {

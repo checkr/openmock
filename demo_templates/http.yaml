@@ -110,3 +110,21 @@
                 </m:GetQuotationResponse>
              </SOAP-ENV:Body>
           </SOAP-ENV:Envelope>
+
+
+- key: my_template_1
+  kind: Template
+  template: >
+    { "foo": "bar", "name": "my_template_1", "http_path": "{{.HTTPPath}}" }
+
+
+- key: get_with_template
+  expect:
+    http:
+      method: GET
+      path: /get_with_template
+  actions:
+    - reply_http:
+        status_code: 200
+        body: >
+          {{template "my_template_1" .}}

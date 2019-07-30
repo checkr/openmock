@@ -51,9 +51,20 @@ func (om *OpenMock) setupLogrus() {
 	logrus.SetOutput(os.Stdout)
 }
 
+func (om *OpenMock) setupRepo() {
+	om.repo = &MockRepo{
+		HTTPMocks:  HTTPMocks{},
+		KafkaMocks: KafkaMocks{},
+		AMQPMocks:  AMQPMocks{},
+		Templates:  MocksArray{},
+	}
+}
+
 // Start starts the openmock
 func (om *OpenMock) Start() {
 	om.setupLogrus()
+	om.setupRepo()
+
 	om.SetRedis()
 	om.StartAdmin()
 
