@@ -278,7 +278,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 ```
 
 ### Example: Use Redis for stateful things (by default, OpenMock uses an in-memory miniredis)
-```
+```yaml
 # demo_templates/redis.yaml
 
 - key: hello_redis
@@ -316,7 +316,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 ```
 
 ### Example: Send Webhooks
-```
+```yaml
 # demo_templates/webhook.yaml
 
 - key: webhooks
@@ -341,7 +341,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 ```
 
 ### Example: Define and reuse template kind
-```
+```yaml
 # demo_templates/http.yaml
 
 - key: my_template_1
@@ -370,7 +370,7 @@ To enable advanced mocks, for example, your own encoding/decoding of the kafka m
 one can develop by directly importing the `github.com/checkr/openmock` package.
 
 For example:
-```
+```go
 package main
 
 import "github.com/checkr/openmock"
