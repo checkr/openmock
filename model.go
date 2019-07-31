@@ -73,11 +73,15 @@ type (
 	// AMQPMocks is keyed by Queue name
 	AMQPMocks map[ExpectAMQP]MocksArray
 
+	// GRPCMocks is keyed by Service Method name
+	GRPCMocks map[ExpectGRPC]MocksArray
+
 	// MockRepo stores a repository of Mocks
 	MockRepo struct {
 		HTTPMocks  HTTPMocks
 		KafkaMocks KafkaMocks
 		AMQPMocks  AMQPMocks
+		GRPCMocks  GRPCMocks
 		Templates  MocksArray
 	}
 )
@@ -89,6 +93,7 @@ type (
 		HTTP      ExpectHTTP  `yaml:"http,omitempty"`
 		Kafka     ExpectKafka `yaml:"kafka,omitempty"`
 		AMQP      ExpectAMQP  `yaml:"amqp,omitempty"`
+		GRPC      ExpectGRPC  `yaml:"grpc,omitempty"`
 	}
 
 	// ExpectKafka represents kafka expectation
@@ -108,6 +113,12 @@ type (
 		Method string `yaml:"method,omitempty"`
 		Path   string `yaml:"path,omitempty"`
 	}
+
+	// ExpectGRPC represents grpc expecation
+	ExpectGRPC struct {
+		Method  string `yaml:"method,omitempty"`
+		Service string `yaml:"service,omitempty"`
+	}
 )
 
 // Action represents actions
@@ -117,6 +128,7 @@ type Action struct {
 	ActionRedis        ActionRedis        `yaml:"redis,omitempty"`
 	ActionReplyHTTP    ActionReplyHTTP    `yaml:"reply_http,omitempty"`
 	ActionSendHTTP     ActionSendHTTP     `yaml:"send_http,omitempty"`
+	ActionReturnGRPC   ActionReturnGRPC   `yaml:"return_grpc,omitempty"`
 	ActionSleep        ActionSleep        `yaml:"sleep,omitempty"`
 }
 
@@ -155,6 +167,12 @@ type ActionPublishKafka struct {
 	PayloadFromFile string `yaml:"payload_from_file,omitempty"`
 }
 
+// ActionReturnGRPC represents the return action from grpc call
+type ActionReturnGRPC struct {
+	ReturnValue int    `yaml:"return_value,omitempty"`
+	Exception   string `yaml:"exception,omitempty"`
+}
+
 // ActionSleep represents the sleep action
 type ActionSleep struct {
 	Duration time.Duration `yaml:"duration,omitempty"`
@@ -179,6 +197,11 @@ func (repo *MockRepo) ToYAML() []byte {
 		}
 	}
 	for _, arr := range repo.KafkaMocks {
+		for _, m := range arr {
+			ret = append(ret, m)
+		}
+	}
+	for _, arr := range repo.GRPCMocks {
 		for _, m := range arr {
 			ret = append(ret, m)
 		}

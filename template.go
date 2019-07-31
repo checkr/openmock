@@ -27,6 +27,8 @@ type Context struct {
 	AMQPQueue      string
 	AMQPPayload    string
 
+	GRPCArguments string
+
 	om *OpenMock
 }
 
@@ -59,12 +61,13 @@ func (c *Context) MatchCondition(condition string) (r bool) {
 	defer func() {
 		if r {
 			logrus.WithFields(logrus.Fields{
-				"HTTPHeader":   c.HTTPHeader,
-				"HTTPBody":     c.HTTPBody,
-				"KafkaPayload": c.KafkaPayload,
-				"AMQPPayload":  c.AMQPPayload,
-				"condition":    condition,
-				"result":       r,
+				"HTTPHeader":    c.HTTPHeader,
+				"HTTPBody":      c.HTTPBody,
+				"KafkaPayload":  c.KafkaPayload,
+				"AMQPPayload":   c.AMQPPayload,
+				"GRPCArguments": c.GRPCArguments,
+				"condition":     condition,
+				"result":        r,
 			}).Debug("running MatchCondition")
 		}
 	}()

@@ -1,0 +1,20 @@
+- key: test_grpc_1
+  kind: Behavior
+  expect:
+    grpc:
+      service: MyService
+      method: MyMethod
+  actions:
+    - return_grpc:
+        return_value: 1
+
+- key: test_grpc_2
+  kind: Behavior
+  expect:
+    condition: '{{.GRPCArguments | contains "value_to_match" }}'
+    grpc:
+      service: MyService
+      method: MyMethod2
+  actions:
+    - return_grpc:
+        exception: MyException

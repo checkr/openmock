@@ -94,6 +94,14 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 				r.AMQPMocks[m.Expect.AMQP] = append(r.AMQPMocks[m.Expect.AMQP], m)
 			}
 		}
+		if !structs.IsZero(m.Expect.GRPC) {
+			_, ok := r.GRPCMocks[m.Expect.GRPC]
+			if !ok {
+				r.GRPCMocks[m.Expect.GRPC] = []*Mock{m}
+			} else {
+				r.GRPCMocks[m.Expect.GRPC] = append(r.GRPCMocks[m.Expect.GRPC], m)
+			}
+		}
 	}
 }
 
