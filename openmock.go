@@ -27,6 +27,8 @@ type OpenMock struct {
 	RedisType        string   `env:"OPENMOCK_REDIS_TYPE" envDefault:"memory"`
 	RedisURL         string   `env:"OPENMOCK_REDIS_URL" envDefault:"redis://redis:6379"`
 	GRPCEnabled      bool     `env:"OPENMOCK_GRPC_ENABLED" envDefault:"false"`
+	GRPCPort         int      `env:"OPENMOCK_GRPC_PORT" envDefault:"9997"`
+	GRPCHost         string   `env:"OPENMOCK_GRPC_HOST" envDefault:"0.0.0.0"`
 
 	// Customized pipeline functions
 	KafkaConsumePipelineFunc KafkaPipelineFunc

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package openmock;
+
+service MyService {
+  rpc MyMethod (MyRequest) returns (MyResponse) {}
+}
+
+message MyRequest {
+  string data = 1;
+}
+
+message MyResponse {
+  string message = 1;
+}

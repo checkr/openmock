@@ -1,22 +1,60 @@
 package openmock
 
 import (
+	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/sirupsen/logrus"
 )
 
 func (om *OpenMock) startGRPC() {
-	// - Where is the proto definition at?
-	//   + Server needs this to start
-	//   + Client also needs this
-	// - see https://github.com/tokopedia/gripmock
-	//	 + should come up with scheme for storing
-	//     state of the call in Context...
 	logrus.Infof("GRPC Mock Not Implemented")
 
-	// Check if the call matches the 'Expect.GRPC.Method / Service'
-	// if so, then setup context and then mock(s).DoActions(context)
-	//   the context holds the state of the call, such as arguments
-	//   to match against the mock.Expect.Condition
+	fmt.Println("Starting GripMock in OpenMock")
+	// Pulled from gripmock
+	// https://github.com/tokopedia/gripmock
 
-	// Also, implement the right actions based on the mock
+	if os.Getenv("GOPATH") == "" {
+		log.Fatal("output is not provided and GOPATH is empty")
+	}
+	output := os.Getenv("GOPATH") + "/src/grpc"
+
+	// for safety
+	output += "/"
+	if _, err := os.Stat(output); os.IsNotExist(err) {
+		os.Mkdir(output, os.ModePerm)
+	}
+
+	// parse proto files
+	protoPaths := []string{"protos/example.proto"}
+	protos, err := parseProto(protoPaths)
+	if err != nil {
+		log.Fatal("can't parse proto ", err)
+	}
+
+	// generate pb.go using protoc
+	generateProtoc(protoPaths, output)
+
+	// generate grpc server based on proto
+	generateGrpcServer(output, fmt.Sprintf("%s:%d",
+		om.GRPCHost, om.GRPCPort), protos)
+
+	// build the server
+	buildServer(output, protoPaths)
+
+	// and run
+	run, runerr := runGrpcServer(output)
+
+	var term = make(chan os.Signal)
+	signal.Notify(term, syscall.SIGTERM, syscall.SIGKILL, syscall.SIGINT)
+	select {
+	case err := <-runerr:
+		log.Fatal(err)
+	case <-term:
+		fmt.Println("Stopping gRPC Server")
+		run.Process.Kill()
+	}
 }

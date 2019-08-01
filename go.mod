@@ -7,6 +7,7 @@ require (
 	github.com/Masterminds/sprig v2.15.0+incompatible
 	github.com/Shopify/sarama v1.17.0
 	github.com/Shopify/toxiproxy v2.1.4+incompatible // indirect
+	github.com/alecthomas/participle v0.3.0
 	github.com/alicebob/gopher-json v0.0.0-20180125190556-5a6b3ba71ee6 // indirect
 	github.com/alicebob/miniredis v0.0.0-20180623114124-8890fdcfa933
 	github.com/antchfx/jsonquery v0.0.0-20180821084212-a2896be8c82b
@@ -16,7 +17,6 @@ require (
 	github.com/bsm/sarama-cluster v2.1.15+incompatible
 	github.com/caarlos0/env v3.3.0+incompatible
 	github.com/dafiti/echo-middleware v0.0.0-20180423194757-e57a87d075ea
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/eapache/go-resiliency v1.1.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
@@ -24,6 +24,7 @@ require (
 	github.com/elazarl/goproxy v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/elazarl/goproxy/ext v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/fatih/structs v1.0.0
+	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c
@@ -39,7 +40,6 @@ require (
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/parnurzeal/gorequest v0.0.0-20171015110455-8e3aed27fe49
 	github.com/pierrec/lz4 v2.0.3+incompatible // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20180503174638-e2704e165165 // indirect
 	github.com/sirupsen/logrus v1.0.6
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a // indirect
