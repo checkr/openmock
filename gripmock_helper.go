@@ -18,11 +18,11 @@ func getProtoName(path string) string {
 	return strings.Split(filename, ".")[0]
 }
 
-func parseProto(protoPath []string) ([]Service, error) {
+func parseProto(protoPaths []string) ([]Service, error) {
 	services := []Service{}
-	for _, path := range protoPath {
+	for _, path := range protoPaths {
 		if _, err := os.Stat(path); os.IsNotExist(err) {
-			log.Fatal(fmt.Sprintf("Proto file '%s' not found", protoPath))
+			log.Fatal(fmt.Sprintf("Proto file '%s' not found", protoPaths))
 		}
 		byt, err := ioutil.ReadFile(path)
 		if err != nil {
@@ -37,16 +37,16 @@ func parseProto(protoPath []string) ([]Service, error) {
 	return services, nil
 }
 
-func generateProtoc(protoPath []string, output string) {
-	protodirs := strings.Split(protoPath[0], "/")
+func generateProtoc(protoPaths []string, outputDir string) {
+	protodirs := strings.Split(protoPaths[0], "/")
 	protodir := ""
 	if len(protodirs) > 0 {
 		protodir = strings.Join(protodirs[:len(protodirs)-1], "/") + "/"
 	}
 
 	args := []string{"-I", protodir}
-	args = append(args, protoPath...)
-	args = append(args, "--go_out=plugins=grpc:"+output)
+	args = append(args, protoPaths...)
+	args = append(args, "--go_out=plugins=grpc:"+outputDir)
 	protoc := exec.Command("protoc", args...)
 	protoc.Stdout = os.Stdout
 	protoc.Stderr = os.Stderr
@@ -56,9 +56,9 @@ func generateProtoc(protoPath []string, output string) {
 	}
 
 	// change package to "main" on generated code
-	for _, proto := range protoPath {
+	for _, proto := range protoPaths {
 		protoname := getProtoName(proto)
-		sed := exec.Command("sed", "-i", `s/^package \w*$/package main/`, output+protoname+".pb.go")
+		sed := exec.Command("sed", `s/^package \w*$/package main/`, outputDir+protoname+".pb.go")
 		sed.Stderr = os.Stderr
 		sed.Stdout = os.Stdout
 		err = sed.Run()
