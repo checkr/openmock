@@ -120,6 +120,10 @@ type Action struct {
 	ActionSleep        ActionSleep        `yaml:"sleep,omitempty"`
 }
 
+type Performer interface {
+	Perform(context Context) error
+}
+
 // ActionRedis represents a list of redis commands
 type ActionRedis []string
 
