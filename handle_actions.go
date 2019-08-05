@@ -78,23 +78,25 @@ func (m *Mock) doActionSendHTTP(c *Context, a Action) error {
 		return nil
 	}
 
-	sendHTTP := a.ActionSendHTTP
+	return a.ActionSendHTTP.Perform(*c)
+}
 
-	bodyStr, err := c.Render(sendHTTP.Body)
+func (actionSendHTTP ActionSendHTTP) Perform(context Context) error {
+	bodyStr, err := context.Render(actionSendHTTP.Body)
 	if err != nil {
 		return err
 	}
 
-	urlStr, err := c.Render(sendHTTP.URL)
+	urlStr, err := context.Render(actionSendHTTP.URL)
 	if err != nil {
 		return err
 	}
 
 	request := gorequest.New().
 		SetDebug(true).
-		CustomMethod(sendHTTP.Method, urlStr)
+		CustomMethod(actionSendHTTP.Method, urlStr)
 
-	for k, v := range sendHTTP.Headers {
+	for k, v := range actionSendHTTP.Headers {
 		request.Set(k, v)
 	}
 
@@ -109,29 +111,36 @@ func (m *Mock) doActionReplyHTTP(c *Context, a Action) error {
 	if structs.IsZero(a.ActionReplyHTTP) {
 		return nil
 	}
-	h := a.ActionReplyHTTP
-	ec := c.HTTPContext
+	return a.ActionReplyHTTP.Perform(*c)
+}
+
+func (actionReplyHTTP ActionReplyHTTP) Perform(context Context) error {
+	ec := context.HTTPContext
 	contentType := echo.MIMEApplicationJSON // default to JSON
-	if ct, ok := h.Headers[echo.HeaderContentType]; ok {
+	if ct, ok := actionReplyHTTP.Headers[echo.HeaderContentType]; ok {
 		contentType = ct
 	}
-	for k, v := range h.Headers {
+	for k, v := range actionReplyHTTP.Headers {
 		ec.Response().Header().Set(k, v)
 	}
-	msg, err := c.Render(h.Body)
+	msg, err := context.Render(actionReplyHTTP.Body)
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for http")
 		return err
 	}
-	return ec.Blob(h.StatusCode, contentType, []byte(msg))
+	return ec.Blob(actionReplyHTTP.StatusCode, contentType, []byte(msg))
 }
 
 func (m *Mock) doActionRedis(c *Context, a Action) error {
 	if len(a.ActionRedis) == 0 {
 		return nil
 	}
-	for _, cmd := range a.ActionRedis {
-		_, err := c.Render(cmd)
+	return a.ActionRedis.Perform(*c)
+}
+
+func (actionRedis ActionRedis) Perform(context Context) error {
+	for _, cmd := range actionRedis {
+		_, err := context.Render(cmd)
 		if err != nil {
 			return err
 		}
@@ -143,7 +152,11 @@ func (m *Mock) doActionSleep(c *Context, a Action) error {
 	if structs.IsZero(a.ActionSleep) {
 		return nil
 	}
-	time.Sleep(a.ActionSleep.Duration)
+	return a.ActionSleep.Perform(*c)
+}
+
+func (actionSleep ActionSleep) Perform(context Context) error {
+	time.Sleep(actionSleep.Duration)
 	return nil
 }
 
@@ -152,14 +165,17 @@ func (m *Mock) doActionPublishKafka(c *Context, a Action) error {
 		return nil
 	}
 
-	k := a.ActionPublishKafka
-	msg := k.Payload
-	msg, err := c.Render(msg)
+	return a.ActionPublishKafka.Perform(*c)
+}
+
+func (actionPublishKafka ActionPublishKafka) Perform(context Context) error {
+	msg := actionPublishKafka.Payload
+	msg, err := context.Render(msg)
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for kafka payload")
 		return err
 	}
-	err = c.om.kafkaClient.sendMessage(k.Topic, []byte(msg))
+	err = context.om.kafkaClient.sendMessage(actionPublishKafka.Topic, []byte(msg))
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to publish to kafka")
 	}
@@ -170,16 +186,19 @@ func (m *Mock) doActionPublishAMQP(c *Context, a Action) error {
 	if structs.IsZero(a.ActionPublishAMQP) {
 		return nil
 	}
-	w := a.ActionPublishAMQP
-	msg, err := c.Render(w.Payload)
+	return a.ActionPublishAMQP.Perform(*c)
+}
+
+func (actionPublishAMQP ActionPublishAMQP) Perform(context Context) error {
+	msg, err := context.Render(actionPublishAMQP.Payload)
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for amqp")
 		return err
 	}
 	publishToAMQP(
-		c.om.AMQPURL,
-		w.Exchange,
-		w.RoutingKey,
+		context.om.AMQPURL,
+		actionPublishAMQP.Exchange,
+		actionPublishAMQP.RoutingKey,
 		msg,
 	)
 	return nil
