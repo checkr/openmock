@@ -1,9 +1,9 @@
 package openmock
 
 import (
+	"fmt"
 	"time"
 
-	"github.com/fatih/structs"
 	"github.com/labstack/echo"
 	"github.com/parnurzeal/gorequest"
 	"github.com/sirupsen/logrus"
@@ -33,52 +33,16 @@ func (m *Mock) DoActions(c *Context) error {
 }
 
 func (m *Mock) doAction(c *Context, a Action) (err error) {
-	var action string
-
+	actualAction := a.GetActualAction()
 	defer func() {
 		if err != nil {
 			logrus.WithFields(logrus.Fields{
 				"err":    err,
-				"action": action,
+				"action": fmt.Sprintf("%T", actualAction),
 			}).Errorf("failed to do action")
 		}
 	}()
-
-	if err := m.doActionSleep(c, a); err != nil {
-		action = "sleep"
-		return err
-	}
-	if err := m.doActionRedis(c, a); err != nil {
-		action = "redis"
-		return err
-	}
-	if err := m.doActionPublishKafka(c, a); err != nil {
-		action = "publish_kafka"
-		return err
-	}
-	if err := m.doActionPublishAMQP(c, a); err != nil {
-		action = "publish_amqp"
-		return err
-	}
-	if err := m.doActionSendHTTP(c, a); err != nil {
-		action = "send_http"
-		return err
-	}
-
-	if err := m.doActionReplyHTTP(c, a); err != nil {
-		action = "reply_http"
-		return err
-	}
-
-	return nil
-}
-
-func (m *Mock) doActionSendHTTP(c *Context, a Action) error {
-	if structs.IsZero(a.ActionSendHTTP) {
-		return nil
-	}
-
-	return a.ActionSendHTTP.Perform(*c)
+	return actualAction.Perform(*c)
 }
 
 func (actionSendHTTP ActionSendHTTP) Perform(context Context) error {
@@ -107,13 +71,6 @@ func (actionSendHTTP ActionSendHTTP) Perform(context Context) error {
 	return nil
 }
 
-func (m *Mock) doActionReplyHTTP(c *Context, a Action) error {
-	if structs.IsZero(a.ActionReplyHTTP) {
-		return nil
-	}
-	return a.ActionReplyHTTP.Perform(*c)
-}
-
 func (actionReplyHTTP ActionReplyHTTP) Perform(context Context) error {
 	ec := context.HTTPContext
 	contentType := echo.MIMEApplicationJSON // default to JSON
@@ -131,13 +88,6 @@ func (actionReplyHTTP ActionReplyHTTP) Perform(context Context) error {
 	return ec.Blob(actionReplyHTTP.StatusCode, contentType, []byte(msg))
 }
 
-func (m *Mock) doActionRedis(c *Context, a Action) error {
-	if len(a.ActionRedis) == 0 {
-		return nil
-	}
-	return a.ActionRedis.Perform(*c)
-}
-
 func (actionRedis ActionRedis) Perform(context Context) error {
 	for _, cmd := range actionRedis {
 		_, err := context.Render(cmd)
@@ -148,24 +98,9 @@ func (actionRedis ActionRedis) Perform(context Context) error {
 	return nil
 }
 
-func (m *Mock) doActionSleep(c *Context, a Action) error {
-	if structs.IsZero(a.ActionSleep) {
-		return nil
-	}
-	return a.ActionSleep.Perform(*c)
-}
-
 func (actionSleep ActionSleep) Perform(context Context) error {
 	time.Sleep(actionSleep.Duration)
 	return nil
-}
-
-func (m *Mock) doActionPublishKafka(c *Context, a Action) error {
-	if structs.IsZero(a.ActionPublishKafka) {
-		return nil
-	}
-
-	return a.ActionPublishKafka.Perform(*c)
 }
 
 func (actionPublishKafka ActionPublishKafka) Perform(context Context) error {
@@ -180,13 +115,6 @@ func (actionPublishKafka ActionPublishKafka) Perform(context Context) error {
 		logrus.WithField("err", err).Error("failed to publish to kafka")
 	}
 	return err
-}
-
-func (m *Mock) doActionPublishAMQP(c *Context, a Action) error {
-	if structs.IsZero(a.ActionPublishAMQP) {
-		return nil
-	}
-	return a.ActionPublishAMQP.Perform(*c)
 }
 
 func (actionPublishAMQP ActionPublishAMQP) Perform(context Context) error {
