@@ -39,7 +39,7 @@ func cleanup(raw string) string {
 }
 
 // Render renders the raw given the context
-func (c *Context) Render(raw string) (out string, err error) {
+func (c Context) Render(raw string) (out string, err error) {
 	tmpl, err := globalTemplate.New("").
 		Funcs(sprig.TxtFuncMap()). // supported functions https://github.com/Masterminds/sprig/blob/master/functions.go
 		Funcs(genLocalFuncMap(c.om)).
@@ -55,7 +55,7 @@ func (c *Context) Render(raw string) (out string, err error) {
 }
 
 // MatchCondition checks the condition given the context
-func (c *Context) MatchCondition(condition string) (r bool) {
+func (c Context) MatchCondition(condition string) (r bool) {
 	defer func() {
 		if r {
 			logrus.WithFields(logrus.Fields{

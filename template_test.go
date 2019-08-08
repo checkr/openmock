@@ -16,7 +16,7 @@ func TestTemplateRender(t *testing.T) {
 				"first_name": "{{.AMQPPayload | xmlPath "user/first_name"}}",
 				"middle_name": "{{.HTTPBody | jsonPath "user/middle_name"}}"
 				}`
-		c := &Context{
+		c := Context{
 			HTTPBody:     `{"user": {"middle_name": "H"}}`,
 			KafkaPayload: `{"transaction_id": "t1234"}`,
 			AMQPPayload:  `<user><first_name>John</first_name></user>`,
@@ -41,7 +41,7 @@ func TestTemplateRender(t *testing.T) {
 				"middle_name": "{{.HTTPBody | jsonPath "user/middle_name"}}"
 			}
 			`
-		c := &Context{}
+		c := Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
 		assert.JSONEq(t, r, `
@@ -61,7 +61,7 @@ func TestTemplateRender(t *testing.T) {
 				"name": "abcd"
 			}
 			`
-		c := &Context{
+		c := Context{
 			HTTPContext: e.NewContext(&http.Request{}, nil),
 		}
 		r, err := c.Render(raw)
@@ -87,7 +87,7 @@ func TestTemplateRender(t *testing.T) {
 	"
 }
 			`
-		c := &Context{}
+		c := Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
 		assert.JSONEq(t, r, `
@@ -104,7 +104,7 @@ func TestTemplateRender(t *testing.T) {
 {{define "T3"}}{{template "T1"}} {{template "T2"}}{{end}}
 {{template "T3"}}
 `
-		c := &Context{}
+		c := Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
 		assert.Equal(t, r, `    ONE TWO `)
@@ -115,7 +115,7 @@ func TestTemplateRender(t *testing.T) {
 		t2 := `{{define "T2"}}T2{{end}}`
 		t3 := `{{template "T1"}}{{template "T2"}}`
 
-		c := &Context{}
+		c := Context{}
 		var err error
 		_, err = c.Render(t1)
 		assert.NoError(t, err)
@@ -131,7 +131,7 @@ func TestTemplateRender(t *testing.T) {
 		t2 := `{{define "T2"}} and T2{{end}}`
 		t3 := `{{template "T1" .}}{{template "T2"}}`
 
-		c := &Context{
+		c := Context{
 			HTTPPath: "/path_to_t1",
 		}
 		var err error
@@ -149,7 +149,7 @@ func TestTemplateRender(t *testing.T) {
 		t2 := `{{define "T2"}}{{template "T1" .}}{{end}}` // use T1 in definition of T2
 		t3 := `{{template "T2" .}}`
 
-		c := &Context{
+		c := Context{
 			HTTPPath: "/path_to_t1",
 		}
 		var err error
@@ -166,7 +166,7 @@ func TestTemplateRender(t *testing.T) {
 func TestRenderConditions(t *testing.T) {
 	t.Run("match conditions happy code path", func(t *testing.T) {
 		raw := `{{eq (.AMQPPayload | jsonPath "dl_number") "K2879030"}}`
-		c := &Context{
+		c := Context{
 			AMQPPayload: `{"dl_number": "K2879030"}`,
 		}
 		assert.True(t, c.MatchCondition(raw))
@@ -174,7 +174,7 @@ func TestRenderConditions(t *testing.T) {
 
 	t.Run("match conditions not eq", func(t *testing.T) {
 		raw := `{{eq (.AMQPPayload | jsonPath "dl_number") "12345678"}}`
-		c := &Context{
+		c := Context{
 			AMQPPayload: `{"dl_number": "K2879030"}`,
 		}
 		assert.False(t, c.MatchCondition(raw))
@@ -182,7 +182,7 @@ func TestRenderConditions(t *testing.T) {
 
 	t.Run("match conditions when condition is empty string", func(t *testing.T) {
 		raw := ""
-		c := &Context{}
+		c := Context{}
 		assert.True(t, c.MatchCondition(raw))
 	})
 }
@@ -190,7 +190,7 @@ func TestRenderConditions(t *testing.T) {
 func TestRenderRedis(t *testing.T) {
 	t.Run("Set redis in template", func(t *testing.T) {
 		raw := `{{.HTTPHeader.Get "X-TOKEN" | redisDo "SET" "k1"}}`
-		c := &Context{
+		c := Context{
 			om:         &OpenMock{},
 			HTTPHeader: http.Header{},
 		}
@@ -214,7 +214,7 @@ func TestRenderRedis(t *testing.T) {
             ]
           }
 		  `
-		c := &Context{om: &OpenMock{}}
+		c := Context{om: &OpenMock{}}
 
 		r, err := c.Render(raw)
 		assert.NoError(t, err)

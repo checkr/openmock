@@ -8,10 +8,10 @@ import (
 
 // KafkaPipelineFunc defines pipeline functions
 // For example, decode/encode messages
-type KafkaPipelineFunc func(c *Context, in []byte) (out []byte, err error)
+type KafkaPipelineFunc func(c Context, in []byte) (out []byte, err error)
 
 // DefaultPipelineFunc directly outputs the in bytes
-var DefaultPipelineFunc = func(c *Context, in []byte) (out []byte, err error) {
+var DefaultPipelineFunc = func(c Context, in []byte) (out []byte, err error) {
 	return in, nil
 }
 
@@ -36,7 +36,7 @@ func (kc *kafkaClient) sendMessage(topic string, bytes []byte) (err error) {
 		}).Info("try to publish to kafka")
 	}()
 
-	c := &Context{
+	c := Context{
 		KafkaTopic:   topic,
 		KafkaPayload: string(bytes),
 	}
@@ -114,7 +114,7 @@ func (om *OpenMock) startKafka() {
 				select {
 				case msg, ok := <-consumer.Messages():
 					if ok {
-						c := &Context{
+						c := Context{
 							KafkaTopic:   msg.Topic,
 							KafkaPayload: string(msg.Value),
 							om:           om,
