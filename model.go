@@ -190,3 +190,22 @@ func (repo *MockRepo) ToYAML() []byte {
 	b, _ := yaml.Marshal(ret)
 	return b
 }
+
+func (action Action) GetActualAction() Performer {
+	if !structs.IsZero(action.ActionPublishAMQP) {
+		return action.ActionPublishAMQP
+	}
+	if !structs.IsZero(action.ActionSendHTTP) {
+		return action.ActionSendHTTP
+	}
+	if !structs.IsZero(action.ActionReplyHTTP) {
+		return action.ActionReplyHTTP
+	}
+	if len(action.ActionRedis) > 0 {
+		return action.ActionRedis
+	}
+	if !structs.IsZero(action.ActionPublishKafka) {
+		return action.ActionPublishKafka
+	}
+	return action.ActionSleep
+}

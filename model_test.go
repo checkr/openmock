@@ -94,3 +94,53 @@ func TestModelValidate(t *testing.T) {
 		assert.Error(t, m.Validate())
 	})
 }
+
+func TestActionDispatch(t *testing.T) {
+	t.Run("resolves to ActionSleep", func(t *testing.T) {
+		expectedAction := ActionSleep{Duration: 9001}
+		a := Action{
+			ActionSleep: expectedAction,
+		}
+		assert.Equal(t, a.GetActualAction(), expectedAction)
+	})
+	t.Run("resolves to ActionSendHTTP", func(t *testing.T) {
+		expectedAction := ActionSendHTTP{URL: "potato"}
+		a := Action{
+			ActionSendHTTP: expectedAction,
+		}
+		assert.Equal(t, a.GetActualAction(), expectedAction)
+	})
+	t.Run("resolves to ActionReplyHTTP", func(t *testing.T) {
+		expectedAction := ActionReplyHTTP{StatusCode: 9001}
+		a := Action{
+			ActionReplyHTTP: expectedAction,
+		}
+		assert.Equal(t, a.GetActualAction(), expectedAction)
+	})
+	t.Run("resolves to ActionRedis", func(t *testing.T) {
+		expectedAction := ActionRedis{"potato", "potato"}
+		a := Action{
+			ActionRedis: expectedAction,
+		}
+		assert.Equal(t, a.GetActualAction(), expectedAction)
+	})
+	t.Run("resolves to ActionPublishKafka", func(t *testing.T) {
+		expectedAction := ActionPublishKafka{Payload: "potato"}
+		a := Action{
+			ActionPublishKafka: expectedAction,
+		}
+		assert.Equal(t, a.GetActualAction(), expectedAction)
+	})
+	t.Run("resolves to ActionPublishAMQP", func(t *testing.T) {
+		expectedAction := ActionPublishAMQP{Payload: "potato"}
+		a := Action{
+			ActionPublishAMQP: expectedAction,
+		}
+		assert.Equal(t, a.GetActualAction(), expectedAction)
+	})
+	t.Run("defaults to ActionSleep for duration of 0 (no-op)", func(t *testing.T) {
+		expectedAction := ActionSleep{Duration: 0}
+		a := Action{}
+		assert.Equal(t, a.GetActualAction(), expectedAction)
+	})
+}
