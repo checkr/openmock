@@ -29,7 +29,7 @@ func (om *OpenMock) startHTTP() {
 				h.Path,
 				func(ec echo.Context) error {
 					body, _ := ioutil.ReadAll(ec.Request().Body)
-					c := &Context{
+					c := Context{
 						HTTPContext:     ec,
 						HTTPHeader:      ec.Request().Header,
 						HTTPBody:        string(body),

@@ -50,7 +50,7 @@ func TestJSONPath(t *testing.T) {
 func TestHelpers(t *testing.T) {
 	t.Run("uuid4 helpers", func(t *testing.T) {
 		raw := `{{ uuidv4 }}`
-		c := &Context{}
+		c := Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
 		assert.Contains(t, r, "-4")
@@ -58,7 +58,7 @@ func TestHelpers(t *testing.T) {
 
 	t.Run("uuid5 helpers", func(t *testing.T) {
 		raw := `{{ "1234" | uuidv5 }}`
-		c := &Context{}
+		c := Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
 		assert.Contains(t, r, "-5")
@@ -66,7 +66,7 @@ func TestHelpers(t *testing.T) {
 
 	t.Run("isLastIndex helpers", func(t *testing.T) {
 		raw := `{{ "abc;;def" | splitList ";;" | isLastIndex 1 }}`
-		c := &Context{}
+		c := Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
 		assert.Contains(t, r, "true")
@@ -74,7 +74,7 @@ func TestHelpers(t *testing.T) {
 
 	t.Run("regexFind helpers", func(t *testing.T) {
 		raw := `{{ regexFind "foo.?" "seafood fool" }}`
-		c := &Context{}
+		c := Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
 		assert.Equal(t, "food", r)
@@ -83,14 +83,14 @@ func TestHelpers(t *testing.T) {
 	t.Run("regexFindFirstSubmatch helpers", func(t *testing.T) {
 		t.Run("normal [a-z]", func(t *testing.T) {
 			raw := `{{ "peach" | regexFindFirstSubmatch "p([a-z]+)ch" }}`
-			c := &Context{}
+			c := Context{}
 			r, err := c.Render(raw)
 			assert.NoError(t, err)
 			assert.Equal(t, "ea", r)
 		})
 		t.Run("\\w", func(t *testing.T) {
 			raw := `{{ "peach" | regexFindFirstSubmatch "p(\\w+)ch" }}`
-			c := &Context{}
+			c := Context{}
 			r, err := c.Render(raw)
 			assert.NoError(t, err)
 			assert.Equal(t, "ea", r)
@@ -99,7 +99,7 @@ func TestHelpers(t *testing.T) {
 
 	t.Run("regexFindAllSubmatch helpers", func(t *testing.T) {
 		raw := `{{ "peach" | regexFindAllSubmatch "p([a-z]+)ch" }}`
-		c := &Context{}
+		c := Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
 		assert.Equal(t, "[peach ea]", r)
@@ -107,7 +107,7 @@ func TestHelpers(t *testing.T) {
 
 	t.Run("regexFindAllSubmatch helpers with index", func(t *testing.T) {
 		raw := `h{{index (.HTTPBody | regexFindAllSubmatch "(p)([a-z]+)ch") 2}}l`
-		c := &Context{
+		c := Context{
 			HTTPBody: "peach",
 		}
 		r, err := c.Render(raw)
@@ -122,7 +122,7 @@ func TestHelpers(t *testing.T) {
 					<heading name=\"heading\">Reminder</heading>
 					<body>Don't forget me this weekend!</body>
 					</note>" | htmlEscapeString }}`
-		c := &Context{}
+		c := Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
 		assert.NotContains(t, r, "<")
@@ -132,7 +132,7 @@ func TestHelpers(t *testing.T) {
 
 	t.Run("hmacSHA256 helpers", func(t *testing.T) {
 		raw := `{{ "some data to be signed" | hmacSHA256 "secret-key" }}`
-		c := &Context{}
+		c := Context{}
 		r, err := c.Render(raw)
 		assert.NoError(t, err)
 		assert.Equal(t, "a5e93ff4bc1ef4e57ade71c759617fec0897b7d480add9a13ae37694ce319aed", r)

@@ -10,7 +10,7 @@ import (
 )
 
 // DoActions do actions based on the context
-func (ms MocksArray) DoActions(c *Context) error {
+func (ms MocksArray) DoActions(c Context) error {
 	for _, m := range ms {
 		if !c.MatchCondition(m.Expect.Condition) {
 			continue
@@ -22,27 +22,17 @@ func (ms MocksArray) DoActions(c *Context) error {
 	return nil
 }
 
-// DoActions runs all the actions
-func (m *Mock) DoActions(c *Context) error {
+func (m *Mock) DoActions(c Context) error {
 	for _, a := range m.Actions {
-		if err := m.doAction(c, a); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (m *Mock) doAction(c *Context, a Action) (err error) {
-	actualAction := a.GetActualAction()
-	defer func() {
-		if err != nil {
+		actualAction := a.GetActualAction()
+		if err := actualAction.Perform(c); err != nil {
 			logrus.WithFields(logrus.Fields{
 				"err":    err,
 				"action": fmt.Sprintf("%T", actualAction),
 			}).Errorf("failed to do action")
 		}
-	}()
-	return actualAction.Perform(*c)
+	}
+	return nil
 }
 
 func (actionSendHTTP ActionSendHTTP) Perform(context Context) error {

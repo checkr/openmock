@@ -98,7 +98,7 @@ func startWorker(om *OpenMock, amqp ExpectAMQP, ms MocksArray) {
 				"exchange":    msg.Exchange,
 				"routing_key": msg.RoutingKey,
 			}).Info()
-			ms.DoActions(&Context{
+			ms.DoActions(Context{
 				AMQPPayload: string(msg.Body),
 				om:          om,
 			})
