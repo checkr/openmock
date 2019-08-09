@@ -35,22 +35,22 @@ func (m *Mock) DoActions(c Context) error {
 	return nil
 }
 
-func (actionSendHTTP ActionSendHTTP) Perform(context Context) error {
-	bodyStr, err := context.Render(actionSendHTTP.Body)
+func (self ActionSendHTTP) Perform(context Context) error {
+	bodyStr, err := context.Render(self.Body)
 	if err != nil {
 		return err
 	}
 
-	urlStr, err := context.Render(actionSendHTTP.URL)
+	urlStr, err := context.Render(self.URL)
 	if err != nil {
 		return err
 	}
 
 	request := gorequest.New().
 		SetDebug(true).
-		CustomMethod(actionSendHTTP.Method, urlStr)
+		CustomMethod(self.Method, urlStr)
 
-	for k, v := range actionSendHTTP.Headers {
+	for k, v := range self.Headers {
 		request.Set(k, v)
 	}
 
@@ -61,25 +61,25 @@ func (actionSendHTTP ActionSendHTTP) Perform(context Context) error {
 	return nil
 }
 
-func (actionReplyHTTP ActionReplyHTTP) Perform(context Context) error {
+func (self ActionReplyHTTP) Perform(context Context) error {
 	ec := context.HTTPContext
 	contentType := echo.MIMEApplicationJSON // default to JSON
-	if ct, ok := actionReplyHTTP.Headers[echo.HeaderContentType]; ok {
+	if ct, ok := self.Headers[echo.HeaderContentType]; ok {
 		contentType = ct
 	}
-	for k, v := range actionReplyHTTP.Headers {
+	for k, v := range self.Headers {
 		ec.Response().Header().Set(k, v)
 	}
-	msg, err := context.Render(actionReplyHTTP.Body)
+	msg, err := context.Render(self.Body)
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for http")
 		return err
 	}
-	return ec.Blob(actionReplyHTTP.StatusCode, contentType, []byte(msg))
+	return ec.Blob(self.StatusCode, contentType, []byte(msg))
 }
 
-func (actionRedis ActionRedis) Perform(context Context) error {
-	for _, cmd := range actionRedis {
+func (self ActionRedis) Perform(context Context) error {
+	for _, cmd := range self {
 		_, err := context.Render(cmd)
 		if err != nil {
 			return err
@@ -88,35 +88,35 @@ func (actionRedis ActionRedis) Perform(context Context) error {
 	return nil
 }
 
-func (actionSleep ActionSleep) Perform(context Context) error {
-	time.Sleep(actionSleep.Duration)
+func (self ActionSleep) Perform(context Context) error {
+	time.Sleep(self.Duration)
 	return nil
 }
 
-func (actionPublishKafka ActionPublishKafka) Perform(context Context) error {
-	msg := actionPublishKafka.Payload
+func (self ActionPublishKafka) Perform(context Context) error {
+	msg := self.Payload
 	msg, err := context.Render(msg)
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for kafka payload")
 		return err
 	}
-	err = context.om.kafkaClient.sendMessage(actionPublishKafka.Topic, []byte(msg))
+	err = context.om.kafkaClient.sendMessage(self.Topic, []byte(msg))
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to publish to kafka")
 	}
 	return err
 }
 
-func (actionPublishAMQP ActionPublishAMQP) Perform(context Context) error {
-	msg, err := context.Render(actionPublishAMQP.Payload)
+func (self ActionPublishAMQP) Perform(context Context) error {
+	msg, err := context.Render(self.Payload)
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for amqp")
 		return err
 	}
 	publishToAMQP(
 		context.om.AMQPURL,
-		actionPublishAMQP.Exchange,
-		actionPublishAMQP.RoutingKey,
+		self.Exchange,
+		self.RoutingKey,
 		msg,
 	)
 	return nil
