@@ -161,6 +161,18 @@ func TestTemplateRender(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, r, `/path_to_t1`)
 	})
+
+	t.Run("values used in body", func(t *testing.T) {
+		template := `{{.Values.foo}}`
+		values := map[string]interface{}{"foo": "bar"}
+
+		context := Context{
+			HTTPPath: "/path_to_t1",
+			Values:   values,
+		}
+		rendered, _ := context.Render(template)
+		assert.Equal(t, rendered, `bar`)
+	})
 }
 
 func TestRenderConditions(t *testing.T) {

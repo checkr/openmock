@@ -27,6 +27,8 @@ type Context struct {
 	AMQPQueue      string
 	AMQPPayload    string
 
+	Values map[string]interface{}
+
 	om *OpenMock
 }
 

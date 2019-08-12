@@ -9,7 +9,7 @@ import (
 func TestLoadFile(t *testing.T) {
 	t.Run("kafka payload", func(t *testing.T) {
 		m := &Mock{
-			Actions: []Action{
+			Actions: []ActionDispatcher{
 				{
 					ActionPublishKafka: ActionPublishKafka{
 						PayloadFromFile: "./files/colors.json",
@@ -23,7 +23,7 @@ func TestLoadFile(t *testing.T) {
 
 	t.Run("amqp payload", func(t *testing.T) {
 		m := &Mock{
-			Actions: []Action{
+			Actions: []ActionDispatcher{
 				{
 					ActionPublishAMQP: ActionPublishAMQP{
 						PayloadFromFile: "./files/colors.json",
@@ -37,7 +37,7 @@ func TestLoadFile(t *testing.T) {
 
 	t.Run("http body", func(t *testing.T) {
 		m := &Mock{
-			Actions: []Action{
+			Actions: []ActionDispatcher{
 				{
 					ActionReplyHTTP: ActionReplyHTTP{
 						BodyFromFile: "./files/colors.json",
@@ -51,7 +51,7 @@ func TestLoadFile(t *testing.T) {
 
 	t.Run("file not found", func(t *testing.T) {
 		m := &Mock{
-			Actions: []Action{
+			Actions: []ActionDispatcher{
 				{
 					ActionReplyHTTP: ActionReplyHTTP{
 						BodyFromFile: "./files/not_exists.json",

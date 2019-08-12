@@ -23,8 +23,9 @@ type Mock struct {
 	Key  string `yaml:"key,omitempty"`
 
 	// KindBehavior fields
-	Expect  Expect   `yaml:"expect,omitempty"`
-	Actions []Action `yaml:"actions,omitempty"`
+	Expect  Expect                 `yaml:"expect,omitempty"`
+	Actions []ActionDispatcher     `yaml:"actions,omitempty"`
+	Values  map[string]interface{} `yaml:"values,omitempty"`
 
 	// KindTemplate fields
 	Template string `yaml:"template,omitempty"`
@@ -111,7 +112,7 @@ type (
 )
 
 // Action represents actions
-type Action struct {
+type ActionDispatcher struct {
 	ActionPublishAMQP  ActionPublishAMQP  `yaml:"publish_amqp,omitempty"`
 	ActionPublishKafka ActionPublishKafka `yaml:"publish_kafka,omitempty"`
 	ActionRedis        ActionRedis        `yaml:"redis,omitempty"`
@@ -120,7 +121,7 @@ type Action struct {
 	ActionSleep        ActionSleep        `yaml:"sleep,omitempty"`
 }
 
-type Performer interface {
+type Action interface {
 	Perform(context Context) error
 }
 
@@ -191,7 +192,7 @@ func (repo *MockRepo) ToYAML() []byte {
 	return b
 }
 
-func (action Action) GetActualAction() Performer {
+var getActualAction = func(action ActionDispatcher) Action {
 	if !structs.IsZero(action.ActionPublishAMQP) {
 		return action.ActionPublishAMQP
 	}

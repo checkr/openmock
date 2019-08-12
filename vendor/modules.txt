@@ -79,6 +79,8 @@ github.com/pierrec/lz4/internal/xxh32
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
+# github.com/prashantv/gostub v1.0.0
+github.com/prashantv/gostub
 # github.com/rcrowley/go-metrics v0.0.0-20180503174638-e2704e165165
 github.com/rcrowley/go-metrics
 # github.com/sirupsen/logrus v1.0.6

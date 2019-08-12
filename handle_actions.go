@@ -23,8 +23,9 @@ func (ms MocksArray) DoActions(c Context) error {
 }
 
 func (m *Mock) DoActions(c Context) error {
-	for _, a := range m.Actions {
-		actualAction := a.GetActualAction()
+	c.Values = m.Values
+	for _, actionDispatcher := range m.Actions {
+		actualAction := getActualAction(actionDispatcher)
 		if err := actualAction.Perform(c); err != nil {
 			logrus.WithFields(logrus.Fields{
 				"err":    err,
