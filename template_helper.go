@@ -1,13 +1,13 @@
 package openmock
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"reflect"
 	"regexp"
 	"strings"
 	"text/template"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 
 	"github.com/antchfx/jsonquery"
 	"github.com/antchfx/xmlquery"
