@@ -69,6 +69,7 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 	for i := range mocks {
 		m := mocks[i]
 		m.loadFile(om.TemplatesDir)
+		r.Behaviors[m.Key] = m
 
 		if !structs.IsZero(m.Expect.HTTP) {
 			_, ok := r.HTTPMocks[m.Expect.HTTP]

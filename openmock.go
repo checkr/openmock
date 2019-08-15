@@ -57,6 +57,7 @@ func (om *OpenMock) setupRepo() {
 		KafkaMocks: KafkaMocks{},
 		AMQPMocks:  AMQPMocks{},
 		Templates:  MocksArray{},
+		Behaviors:  map[string]*Mock{},
 	}
 }
 

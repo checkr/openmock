@@ -80,6 +80,7 @@ type (
 		KafkaMocks KafkaMocks
 		AMQPMocks  AMQPMocks
 		Templates  MocksArray
+		Behaviors  map[string]*Mock
 	}
 )
 
