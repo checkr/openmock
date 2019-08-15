@@ -91,3 +91,13 @@ func TestLoad(t *testing.T) {
 		assert.NotZero(t, len(om.repo.KafkaMocks))
 	})
 }
+
+func TestLoadBehaviors(t *testing.T) {
+	om := &OpenMock{}
+	om.setupRepo()
+	ping := &Mock{
+		Key: "ping",
+	}
+	om.populateBehaviors(MocksArray{ping})
+	assert.Equal(t, ping, om.repo.Behaviors["ping"])
+}
