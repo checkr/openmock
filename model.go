@@ -19,8 +19,9 @@ const (
 // Mock represents a mock struct
 type Mock struct {
 	// Common fields
-	Kind string `yaml:"kind,omitempty"`
-	Key  string `yaml:"key,omitempty"`
+	Kind    string `yaml:"kind,omitempty"`
+	Key     string `yaml:"key,omitempty"`
+	Include string `yaml:"include,omitempty"`
 
 	// KindBehavior fields
 	Expect  Expect                 `yaml:"expect,omitempty"`
