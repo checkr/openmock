@@ -72,6 +72,9 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 		if m.Include != "" {
 			m = r.Behaviors[m.Include].patchedWith(*m)
 		}
+		if r.Behaviors[m.Key] != nil {
+			logrus.WithField("key", m.Key).Warn("Multiple Behaviors with same key found. Results can be unexpected.")
+		}
 		r.Behaviors[m.Key] = m
 
 		if !structs.IsZero(m.Expect.HTTP) {
