@@ -173,6 +173,18 @@ func TestTemplateRender(t *testing.T) {
 		rendered, _ := context.Render(template)
 		assert.Equal(t, rendered, `bar`)
 	})
+
+	t.Run("missing values cause an error", func(t *testing.T) {
+		template := `{{.Values.banana}}`
+		values := map[string]interface{}{}
+
+		context := Context{
+			HTTPPath: "/path_to_t1",
+			Values:   values,
+		}
+		_, err := context.Render(template)
+		assert.Error(t, err)
+	})
 }
 
 func TestRenderConditions(t *testing.T) {
