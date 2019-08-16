@@ -45,6 +45,7 @@ func (c Context) Render(raw string) (out string, err error) {
 	tmpl, err := globalTemplate.New("").
 		Funcs(sprig.TxtFuncMap()). // supported functions https://github.com/Masterminds/sprig/blob/master/functions.go
 		Funcs(genLocalFuncMap(c.om)).
+		Option("missingkey=error").
 		Parse(cleanup(raw))
 	if err != nil {
 		return "", err
