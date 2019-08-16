@@ -101,3 +101,65 @@ func TestLoadBehaviors(t *testing.T) {
 	om.populateBehaviors(MocksArray{ping})
 	assert.Equal(t, ping, om.repo.Behaviors["ping"])
 }
+
+func TestLoadIncludedBehaviors(t *testing.T) {
+	om := &OpenMock{}
+	om.setupRepo()
+	response := &Mock{
+		Key: "response",
+		Actions: []ActionDispatcher{{
+			ActionReplyHTTP: ActionReplyHTTP{Body: "banana"},
+		}},
+	}
+	ping := &Mock{
+		Key:     "ping",
+		Include: "response",
+		Values: map[string]interface{}{
+			"foo": "bar",
+		},
+	}
+	om.populateBehaviors(MocksArray{response, ping})
+
+	t.Run("inherits actions", func(t *testing.T) {
+		assert.NotZero(t, om.repo.Behaviors["ping"].Actions)
+		assert.Equal(t, "banana", om.repo.Behaviors["ping"].Actions[0].ActionReplyHTTP.Body)
+	})
+
+	t.Run("persists values", func(t *testing.T) {
+		assert.Equal(t, "bar", om.repo.Behaviors["ping"].Values["foo"])
+	})
+}
+
+func TestMockPatching(t *testing.T) {
+	parentMock := Mock{
+		Key: "parent",
+		Expect: Expect{
+			Condition: "foo",
+		},
+		Values: map[string]interface{}{
+			"value": "not-nana",
+		},
+	}
+	childMock := Mock{
+		Key: "child",
+		Values: map[string]interface{}{
+			"value": "banana",
+		},
+	}
+
+	patchedMock := parentMock.patchedWith(childMock)
+
+	t.Run("patched mock has values from the parent", func(t *testing.T) {
+		assert.Equal(t, "foo", patchedMock.Expect.Condition)
+	})
+
+	t.Run("patched mock has values from the patch", func(t *testing.T) {
+		assert.Equal(t, "banana", patchedMock.Values["value"])
+		assert.Equal(t, "child", patchedMock.Key)
+	})
+
+	t.Run("the original mocks are unchanged", func(t *testing.T) {
+		assert.Equal(t, "not-nana", parentMock.Values["value"])
+		assert.Zero(t, childMock.Expect)
+	})
+}

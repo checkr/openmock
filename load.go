@@ -69,6 +69,9 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 	for i := range mocks {
 		m := mocks[i]
 		m.loadFile(om.TemplatesDir)
+		if m.Include != "" {
+			m = r.Behaviors[m.Include].patchedWith(*m)
+		}
 		r.Behaviors[m.Key] = m
 
 		if !structs.IsZero(m.Expect.HTTP) {
@@ -177,4 +180,15 @@ func readFile(templateKey string, baseDir string, filePath string) string {
 	}
 	return string(dat)
 
+}
+
+func (m Mock) patchedWith(patch Mock) *Mock {
+	baseStruct := structs.New(&m)
+	patchStruct := structs.New(patch)
+	for _, field := range patchStruct.Fields() {
+		if !field.IsZero() {
+			baseStruct.Field(field.Name()).Set(field.Value())
+		}
+	}
+	return &m
 }
