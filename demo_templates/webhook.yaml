@@ -14,3 +14,17 @@
     - reply_http:
         status_code: 200
         body: 'webhooks sent'
+
+- key: webhooks_with_basicauth
+  kind: Behavior
+  expect:
+    http:
+      method: GET
+      path: /send_webhook_to_httpbin_with_basicauth
+  actions:
+    - send_http:
+        url: 'https://{{env "USER"}}:{{env "PASSWORD"}}@httpbin.org/basic-auth/user1/password1'
+        method: GET
+    - reply_http:
+        status_code: 200
+        body: 'webhooks sent'

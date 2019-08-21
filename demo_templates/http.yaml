@@ -48,7 +48,7 @@
         status_code: 200
         body: '{{.HTTPQueryString}}'
 
-- key: header-token
+- key: header-token-200
   kind: Behavior
   expect:
     condition: '{{.HTTPHeader.Get "X-Token" | eq "t1234" | and (.HTTPHeader.Get "Y-Token" | eq "t1234")}}'
@@ -60,7 +60,7 @@
         status_code: 200
         body: OK
 
-- key: header-token
+- key: header-token-401
   kind: Behavior
   expect:
     condition: '{{.HTTPHeader.Get "X-Token" | ne "t1234"}}'
