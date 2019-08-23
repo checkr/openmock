@@ -163,3 +163,40 @@ func TestMockPatching(t *testing.T) {
 		assert.Zero(t, childMock.Expect)
 	})
 }
+
+func TestOverrideBehaviorByKey(t *testing.T) {
+	expectHTTP := ExpectHTTP{
+		Method: "GET",
+		Path:   "/health-check",
+	}
+
+	nothealthy := &Mock{
+		Key: "health-check",
+		Expect: Expect{
+			HTTP: expectHTTP,
+		},
+		Values: map[string]interface{}{
+			"value": "not-healthy-banana",
+		},
+	}
+	healthy := &Mock{
+		Key: "health-check",
+		Expect: Expect{
+			HTTP: expectHTTP,
+		},
+		Values: map[string]interface{}{
+			"value": "healthy-banana",
+		},
+	}
+
+	om := &OpenMock{}
+	om.setupRepo()
+	om.populateBehaviors(MocksArray{nothealthy, healthy})
+
+	t.Run("should only have one behavior with the same key", func(t *testing.T) {
+		assert.Equal(t, 1, len(om.repo.HTTPMocks[expectHTTP]))
+	})
+	t.Run("should take values with latest behavior", func(t *testing.T) {
+		assert.Equal(t, "healthy-banana", om.repo.HTTPMocks[expectHTTP][0].Values["value"])
+	})
+}
