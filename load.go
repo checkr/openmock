@@ -73,10 +73,12 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 			m = r.Behaviors[m.Include].patchedWith(*m)
 		}
 		if r.Behaviors[m.Key] != nil {
-			logrus.WithField("key", m.Key).Warn("Multiple Behaviors with same key found. Results can be unexpected.")
+			logrus.WithField("key", m.Key).Info("Overriding existing behavior")
 		}
 		r.Behaviors[m.Key] = m
+	}
 
+	for _, m := range r.Behaviors {
 		if !structs.IsZero(m.Expect.HTTP) {
 			_, ok := r.HTTPMocks[m.Expect.HTTP]
 			if !ok {
