@@ -103,30 +103,47 @@ func TestLoadBehaviors(t *testing.T) {
 }
 
 func TestLoadIncludedBehaviors(t *testing.T) {
-	om := &OpenMock{}
-	om.setupRepo()
+	expectHTTP := ExpectHTTP{
+		Method: "GET",
+		Path:   "/health-check",
+	}
+
 	response := &Mock{
-		Key: "response",
+		Key:    "response",
+		Expect: Expect{HTTP: expectHTTP},
 		Actions: []ActionDispatcher{{
 			ActionReplyHTTP: ActionReplyHTTP{Body: "banana"},
 		}},
 	}
 	ping := &Mock{
 		Key:     "ping",
+		Expect:  Expect{HTTP: expectHTTP},
 		Include: "response",
 		Values: map[string]interface{}{
 			"foo": "bar",
 		},
 	}
-	om.populateBehaviors(MocksArray{response, ping})
 
 	t.Run("inherits actions", func(t *testing.T) {
+		om := &OpenMock{}
+		om.setupRepo()
+		om.populateBehaviors(MocksArray{response, ping})
 		assert.NotZero(t, om.repo.Behaviors["ping"].Actions)
 		assert.Equal(t, "banana", om.repo.Behaviors["ping"].Actions[0].ActionReplyHTTP.Body)
 	})
 
 	t.Run("persists values", func(t *testing.T) {
+		om := &OpenMock{}
+		om.setupRepo()
+		om.populateBehaviors(MocksArray{response, ping})
 		assert.Equal(t, "bar", om.repo.Behaviors["ping"].Values["foo"])
+	})
+
+	t.Run("included behavior defined after concrete behavior", func(t *testing.T) {
+		om := &OpenMock{}
+		om.setupRepo()
+		om.populateBehaviors(MocksArray{ping, response})
+		assert.Equal(t, "banana", om.repo.Behaviors["ping"].Actions[0].ActionReplyHTTP.Body)
 	})
 }
 
