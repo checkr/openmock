@@ -69,9 +69,6 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 	for i := range mocks {
 		m := mocks[i]
 		m.loadFile(om.TemplatesDir)
-		if m.Include != "" {
-			m = r.Behaviors[m.Include].patchedWith(*m)
-		}
 		if r.Behaviors[m.Key] != nil {
 			logrus.WithField("key", m.Key).Info("Overriding existing behavior")
 		}
@@ -79,6 +76,10 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 	}
 
 	for _, m := range r.Behaviors {
+		if m.Include != "" {
+			m = r.Behaviors[m.Include].patchedWith(*m)
+			r.Behaviors[m.Key] = m
+		}
 		if !structs.IsZero(m.Expect.HTTP) {
 			_, ok := r.HTTPMocks[m.Expect.HTTP]
 			if !ok {

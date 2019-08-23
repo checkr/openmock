@@ -1,0 +1,16 @@
+- key: concrete-behavior
+  kind: Behavior
+  include: partial-behavior
+  values:
+    OK: 'banana'
+
+- key: partial-behavior
+  kind: Behavior
+  expect:
+    http:
+      method: GET
+      path: /fruit-of-the-day
+  actions:
+    - reply_http:
+        status_code: 200
+        body: '{"fruit": "{{.Values.OK}}"}'
