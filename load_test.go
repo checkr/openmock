@@ -102,23 +102,24 @@ func TestLoadBehaviors(t *testing.T) {
 	assert.Equal(t, ping, om.repo.Behaviors["ping"])
 }
 
-func TestLoadIncludedBehaviors(t *testing.T) {
+func TestLoadExtendedBehaviors(t *testing.T) {
 	expectHTTP := ExpectHTTP{
 		Method: "GET",
 		Path:   "/health-check",
 	}
 
-	response := &Mock{
-		Key:    "response",
+	abstract := &Mock{
+		Key:    "abstract",
+		Kind:   KindAbstractBehavior,
 		Expect: Expect{HTTP: expectHTTP},
 		Actions: []ActionDispatcher{{
 			ActionReplyHTTP: ActionReplyHTTP{Body: "banana"},
 		}},
 	}
-	ping := &Mock{
-		Key:     "ping",
-		Expect:  Expect{HTTP: expectHTTP},
-		Include: "response",
+	concrete := &Mock{
+		Key:    "concrete",
+		Expect: Expect{HTTP: expectHTTP},
+		Extend: "abstract",
 		Values: map[string]interface{}{
 			"foo": "bar",
 		},
@@ -127,23 +128,30 @@ func TestLoadIncludedBehaviors(t *testing.T) {
 	t.Run("inherits actions", func(t *testing.T) {
 		om := &OpenMock{}
 		om.setupRepo()
-		om.populateBehaviors(MocksArray{response, ping})
-		assert.NotZero(t, om.repo.Behaviors["ping"].Actions)
-		assert.Equal(t, "banana", om.repo.Behaviors["ping"].Actions[0].ActionReplyHTTP.Body)
+		om.populateBehaviors(MocksArray{abstract, concrete})
+		assert.NotZero(t, om.repo.Behaviors["concrete"].Actions)
+		assert.Equal(t, "banana", om.repo.Behaviors["concrete"].Actions[0].ActionReplyHTTP.Body)
 	})
 
 	t.Run("persists values", func(t *testing.T) {
 		om := &OpenMock{}
 		om.setupRepo()
-		om.populateBehaviors(MocksArray{response, ping})
-		assert.Equal(t, "bar", om.repo.Behaviors["ping"].Values["foo"])
+		om.populateBehaviors(MocksArray{abstract, concrete})
+		assert.Equal(t, "bar", om.repo.Behaviors["concrete"].Values["foo"])
 	})
 
-	t.Run("included behavior defined after concrete behavior", func(t *testing.T) {
+	t.Run("extended behavior defined after concrete behavior", func(t *testing.T) {
 		om := &OpenMock{}
 		om.setupRepo()
-		om.populateBehaviors(MocksArray{ping, response})
-		assert.Equal(t, "banana", om.repo.Behaviors["ping"].Actions[0].ActionReplyHTTP.Body)
+		om.populateBehaviors(MocksArray{concrete, abstract})
+		assert.Equal(t, "banana", om.repo.Behaviors["concrete"].Actions[0].ActionReplyHTTP.Body)
+	})
+
+	t.Run("abstract behavior not exposed as actionable", func(t *testing.T) {
+		om := &OpenMock{}
+		om.setupRepo()
+		om.populateBehaviors(MocksArray{concrete, abstract})
+		assert.Equal(t, 1, len(om.repo.HTTPMocks[expectHTTP]))
 	})
 }
 
