@@ -76,8 +76,11 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 	}
 
 	for _, m := range r.Behaviors {
-		if m.Include != "" {
-			m = r.Behaviors[m.Include].patchedWith(*m)
+		if m.Kind == KindAbstractBehavior {
+			continue
+		}
+		if m.Extend != "" {
+			m = r.Behaviors[m.Extend].patchedWith(*m)
 			r.Behaviors[m.Key] = m
 		}
 		if !structs.IsZero(m.Expect.HTTP) {

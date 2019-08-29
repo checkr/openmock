@@ -1,11 +1,11 @@
 - key: concrete-behavior
   kind: Behavior
-  include: partial-behavior
+  extend: abstract-behavior
   values:
     OK: 'banana'
 
-- key: partial-behavior
-  kind: Behavior
+- key: abstract-behavior
+  kind: AbstractBehavior
   expect:
     http:
       method: GET

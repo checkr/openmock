@@ -9,19 +9,17 @@ import (
 )
 
 const (
-	// KindBehavior is the default kind
-	KindBehavior = "Behavior"
-
-	// KindTemplate is the template kind
-	KindTemplate = "Template"
+	KindBehavior         = "Behavior"
+	KindAbstractBehavior = "AbstractBehavior"
+	KindTemplate         = "Template"
 )
 
 // Mock represents a mock struct
 type Mock struct {
 	// Common fields
-	Kind    string `yaml:"kind,omitempty"`
-	Key     string `yaml:"key,omitempty"`
-	Include string `yaml:"include,omitempty"`
+	Kind   string `yaml:"kind,omitempty"`
+	Key    string `yaml:"key,omitempty"`
+	Extend string `yaml:"extend,omitempty"`
 
 	// KindBehavior fields
 	Expect  Expect                 `yaml:"expect,omitempty"`
@@ -51,11 +49,12 @@ func (m *Mock) Validate() error {
 		if len(m.Template) != 0 {
 			return fmt.Errorf("kind behavior is only permitted to have `key`, `expect` and `actions` fields. found in: %s", m.Key)
 		}
+	case KindAbstractBehavior:
 	default:
 		return fmt.Errorf(
 			"invalid kind: %s with key: %s. only supported kinds are %v",
 			m.Kind, m.Key,
-			[]string{KindBehavior, KindTemplate},
+			[]string{KindBehavior, KindAbstractBehavior, KindTemplate},
 		)
 	}
 
