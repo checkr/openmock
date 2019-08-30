@@ -1,31 +1,4 @@
-- key: monday-fruit
-  kind: Behavior
-  extend: abstract-behavior
-  values:
-    day: monday
-    fruit: apple
-
-- key: tuesday-fruit
-  kind: Behavior
-  extend: abstract-behavior
-  values:
-    day: tuesday
-    fruit: banana
-
-- key: wednesday-fruit
-  kind: Behavior
-  extend: abstract-behavior
-  values:
-    day: wednesday
-    fruit: tomato
-
-- key: thursday-fruit
-  kind: Behavior
-  extend: abstract-behavior
-  values:
-    day: thursday
-
-- key: abstract-behavior
+- key: fruit-of-the-day
   kind: AbstractBehavior
   values:
     fruit: potato
@@ -38,3 +11,16 @@
     - reply_http:
         status_code: 200
         body: '{"fruit": "{{.Values.fruit}}"}'
+
+- key: monday-fruit
+  kind: Behavior
+  extend: fruit-of-the-day
+  values:
+    day: monday
+    fruit: apple
+
+- key: tuesday-fruit
+  kind: Behavior
+  extend: fruit-of-the-day
+  values:
+    day: tuesday
