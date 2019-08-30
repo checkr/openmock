@@ -156,6 +156,8 @@ Templates can be useful to assemble your payloads from parts
   template: >
     <animal>cat</animal>
 
+# $ curl 0:9999/fred
+# <human>   <name>fred</name>   <pets>     <animal>dog</animal>      <animal>cat</animal>    </pets> </human>
 - key: get-freds-pets
   kind: Behavior
   expect:
@@ -193,6 +195,8 @@ Abstract Behaviors can be used to parameterize some data
         status_code: 200
         body: '{"fruit": "{{.Values.fruit}}"}'
 
+# $ curl 0:9999/fruit-of-the-day?day=monday
+# {"fruit": "apple"}
 - key: monday-fruit
   kind: Behavior
   extend: fruit-of-the-day
@@ -200,6 +204,8 @@ Abstract Behaviors can be used to parameterize some data
     day: monday
     fruit: apple
 
+# $ curl 0:9999/fruit-of-the-day?day=tuesday
+# {"fruit": "potato"}
 - key: tuesday-fruit
   kind: Behavior
   extend: fruit-of-the-day
@@ -258,6 +264,8 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 ```yaml
 # demo_templates/http.yaml
 
+# $ curl 0:9999/ping
+# OK
 - key: ping
   kind: Behavior
   expect:
@@ -271,22 +279,23 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
         headers:
           Content-Type: text/html
 
-- key: header-token-ok
+# $ curl 0:9999/token -H X-Token:t1234 -H Y-Token:t1234
+# OK
+- key: header-token-200
   kind: Behavior
   expect:
-    condition: '{{.HTTPHeader.Get "X-Token" | eq "t1234"}}'
+    condition: '{{.HTTPHeader.Get "X-Token" | eq "t1234" | and (.HTTPHeader.Get "Y-Token" | eq "t1234")}}'
     http:
       method: GET
       path: /token
   actions:
-    - sleep:
-        duration: 1s
     - reply_http:
         status_code: 200
-        body: >
-          { "hello": "you have a valid X-Token in the header" }
+        body: OK
 
-- key: header-token-not-ok
+# $ curl 0:9999/token
+# Invalid X-Token
+- key: header-token-401
   kind: Behavior
   expect:
     condition: '{{.HTTPHeader.Get "X-Token" | ne "t1234"}}'
@@ -296,6 +305,8 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
   actions:
     - reply_http:
         status_code: 401
+        body: Invalid X-Token
+
 ```
 
 ### Example: Mock Kafka
@@ -454,14 +465,13 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
             "teapot-info": {{ template "color-template" .Values }}
           }
 
+# $ curl 0:9999/teapot
+# {   "request-info": { "http_path": "/teapot", "http_headers": "map[Accept:[*/*] User-Agent:[curl/7.54.0]]" } ,   "teapot-info": { "color": "purple" }  }
 - key: purple-teapot
   kind: Behavior
   extend: teapot
   values:
     color: purple
-
-# To test
-# curl localhost:9999/teapot
 ```
 
 
