@@ -110,7 +110,7 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 	}
 }
 
-func loadRedis(doer RedisDoer) ([]byte, error) {
+func loadRedis(doer RedisDoer) (b []byte, err error) {
 	if doer == nil {
 		return nil, nil
 	}
@@ -118,6 +118,9 @@ func loadRedis(doer RedisDoer) ([]byte, error) {
 	logrus.Infof("Start to load templates from redis")
 	v, err := doer.Do("HGETALL", redisTemplatesStore)
 	m, err := redis.StringMap(v, err)
+	if err != nil {
+		return nil, err
+	}
 	ss := []string{}
 	for _, s := range m {
 		ss = append(ss, s)
@@ -148,7 +151,7 @@ func loadYAML(searchDir string) ([]byte, error) {
 		return nil, err
 	}
 	logrus.Infof("Done with loading templates from: %s", searchDir)
-	return []byte(w.String()), nil
+	return w.Bytes(), nil
 }
 
 func (m *Mock) loadFile(baseDir string) {
@@ -204,7 +207,14 @@ func (m Mock) patchedWith(patch Mock) *Mock {
 	patchStruct := structs.New(patch)
 	for _, field := range patchStruct.Fields() {
 		if !field.IsZero() {
-			baseStruct.Field(field.Name()).Set(field.Value())
+			err := baseStruct.Field(field.Name()).Set(field.Value())
+			if err != nil {
+				logrus.WithFields(logrus.Fields{
+					"template_key": m.Key,
+					"err":          err,
+				}).Errorf("failed to extend")
+				return nil
+			}
 		}
 	}
 	m.Values = values

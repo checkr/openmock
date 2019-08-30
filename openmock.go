@@ -1,7 +1,10 @@
 package openmock
 
 import (
+	"log"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/caarlos0/env"
 	"github.com/sirupsen/logrus"
@@ -39,7 +42,10 @@ type OpenMock struct {
 
 // ParseEnv loads env vars into the openmock struct
 func (om *OpenMock) ParseEnv() {
-	env.Parse(om)
+	err := env.Parse(om)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (om *OpenMock) setupLogrus() {
@@ -59,6 +65,15 @@ func (om *OpenMock) setupRepo() {
 		Templates:  MocksArray{},
 		Behaviors:  map[string]*Mock{},
 	}
+}
+
+func waitForSignal() {
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(
+		signalChan,
+		syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT,
+	)
+	<-signalChan
 }
 
 // Start starts the openmock
@@ -90,5 +105,12 @@ func (om *OpenMock) Start() {
 			logrus.Fatal(err)
 		}
 	}()
-	select {}
+
+	waitForSignal()
+}
+
+// Stop clean up and release some resources, it's optional.
+func (om *OpenMock) Stop() {
+	logrus.Info("Stopping openmock...")
+	om.kafkaClient.close()
 }

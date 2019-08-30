@@ -7,9 +7,9 @@ import (
 )
 
 func TestJSONPath(t *testing.T) {
+	var tmpl string
 	var ret string
 	var err error
-	var tmpl string
 
 	tmpl = `{"transaction_id": "t1234"}`
 	ret, err = jsonPath("/transaction_id", tmpl)

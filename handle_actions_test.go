@@ -12,16 +12,16 @@ type FakePerformer struct {
 	Performed       bool
 }
 
-func (self *FakePerformer) Perform(context Context) error {
-	self.Performed = true
-	self.ReceivedContext = context
+func (fp *FakePerformer) Perform(context Context) error {
+	fp.Performed = true
+	fp.ReceivedContext = context
 	return nil
 }
 
 func TestContextUpdate(t *testing.T) {
 	t.Run("update context for performing action", func(t *testing.T) {
 		mock := Mock{
-			Actions: []ActionDispatcher{ActionDispatcher{}},
+			Actions: []ActionDispatcher{{}},
 			Values: map[string]interface{}{
 				"foo": "bar",
 			},
@@ -29,8 +29,9 @@ func TestContextUpdate(t *testing.T) {
 
 		fakePerformer := FakePerformer{}
 		defer gostub.StubFunc(&getActualAction, &fakePerformer).Reset()
-		mock.DoActions(Context{})
 
+		err := mock.DoActions(Context{})
+		assert.NoError(t, err)
 		assert.Equal(t, "bar", fakePerformer.ReceivedContext.Values["foo"])
 	})
 
@@ -39,7 +40,7 @@ func TestContextUpdate(t *testing.T) {
 			Expect: Expect{
 				Condition: "{{.Values.perform}}",
 			},
-			Actions: []ActionDispatcher{ActionDispatcher{}},
+			Actions: []ActionDispatcher{{}},
 			Values: map[string]interface{}{
 				"perform": false,
 			},
@@ -47,8 +48,9 @@ func TestContextUpdate(t *testing.T) {
 
 		fakePerformer := FakePerformer{}
 		defer gostub.StubFunc(&getActualAction, &fakePerformer).Reset()
-		unActingMock.DoActions(Context{})
 
+		err := unActingMock.DoActions(Context{})
+		assert.NoError(t, err)
 		assert.False(t, fakePerformer.Performed)
 	})
 
@@ -57,7 +59,7 @@ func TestContextUpdate(t *testing.T) {
 			Expect: Expect{
 				Condition: "{{.Values.perform}}",
 			},
-			Actions: []ActionDispatcher{ActionDispatcher{}},
+			Actions: []ActionDispatcher{{}},
 			Values: map[string]interface{}{
 				"perform": true,
 			},
@@ -65,8 +67,9 @@ func TestContextUpdate(t *testing.T) {
 
 		fakePerformer := FakePerformer{}
 		defer gostub.StubFunc(&getActualAction, &fakePerformer).Reset()
-		actingMock.DoActions(Context{})
 
+		err := actingMock.DoActions(Context{})
+		assert.NoError(t, err)
 		assert.True(t, fakePerformer.Performed)
 	})
 }

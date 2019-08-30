@@ -30,7 +30,12 @@ func (om *OpenMock) StartAdmin() {
 		defer body.Close()
 
 		buf := &bytes.Buffer{}
-		buf.ReadFrom(body)
+
+		_, err := buf.ReadFrom(body)
+		if err != nil {
+			return err
+		}
+
 		b := buf.Bytes()
 
 		mocks := []*Mock{}
@@ -40,7 +45,10 @@ func (om *OpenMock) StartAdmin() {
 
 		for _, mock := range mocks {
 			s, _ := yaml.Marshal([]*Mock{mock})
-			om.redis.Do("HSET", redisTemplatesStore, mock.Key, s)
+			_, err := om.redis.Do("HSET", redisTemplatesStore, mock.Key, s)
+			if err != nil {
+				return err
+			}
 		}
 
 		time.AfterFunc(reloadDelay, func() { reload.Exec() })

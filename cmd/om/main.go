@@ -7,5 +7,7 @@ import (
 func main() {
 	om := &openmock.OpenMock{}
 	om.ParseEnv()
+
+	defer om.Stop()
 	om.Start()
 }
