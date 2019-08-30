@@ -142,6 +142,72 @@ Actions are a series of functions to run. Availabe actions are:
           Content-Type: text/html
 ```
 
+### Templates
+Templates can be useful to assemble your payloads from parts
+
+```yaml
+- key: dog
+  kind: Template
+  template: >
+    <animal>dog</animal>
+
+- key: cat
+  kind: Template
+  template: >
+    <animal>cat</animal>
+
+- key: get-freds-pets
+  kind: Behavior
+  expect:
+    http:
+      method: GET
+      path: /fred
+  actions:
+    - reply_http:
+        status_code: 200
+        body: >
+          <human>
+            <name>fred</name>
+            <pets>
+              {{template "dog" .}}
+              {{template "cat" .}}
+            </pets>
+          </human>
+```
+
+### Abstract Behaviors
+Abstract Behaviors can be used to parameterize some data
+
+```yaml
+- key: fruit-of-the-day
+  kind: AbstractBehavior
+  values:
+    fruit: potato
+  expect:
+    condition: '{{.HTTPQueryString | contains .Values.day}}'
+    http:
+      method: GET
+      path: /fruit-of-the-day
+  actions:
+    - reply_http:
+        status_code: 200
+        body: '{"fruit": "{{.Values.fruit}}"}'
+
+- key: monday-fruit
+  kind: Behavior
+  extend: fruit-of-the-day
+  values:
+    day: monday
+    fruit: apple
+
+- key: tuesday-fruit
+  kind: Behavior
+  extend: fruit-of-the-day
+  values:
+    day: tuesday
+
+```
+
 ### Dynamic templating
 OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pkg/text/template/) to write dynamic templates. Specifically, it supports a lot of _Context_ and _Helper Functions_.
 
