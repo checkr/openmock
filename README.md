@@ -52,7 +52,7 @@ Dependencies.
 # OpenMock Templates
 Templates are YAML files that describe the behavior of OpenMock.
 
-### Templates Directory
+## Templates Directory
 You can put any number of `.yaml` or `.yml` files in a directory, and then point
 environment variable `OPENMOCK_TEMPLATES_DIR` to it. OpenMock
 will recursively (including subdirectories) load all the YAML files. For example:
@@ -70,17 +70,29 @@ will recursively (including subdirectories) load all the YAML files. For example
 └── payload_from_file.yaml
 ```
 
-### Templates Schema
+## Schema
+OpenMock is configured a list of behaviors for it to follow. Each behavior is
+identified by a key, and a kind:
 ```yaml
-- key: name # the name of the mock
-  kind: Behavior # "Behavior" or "Template". Behavior is the default Kind.
+- key: respond-to-resource
+  kind: Behavior
+```
 
-  ####################################################################
-  ## Expect:
-  ##   It represents the channel and condition for the mock.
-  ##   For example, under what condition and from what channel should
-  ##   we proceed the actions.
-  ####################################################################
+### Expect
+
+It represents the channel to listen on and condition for the 
+actions of the behavior to be performed. Available channels are:
+
+- http
+- kafka
+- amqp
+
+For example, under what condition and from what channel should
+we proceed with the actions.
+
+```yaml
+- key: no-op
+  kind: Behavior
   expect:
     # Condition checks if we need to do the actions or not
     # It only proceeds if it evaluates to "true"
@@ -95,18 +107,24 @@ will recursively (including subdirectories) load all the YAML files. For example
       exchange: exchange_1
       routing_key: key_in
       queue: key_in
+```
   
-  ####################################################################
-  ## Actions:
-  ##   Actions are a series of functions to run, which defines the
-  ##   behaviors of the mock. Availabe actions are:
-  ##     - publish_amqp
-  ##     - publish_kafka
-  ##     - redis
-  ##     - reply_http
-  ##     - send_http
-  ##     - sleep
-  ####################################################################
+### Actions
+Actions are a series of functions to run. Availabe actions are:
+- publish_amqp
+- publish_kafka
+- redis
+- reply_http
+- send_http
+- sleep
+
+```yaml
+- key: every-op
+  kind: Behavior
+  expect:
+    http:
+      method: GET
+      path: /ping
   actions:
     - publish_kafka:
         topic: hello_kafka_out
@@ -123,6 +141,7 @@ will recursively (including subdirectories) load all the YAML files. For example
         headers:
           Content-Type: text/html
 ```
+
 ### Dynamic templating
 OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pkg/text/template/) to write dynamic templates. Specifically, it supports a lot of _Context_ and _Helper Functions_.
 
