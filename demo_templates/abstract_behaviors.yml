@@ -1,16 +1,32 @@
-- key: concrete-behavior
+- key: monday-fruit
   kind: Behavior
   extend: abstract-behavior
   values:
-    OK: 'banana'
+    day: monday
+    fruit: apple
+
+- key: tuesday-fruit
+  kind: Behavior
+  extend: abstract-behavior
+  values:
+    day: tuesday
+    fruit: banana
+
+- key: wednesday-fruit
+  kind: Behavior
+  extend: abstract-behavior
+  values:
+    day: wednesday
+    fruit: tomato
 
 - key: abstract-behavior
   kind: AbstractBehavior
   expect:
+    condition: '{{.HTTPQueryString | contains .Values.day}}'
     http:
       method: GET
       path: /fruit-of-the-day
   actions:
     - reply_http:
         status_code: 200
-        body: '{"fruit": "{{.Values.OK}}"}'
+        body: '{"fruit": "{{.Values.fruit}}"}'
