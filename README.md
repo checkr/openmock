@@ -169,8 +169,8 @@ Templates can be useful to assemble your payloads from parts
           <human>
             <name>fred</name>
             <pets>
-              {{template "dog" .}}
-              {{template "cat" .}}
+              {{template "dog"}}
+              {{template "cat"}}
             </pets>
           </human>
 ```
@@ -425,30 +425,45 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 # curl localhost:9999/send_webhook_to_httpbin
 ```
 
-### Example: Define and reuse template kind
+### Example: Use data in templates
 ```yaml
 # demo_templates/http.yaml
 
-- key: my_template_1
+- key: http-request-template
   kind: Template
   template: >
-    { "foo": "bar", "name": "my_template_1", "http_path": "{{.HTTPPath}}" }
+    { "http_path": "{{.HTTPPath}}", "http_headers": "{{.HTTPHeader}}" }
 
-- key: get_with_template
-  kind: Behavior
+- key: color-template
+  kind: Template
+  template: >
+    { "color": "{{.color}}" }
+
+- key: teapot
+  kind: AbstractBehavior
   expect:
     http:
       method: GET
-      path: /get_with_template
+      path: /teapot
   actions:
     - reply_http:
-        status_code: 200
+        status_code: 418
         body: >
-          {{template "my_template_1" .}}
+          {
+            "request-info": {{ template "http-request-template" . }},
+            "teapot-info": {{ template "color-template" .Values }}
+          }
+
+- key: purple-teapot
+  kind: Behavior
+  extend: teapot
+  values:
+    color: purple
 
 # To test
-# curl localhost:9999/get_with_template
+# curl localhost:9999/teapot
 ```
+
 
 # Advanced pipeline functions
 To enable advanced mocks, for example, your own encoding/decoding of the kafka messages,

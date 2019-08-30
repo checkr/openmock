@@ -119,21 +119,33 @@
              </SOAP-ENV:Body>
           </SOAP-ENV:Envelope>
 
-
-- key: my_template_1
+- key: http-request-template
   kind: Template
   template: >
-    { "foo": "bar", "name": "my_template_1", "http_path": "{{.HTTPPath}}" }
+    { "http_path": "{{.HTTPPath}}", "http_headers": "{{.HTTPHeader}}" }
 
+- key: color-template
+  kind: Template
+  template: >
+    { "color": "{{.color}}" }
 
-- key: get_with_template
-  kind: Behavior
+- key: teapot
+  kind: AbstractBehavior
   expect:
     http:
       method: GET
-      path: /get_with_template
+      path: /teapot
   actions:
     - reply_http:
-        status_code: 200
+        status_code: 418
         body: >
-          {{template "my_template_1" .}}
+          {
+            "request-info": {{ template "http-request-template" . }},
+            "teapot-info": {{ template "color-template" .Values }}
+          }
+
+- key: purple-teapot
+  kind: Behavior
+  extend: teapot
+  values:
+    color: purple
