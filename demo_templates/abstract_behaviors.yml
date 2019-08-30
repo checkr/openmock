@@ -19,8 +19,16 @@
     day: wednesday
     fruit: tomato
 
+- key: thursday-fruit
+  kind: Behavior
+  extend: abstract-behavior
+  values:
+    day: thursday
+
 - key: abstract-behavior
   kind: AbstractBehavior
+  values:
+    fruit: potato
   expect:
     condition: '{{.HTTPQueryString | contains .Values.day}}'
     http:

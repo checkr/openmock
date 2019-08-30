@@ -192,6 +192,14 @@ func readFile(templateKey string, baseDir string, filePath string) string {
 }
 
 func (m Mock) patchedWith(patch Mock) *Mock {
+	var values = make(map[string]interface{})
+	for key, value := range m.Values {
+		values[key] = value
+	}
+	for key, value := range patch.Values {
+		values[key] = value
+	}
+
 	baseStruct := structs.New(&m)
 	patchStruct := structs.New(patch)
 	for _, field := range patchStruct.Fields() {
@@ -199,5 +207,7 @@ func (m Mock) patchedWith(patch Mock) *Mock {
 			baseStruct.Field(field.Name()).Set(field.Value())
 		}
 	}
+	m.Values = values
+
 	return &m
 }

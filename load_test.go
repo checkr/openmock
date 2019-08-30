@@ -162,6 +162,7 @@ func TestMockPatching(t *testing.T) {
 			Condition: "foo",
 		},
 		Values: map[string]interface{}{
+			"foo":   "bar",
 			"value": "not-nana",
 		},
 	}
@@ -178,9 +179,13 @@ func TestMockPatching(t *testing.T) {
 		assert.Equal(t, "foo", patchedMock.Expect.Condition)
 	})
 
-	t.Run("patched mock has values from the patch", func(t *testing.T) {
+	t.Run("patched mock overrides values from the patch", func(t *testing.T) {
 		assert.Equal(t, "banana", patchedMock.Values["value"])
 		assert.Equal(t, "child", patchedMock.Key)
+	})
+
+	t.Run("patched mock has values from the parent", func(t *testing.T) {
+		assert.Equal(t, "bar", patchedMock.Values["foo"])
 	})
 
 	t.Run("the original mocks are unchanged", func(t *testing.T) {
