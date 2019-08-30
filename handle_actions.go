@@ -12,9 +12,6 @@ import (
 // DoActions do actions based on the context
 func (ms MocksArray) DoActions(c Context) error {
 	for _, m := range ms {
-		if !c.MatchCondition(m.Expect.Condition) {
-			continue
-		}
 		if err := m.DoActions(c); err != nil {
 			return nil
 		}
@@ -24,6 +21,9 @@ func (ms MocksArray) DoActions(c Context) error {
 
 func (m *Mock) DoActions(c Context) error {
 	c.Values = m.Values
+	if !c.MatchCondition(m.Expect.Condition) {
+		return nil
+	}
 	for _, actionDispatcher := range m.Actions {
 		actualAction := getActualAction(actionDispatcher)
 		if err := actualAction.Perform(c); err != nil {
