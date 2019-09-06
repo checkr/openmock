@@ -12,7 +12,7 @@ import (
 // DoActions do actions based on the context
 func (ms MocksArray) DoActions(c *Context) error {
 	for _, m := range ms {
-		if !c.MatchCondition(m.Expect.Condition) {
+		if !(c.MatchCondition(m.Expect.Condition) && c.MatchConditions(m.Expect.Conditions)) {
 			continue
 		}
 		if err := m.DoActions(c); err != nil {

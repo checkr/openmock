@@ -37,10 +37,11 @@ type (
 type (
 	// Expect represents what to expect from a mock
 	Expect struct {
-		HTTP      ExpectHTTP  `yaml:"http,omitempty"`
-		Kafka     ExpectKafka `yaml:"kafka,omitempty"`
-		AMQP      ExpectAMQP  `yaml:"amqp,omitempty"`
-		Condition string      `yaml:"condition,omitempty"`
+		HTTP       ExpectHTTP  `yaml:"http,omitempty"`
+		Kafka      ExpectKafka `yaml:"kafka,omitempty"`
+		AMQP       ExpectAMQP  `yaml:"amqp,omitempty"`
+		Condition  string      `yaml:"condition,omitempty"`
+		Conditions []string    `yaml:"conditions,omitempty"`
 	}
 
 	// ExpectKafka represents kafka expectation

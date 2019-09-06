@@ -50,6 +50,8 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20180827083657-b942cacc89fe // indirect
+	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472 // indirect
+	golang.org/x/sys v0.0.0-20190904154756-749cb33beabd // indirect
 	gopkg.in/airbrake/gobrake.v2 v2.0.9 // indirect
 	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect
 	gopkg.in/yaml.v2 v2.2.1

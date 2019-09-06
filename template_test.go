@@ -127,8 +127,8 @@ func TestTemplateRender(t *testing.T) {
 	})
 }
 
-func TestRenderConditions(t *testing.T) {
-	t.Run("match conditions happy code path", func(t *testing.T) {
+func TestRenderCondition(t *testing.T) {
+	t.Run("match condition happy code path", func(t *testing.T) {
 		raw := `{{eq (.AMQPPayload | jsonPath "dl_number") "K2879030"}}`
 		c := &Context{
 			AMQPPayload: `{"dl_number": "K2879030"}`,
@@ -136,7 +136,7 @@ func TestRenderConditions(t *testing.T) {
 		assert.True(t, c.MatchCondition(raw))
 	})
 
-	t.Run("match conditions not eq", func(t *testing.T) {
+	t.Run("match condition not eq", func(t *testing.T) {
 		raw := `{{eq (.AMQPPayload | jsonPath "dl_number") "12345678"}}`
 		c := &Context{
 			AMQPPayload: `{"dl_number": "K2879030"}`,
@@ -144,10 +144,71 @@ func TestRenderConditions(t *testing.T) {
 		assert.False(t, c.MatchCondition(raw))
 	})
 
-	t.Run("match conditions when condition is empty string", func(t *testing.T) {
+	t.Run("match condition when condition is empty string", func(t *testing.T) {
 		raw := ""
 		c := &Context{}
 		assert.True(t, c.MatchCondition(raw))
+	})
+}
+
+func TestRenderConditions(t *testing.T) {
+	t.Run("match conditions happy code path with multiple conditions", func(t *testing.T) {
+		conditions := [2]string{
+			`{{ eq (.AMQPPayload | jsonPath "dl_number") "K2879030" }}`,
+			`{{ eq (.AMQPPayload | jsonPath "state") "CA" }}`,
+		}
+
+		c := &Context{
+			AMQPPayload: `{"dl_number": "K2879030", "state": "CA" }`,
+		}
+		assert.True(t, c.MatchConditions(conditions[:]))
+	})
+
+	t.Run("match conditions happy code path with single condition", func(t *testing.T) {
+		conditions := [1]string{
+			`{{ eq (.AMQPPayload | jsonPath "dl_number") "K2879030" }}`,
+		}
+
+		c := &Context{
+			AMQPPayload: `{ "dl_number": "K2879030" }`,
+		}
+		assert.True(t, c.MatchConditions(conditions[:]))
+	})
+
+	t.Run("match conditions with failing conditions", func(t *testing.T) {
+		conditions := [2]string{
+			`{{ eq (.AMQPPayload | jsonPath "dl_number") "A1234567" }}`,
+			`{{ eq (.AMQPPayload | jsonPath "state") "AZ" }}`,
+		}
+
+		c := &Context{
+			AMQPPayload: `{"dl_number": "K2879030", "state": "CA" }`,
+		}
+		assert.False(t, c.MatchConditions(conditions[:]))
+	})
+
+	t.Run("match conditions with one failing and one passing condition", func(t *testing.T) {
+		conditions := [2]string{
+			`{{ eq (.AMQPPayload | jsonPath "dl_number") "K2879030" }}`,
+			`{{ eq (.AMQPPayload | jsonPath "state") "NY" }}`,
+		}
+
+		c := &Context{
+			AMQPPayload: `{"dl_number": "K2879030", "state": "CA" }`,
+		}
+		assert.False(t, c.MatchConditions(conditions[:]))
+	})
+
+	t.Run("match conditions with no conditions", func(t *testing.T) {
+		conditions := [0]string{}
+		c := &Context{}
+		assert.True(t, c.MatchConditions(conditions[:]))
+	})
+
+	t.Run("match conditions when conditions are empty strings", func(t *testing.T) {
+		conditions := [2]string{"", ""}
+		c := &Context{}
+		assert.True(t, c.MatchConditions(conditions[:]))
 	})
 }
 
