@@ -31,7 +31,7 @@ $ OPENMOCK_TEMPLATES_DIR=./demo_templates om
 
 Use it with docker.
 ```bash
-$ docker run -it -p 9999:9999 -v $(pwd)/demo_templates:/data/templates checkr/openmock 
+$ docker run -it -p 9999:9999 -v $(pwd)/demo_templates:/data/templates checkr/openmock
 ```
 
 Test it.
@@ -94,7 +94,7 @@ will recursively (including subdirectories) load all the YAML files. For example
       exchange: exchange_1
       routing_key: key_in
       queue: key_in
-  
+
   ####################################################################
   ## Actions:
   ##   Actions are a series of functions to run, which defines the
@@ -126,7 +126,7 @@ will recursively (including subdirectories) load all the YAML files. For example
 OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pkg/text/template/) to write dynamic templates. Specifically, it supports a lot of _Context_ and _Helper Functions_.
 
 - Usage of `{{ expr }}`. One can put `{{ expr }}` inside three types of places:
-  - `expect.condition`
+  - `expect.condition`, `expect.conditions`
   - `action.http.body`, `action.kafka.payload`, `action.amqp.payload`
   - `action.http.body_from_file`, `action.kafka.payload_from_file`, `action.amqp.payload_from_file` (`{{ expr }}` will be in the file)
 - Use Context inside `{{ expr }}`.
