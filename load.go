@@ -110,13 +110,13 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 		}
 
 		if len(r.Behaviors[m.Key].Actions) > 0 {
-			ordered_actions := r.Behaviors[m.Key].Actions
-			sort.Slice(ordered_actions, func(i, j int) bool {
-				return ordered_actions[i].Order < ordered_actions[j].Order
+			orderedActions := r.Behaviors[m.Key].Actions
+			sort.Slice(orderedActions, func(i, j int) bool {
+				return orderedActions[i].Order < orderedActions[j].Order
 			})
-			if !actionsEqual(ordered_actions, r.Behaviors[m.Key].Actions) {
+			if !actionsEqual(orderedActions, r.Behaviors[m.Key].Actions) {
 				m = r.Behaviors[m.Key].patchedWith(Mock{
-					Actions: ordered_actions,
+					Actions: orderedActions,
 				})
 				r.Behaviors[m.Key] = m
 			}
@@ -223,6 +223,8 @@ func (m Mock) patchedWith(patch Mock) *Mock {
 		values[key] = value
 	}
 
+	actions := append(m.Actions, patch.Actions...)
+
 	baseStruct := structs.New(&m)
 	patchStruct := structs.New(patch)
 	for _, field := range patchStruct.Fields() {
@@ -238,6 +240,7 @@ func (m Mock) patchedWith(patch Mock) *Mock {
 		}
 	}
 	m.Values = values
+	m.Actions = actions
 
 	return &m
 }

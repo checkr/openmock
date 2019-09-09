@@ -105,7 +105,7 @@ func TestLoadBehaviors(t *testing.T) {
 	t.Run("actions are ordered if order specified", func(t *testing.T) {
 		om := &OpenMock{}
 		om.setupRepo()
-		expected_actions := []ActionDispatcher{
+		expectedActions := []ActionDispatcher{
 			{
 				Order:       0,
 				ActionRedis: ActionRedis{"potato", "potato"},
@@ -129,7 +129,7 @@ func TestLoadBehaviors(t *testing.T) {
 			},
 		}
 		om.populateBehaviors(MocksArray{ping})
-		assert.Equal(t, expected_actions, om.repo.Behaviors["ping"].Actions)
+		assert.Equal(t, expectedActions, om.repo.Behaviors["ping"].Actions)
 	})
 }
 
@@ -183,6 +183,28 @@ func TestLoadExtendedBehaviors(t *testing.T) {
 		om.setupRepo()
 		om.populateBehaviors(MocksArray{concrete, abstract})
 		assert.Equal(t, 1, len(om.repo.HTTPMocks[expectHTTP]))
+	})
+
+	concreteWithActions := &Mock{
+		Key:    "concreteWithActions",
+		Expect: Expect{HTTP: expectHTTP},
+		Extend: "abstract",
+		Values: map[string]interface{}{
+			"foo": "bar",
+		},
+		Actions: []ActionDispatcher{{
+			Order:       1,
+			ActionRedis: ActionRedis{"hi", "bye"},
+		}},
+	}
+
+	t.Run("combines actions", func(t *testing.T) {
+		om := &OpenMock{}
+		om.setupRepo()
+		om.populateBehaviors(MocksArray{abstract, concreteWithActions})
+		assert.NotZero(t, om.repo.Behaviors["concreteWithActions"].Actions)
+		assert.Equal(t, "banana", om.repo.Behaviors["concreteWithActions"].Actions[0].ActionReplyHTTP.Body)
+		assert.Equal(t, "hi", om.repo.Behaviors["concreteWithActions"].Actions[1].ActionRedis[0])
 	})
 }
 
