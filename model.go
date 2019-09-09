@@ -114,7 +114,7 @@ type (
 
 // Action represents actions
 type ActionDispatcher struct {
-	Order              int                `yaml:"order"`
+	Order              int                `yaml:"order,omitempty"`
 	ActionPublishAMQP  ActionPublishAMQP  `yaml:"publish_amqp,omitempty"`
 	ActionPublishKafka ActionPublishKafka `yaml:"publish_kafka,omitempty"`
 	ActionRedis        ActionRedis        `yaml:"redis,omitempty"`
