@@ -83,11 +83,10 @@ func (c *Context) MatchCondition(condition string) (r bool) {
 
 // MatchConditions checks the AND of all conditions using MatchCondition
 func (c *Context) MatchConditions(conditions []string) (r bool) {
-	result := true
-
 	for _, condition := range conditions {
-		result = result && c.MatchCondition(condition)
+		if !c.MatchCondition(condition) {
+			return false
+		}
 	}
-
-	return result
+	return true
 }
