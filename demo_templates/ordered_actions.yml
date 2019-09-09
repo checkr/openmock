@@ -26,7 +26,7 @@
   actions: 
     - sleep: 
         duration: 1s
-      order: -1
+      order: -1000
   expect: 
     http: 
       method: GET

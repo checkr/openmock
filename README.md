@@ -161,7 +161,7 @@ The actions by default run in the order defined in the mock file; you can adjust
     - sleep:
         duration: 1s
       # sleep first
-      order: -1
+      order: -1000
 ```
 
 ### Templates
