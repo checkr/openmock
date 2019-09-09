@@ -121,6 +121,10 @@ func regexFindFirstSubmatch(regex string, s string) string {
 // hmacSHA256 computes SHA256 HMAC of data using secret
 func hmacSHA256(secret string, data string) string {
 	h := hmac.New(sha256.New, []byte(secret))
-	h.Write([]byte(data))
+	_, err := h.Write([]byte(data))
+	if err != nil {
+		logrus.WithField("err", err).Error("failed to hmacSHA256")
+		return ""
+	}
 	return hex.EncodeToString(h.Sum(nil))
 }

@@ -53,6 +53,10 @@ func (kc *kafkaClient) sendMessage(topic string, bytes []byte) (err error) {
 }
 
 func (kc *kafkaClient) close() error {
+	if kc == nil {
+		return nil
+	}
+
 	for _, consumer := range kc.consumers {
 		if err := consumer.Close(); err != nil {
 			return err
@@ -110,6 +114,8 @@ func (om *OpenMock) startKafka() {
 			}
 			logrus.Infof("consumer started for topic:%s", kafka.Topic)
 			om.kafkaClient.consumers = append(om.kafkaClient.consumers, consumer)
+
+			//nolint:gosimple
 			for {
 				select {
 				case msg, ok := <-consumer.Messages():

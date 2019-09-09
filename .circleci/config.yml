@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  unittest:
     docker:
       - image: circleci/golang:1.12
     working_directory: /go/src/github.com/checkr/openmock
@@ -10,6 +10,6 @@ jobs:
 
 workflows:
   version: 2
-  build_and_docker_push:
+  test:
     jobs:
-      - build
+      - unittest

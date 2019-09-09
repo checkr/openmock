@@ -29,8 +29,10 @@ func TestRedis(t *testing.T) {
 	})
 
 	t.Run("rpush set array data", func(t *testing.T) {
-		v, err := redisHandleReply(om.redis.Do("rpush", "k1", "v1"))
-		v, err = redisHandleReply(om.redis.Do("rpush", "k1", "v2"))
+		_, err := redisHandleReply(om.redis.Do("rpush", "k1", "v1"))
+		assert.NoError(t, err)
+
+		v, err := redisHandleReply(om.redis.Do("rpush", "k1", "v2"))
 		assert.NoError(t, err)
 		assert.NotEmpty(t, v)
 	})

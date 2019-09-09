@@ -9,7 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// DoActions do actions based on the context
 func (ms MocksArray) DoActions(c Context) error {
 	for _, m := range ms {
 		if err := m.DoActions(c); err != nil {
@@ -36,22 +35,22 @@ func (m *Mock) DoActions(c Context) error {
 	return nil
 }
 
-func (self ActionSendHTTP) Perform(context Context) error {
-	bodyStr, err := context.Render(self.Body)
+func (a ActionSendHTTP) Perform(context Context) error {
+	bodyStr, err := context.Render(a.Body)
 	if err != nil {
 		return err
 	}
 
-	urlStr, err := context.Render(self.URL)
+	urlStr, err := context.Render(a.URL)
 	if err != nil {
 		return err
 	}
 
 	request := gorequest.New().
 		SetDebug(true).
-		CustomMethod(self.Method, urlStr)
+		CustomMethod(a.Method, urlStr)
 
-	for k, v := range self.Headers {
+	for k, v := range a.Headers {
 		request.Set(k, v)
 	}
 
@@ -62,25 +61,25 @@ func (self ActionSendHTTP) Perform(context Context) error {
 	return nil
 }
 
-func (self ActionReplyHTTP) Perform(context Context) error {
+func (a ActionReplyHTTP) Perform(context Context) error {
 	ec := context.HTTPContext
 	contentType := echo.MIMEApplicationJSON // default to JSON
-	if ct, ok := self.Headers[echo.HeaderContentType]; ok {
+	if ct, ok := a.Headers[echo.HeaderContentType]; ok {
 		contentType = ct
 	}
-	for k, v := range self.Headers {
+	for k, v := range a.Headers {
 		ec.Response().Header().Set(k, v)
 	}
-	msg, err := context.Render(self.Body)
+	msg, err := context.Render(a.Body)
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for http")
 		return err
 	}
-	return ec.Blob(self.StatusCode, contentType, []byte(msg))
+	return ec.Blob(a.StatusCode, contentType, []byte(msg))
 }
 
-func (self ActionRedis) Perform(context Context) error {
-	for _, cmd := range self {
+func (a ActionRedis) Perform(context Context) error {
+	for _, cmd := range a {
 		_, err := context.Render(cmd)
 		if err != nil {
 			return err
@@ -89,35 +88,35 @@ func (self ActionRedis) Perform(context Context) error {
 	return nil
 }
 
-func (self ActionSleep) Perform(context Context) error {
-	time.Sleep(self.Duration)
+func (a ActionSleep) Perform(context Context) error {
+	time.Sleep(a.Duration)
 	return nil
 }
 
-func (self ActionPublishKafka) Perform(context Context) error {
-	msg := self.Payload
+func (a ActionPublishKafka) Perform(context Context) error {
+	msg := a.Payload
 	msg, err := context.Render(msg)
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for kafka payload")
 		return err
 	}
-	err = context.om.kafkaClient.sendMessage(self.Topic, []byte(msg))
+	err = context.om.kafkaClient.sendMessage(a.Topic, []byte(msg))
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to publish to kafka")
 	}
 	return err
 }
 
-func (self ActionPublishAMQP) Perform(context Context) error {
-	msg, err := context.Render(self.Payload)
+func (a ActionPublishAMQP) Perform(context Context) error {
+	msg, err := context.Render(a.Payload)
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for amqp")
 		return err
 	}
 	publishToAMQP(
 		context.om.AMQPURL,
-		self.Exchange,
-		self.RoutingKey,
+		a.Exchange,
+		a.RoutingKey,
 		msg,
 	)
 	return nil

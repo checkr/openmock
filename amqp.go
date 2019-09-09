@@ -93,15 +93,16 @@ func startWorker(om *OpenMock, amqp ExpectAMQP, ms MocksArray) {
 			return
 		}
 		for msg := range msgs {
+			err := ms.DoActions(Context{
+				AMQPPayload: string(msg.Body),
+				om:          om,
+			})
 			logrus.WithFields(logrus.Fields{
 				"amqp_msg":    string(msg.Body),
 				"exchange":    msg.Exchange,
 				"routing_key": msg.RoutingKey,
+				"err":         err,
 			}).Info()
-			ms.DoActions(Context{
-				AMQPPayload: string(msg.Body),
-				om:          om,
-			})
 		}
 
 		logrus.WithFields(logrus.Fields{"queue": amqp.Queue}).Warn("amqp worker connection reset")

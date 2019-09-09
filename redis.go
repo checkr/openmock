@@ -90,14 +90,3 @@ func redisDo(om *OpenMock) func(keyAndArgs ...interface{}) interface{} {
 		return v
 	}
 }
-
-func parseCommand(cmd string) (name string, args []interface{}) {
-	cmds := strings.Split(cmd, " ")
-	if len(cmds) == 1 {
-		return cmds[0], nil
-	}
-	for _, a := range cmds[1:] {
-		args = append(args, a)
-	}
-	return cmds[0], args
-}
