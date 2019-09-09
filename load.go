@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/fatih/structs"
@@ -107,7 +108,26 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 				r.AMQPMocks[m.Expect.AMQP] = append(r.AMQPMocks[m.Expect.AMQP], m)
 			}
 		}
+
+		if len(r.Behaviors[m.Key].Actions) > 0 {
+			ordered_actions := r.Behaviors[m.Key].Actions
+			sort.Slice(ordered_actions, func(i, j int) bool {
+				return ordered_actions[i].Order < ordered_actions[j].Order
+			})
+			if !actionsEqual(ordered_actions, r.Behaviors[m.Key].Actions) {
+				m = r.Behaviors[m.Key].patchedWith(Mock{
+					Actions: ordered_actions,
+				})
+				r.Behaviors[m.Key] = m
+			}
+		}
 	}
+}
+
+func actionsEqual(lhs []ActionDispatcher, rhs []ActionDispatcher) bool {
+	lhsString, lhsError := yaml.Marshal(lhs)
+	rhsString, rhsError := yaml.Marshal(rhs)
+	return !(lhsError != nil || rhsError != nil) && (string(lhsString) == string(rhsString))
 }
 
 func loadRedis(doer RedisDoer) (b []byte, err error) {

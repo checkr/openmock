@@ -1,0 +1,16 @@
+- key: ping
+  kind: Behavior
+  expect:
+    http:
+      method: GET
+      path: /ping
+  actions:
+    - order: 1
+      reply_http:
+        status_code: 200
+        body: OK
+        headers:
+          Content-Type: text/xml
+    - order: 0
+      redis: 
+        - "hello"

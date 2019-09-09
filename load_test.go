@@ -93,13 +93,44 @@ func TestLoad(t *testing.T) {
 }
 
 func TestLoadBehaviors(t *testing.T) {
-	om := &OpenMock{}
-	om.setupRepo()
-	ping := &Mock{
-		Key: "ping",
-	}
-	om.populateBehaviors(MocksArray{ping})
-	assert.Equal(t, ping, om.repo.Behaviors["ping"])
+	t.Run("happy path", func(t *testing.T) {
+		om := &OpenMock{}
+		om.setupRepo()
+		ping := &Mock{
+			Key: "ping",
+		}
+		om.populateBehaviors(MocksArray{ping})
+		assert.Equal(t, ping, om.repo.Behaviors["ping"])
+	})
+	t.Run("actions are ordered if order specified", func(t *testing.T) {
+		om := &OpenMock{}
+		om.setupRepo()
+		expected_actions := []ActionDispatcher{
+			{
+				Order:       0,
+				ActionRedis: ActionRedis{"potato", "potato"},
+			},
+			{
+				Order:           1,
+				ActionReplyHTTP: ActionReplyHTTP{Body: "banana"},
+			},
+		}
+		ping := &Mock{
+			Key: "ping",
+			Actions: []ActionDispatcher{
+				{
+					Order:           1,
+					ActionReplyHTTP: ActionReplyHTTP{Body: "banana"},
+				},
+				{
+					Order:       0,
+					ActionRedis: ActionRedis{"potato", "potato"},
+				},
+			},
+		}
+		om.populateBehaviors(MocksArray{ping})
+		assert.Equal(t, expected_actions, om.repo.Behaviors["ping"].Actions)
+	})
 }
 
 func TestLoadExtendedBehaviors(t *testing.T) {
