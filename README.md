@@ -503,11 +503,11 @@ package main
 
 import "github.com/checkr/openmock"
 
-func consumePipelineFunc(c *openmock.Context, in []byte) (out []byte, error) {
+func consumePipelineFunc(c openmock.Context, in []byte) (out []byte, error) {
   return decode(in), nil
 }
 
-func publishPipelineFunc(c *openmock.Context, in []byte) (out []byte, error) {
+func publishPipelineFunc(c openmock.Context, in []byte) (out []byte, error) {
   return encode(in), nil
 }
 
