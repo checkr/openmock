@@ -142,7 +142,7 @@ Actions are a series of functions to run. Availabe actions are:
           Content-Type: text/html
 ```
 
-The actions by default run in the order defined in the mock file; you can adjust this by adding an int 'order' field.
+The actions by default run in the order defined in the mock file; you can adjust this by adding an int 'order' value from lowest to highest number. The default value for 'order' is 0.
 ```yaml
 - key: every-op
   kind: Behavior
@@ -199,8 +199,8 @@ Templates can be useful to assemble your payloads from parts
 
 ### Abstract Behaviors
 Abstract Behaviors can be used to parameterize some data.
-When an abstract behavior and a behavior extending it both have actions defined, all of them are run when the behavior matches.
 
+When an abstract behavior and a behavior extending it both have actions defined, all of them are run when the behavior matches.  Actions will run from lowest to highest value of the 'order' field; if this is the same for two actions the action defined earlier in the abstract behavior runs first, followed by actions in the concrete behavior.
 ```yaml
 - key: fruit-of-the-day
   kind: AbstractBehavior
@@ -232,7 +232,7 @@ When an abstract behavior and a behavior extending it both have actions defined,
     # sleep then reply_http
     - sleep:
          duration: 1s
-      order: -1
+      order: -1000
 
 ```
 
