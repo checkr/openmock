@@ -142,6 +142,28 @@ Actions are a series of functions to run. Availabe actions are:
           Content-Type: text/html
 ```
 
+The actions by default run in the order defined in the mock file; you can adjust this by adding an int 'order' value from lowest to highest number. The default value for 'order' is 0.
+```yaml
+- key: every-op
+  kind: Behavior
+  expect:
+    http:
+      method: GET
+      path: /ping
+  actions:
+    - publish_kafka:
+        topic: hello_kafka_out
+        payload: >
+          {
+            "kafka": "OK",
+            "data": {}
+          }
+    - sleep:
+        duration: 1s
+      # sleep first
+      order: -1000
+```
+
 ### Templates
 Templates can be useful to assemble your payloads from parts
 
@@ -176,8 +198,9 @@ Templates can be useful to assemble your payloads from parts
 ```
 
 ### Abstract Behaviors
-Abstract Behaviors can be used to parameterize some data
+Abstract Behaviors can be used to parameterize some data.
 
+When an abstract behavior and a behavior extending it both have actions defined, all of them are run when the behavior matches.  Actions will run from lowest to highest value of the 'order' field; if this is the same for two actions the action defined earlier in the abstract behavior runs first, followed by actions in the concrete behavior.
 ```yaml
 - key: fruit-of-the-day
   kind: AbstractBehavior
@@ -205,6 +228,11 @@ Abstract Behaviors can be used to parameterize some data
   extend: fruit-of-the-day
   values:
     day: tuesday
+  actions: 
+    # sleep then reply_http
+    - sleep:
+         duration: 1s
+      order: -1000
 
 ```
 
@@ -475,11 +503,11 @@ package main
 
 import "github.com/checkr/openmock"
 
-func consumePipelineFunc(c *openmock.Context, in []byte) (out []byte, error) {
+func consumePipelineFunc(c openmock.Context, in []byte) (out []byte, error) {
   return decode(in), nil
 }
 
-func publishPipelineFunc(c *openmock.Context, in []byte) (out []byte, error) {
+func publishPipelineFunc(c openmock.Context, in []byte) (out []byte, error) {
   return encode(in), nil
 }
 

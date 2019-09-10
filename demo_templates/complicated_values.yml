@@ -1,0 +1,28 @@
+- key: complicated-values-template
+  kind: Template
+  template: >-
+    {{ cat 
+      .Values.root.branch.leaf.info 
+      .Values.root.stem.thing
+      .Values.root.item
+    }}
+
+- key: complicated-values-user
+  kind: Behavior
+  expect:
+    http:
+      method: GET
+      path: /muskrat
+  values:
+    root:
+      branch:
+        leaf:
+          info: 1
+      stem:
+        thing: 2
+      item: 3
+  actions:
+    - reply_http:
+        status_code: 418
+        body: >
+          {{ template "complicated-values-template" . }}

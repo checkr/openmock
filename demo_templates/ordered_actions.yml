@@ -1,0 +1,35 @@
+- key: ordered_actions
+  actions: 
+    - order: 1
+      reply_http: 
+        body: OK
+        headers: 
+          Content-Type: text/xml
+        status_code: 200
+    - order: 0
+      sleep: 
+        duration: 1s
+  expect: 
+    http: 
+      method: GET
+      path: /ping2
+  kind: Behavior
+- key: abstract_with_action
+  actions: 
+    - reply_http: 
+        body: OK
+        headers: 
+          Content-Type: text/plain
+        status_code: 200
+  kind: AbstractBehavior
+- key: merge_actions
+  actions: 
+    - sleep: 
+        duration: 1s
+      order: -1000
+  expect: 
+    http: 
+      method: GET
+      path: /merge_actions
+  extend: abstract_with_action
+  kind: Behavior

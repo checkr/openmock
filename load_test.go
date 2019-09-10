@@ -93,13 +93,44 @@ func TestLoad(t *testing.T) {
 }
 
 func TestLoadBehaviors(t *testing.T) {
-	om := &OpenMock{}
-	om.setupRepo()
-	ping := &Mock{
-		Key: "ping",
-	}
-	om.populateBehaviors(MocksArray{ping})
-	assert.Equal(t, ping, om.repo.Behaviors["ping"])
+	t.Run("happy path", func(t *testing.T) {
+		om := &OpenMock{}
+		om.setupRepo()
+		ping := &Mock{
+			Key: "ping",
+		}
+		om.populateBehaviors(MocksArray{ping})
+		assert.Equal(t, ping, om.repo.Behaviors["ping"])
+	})
+	t.Run("actions are ordered if order specified", func(t *testing.T) {
+		om := &OpenMock{}
+		om.setupRepo()
+		expectedActions := []ActionDispatcher{
+			{
+				Order:       0,
+				ActionRedis: ActionRedis{"potato", "potato"},
+			},
+			{
+				Order:           1,
+				ActionReplyHTTP: ActionReplyHTTP{Body: "banana"},
+			},
+		}
+		ping := &Mock{
+			Key: "ping",
+			Actions: []ActionDispatcher{
+				{
+					Order:           1,
+					ActionReplyHTTP: ActionReplyHTTP{Body: "banana"},
+				},
+				{
+					Order:       0,
+					ActionRedis: ActionRedis{"potato", "potato"},
+				},
+			},
+		}
+		om.populateBehaviors(MocksArray{ping})
+		assert.Equal(t, expectedActions, om.repo.Behaviors["ping"].Actions)
+	})
 }
 
 func TestLoadExtendedBehaviors(t *testing.T) {
@@ -152,6 +183,28 @@ func TestLoadExtendedBehaviors(t *testing.T) {
 		om.setupRepo()
 		om.populateBehaviors(MocksArray{concrete, abstract})
 		assert.Equal(t, 1, len(om.repo.HTTPMocks[expectHTTP]))
+	})
+
+	concreteWithActions := &Mock{
+		Key:    "concreteWithActions",
+		Expect: Expect{HTTP: expectHTTP},
+		Extend: "abstract",
+		Values: map[string]interface{}{
+			"foo": "bar",
+		},
+		Actions: []ActionDispatcher{{
+			Order:       1,
+			ActionRedis: ActionRedis{"hi", "bye"},
+		}},
+	}
+
+	t.Run("combines actions", func(t *testing.T) {
+		om := &OpenMock{}
+		om.setupRepo()
+		om.populateBehaviors(MocksArray{abstract, concreteWithActions})
+		assert.NotZero(t, om.repo.Behaviors["concreteWithActions"].Actions)
+		assert.Equal(t, "banana", om.repo.Behaviors["concreteWithActions"].Actions[0].ActionReplyHTTP.Body)
+		assert.Equal(t, "hi", om.repo.Behaviors["concreteWithActions"].Actions[1].ActionRedis[0])
 	})
 }
 

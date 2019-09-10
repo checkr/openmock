@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/fatih/structs"
@@ -107,7 +108,26 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 				r.AMQPMocks[m.Expect.AMQP] = append(r.AMQPMocks[m.Expect.AMQP], m)
 			}
 		}
+
+		if len(r.Behaviors[m.Key].Actions) > 0 {
+			orderedActions := r.Behaviors[m.Key].Actions
+			sort.Slice(orderedActions, func(i, j int) bool {
+				return orderedActions[i].Order < orderedActions[j].Order
+			})
+			if !actionsEqual(orderedActions, r.Behaviors[m.Key].Actions) {
+				m = r.Behaviors[m.Key].patchedWith(Mock{
+					Actions: orderedActions,
+				})
+				r.Behaviors[m.Key] = m
+			}
+		}
 	}
+}
+
+func actionsEqual(lhs []ActionDispatcher, rhs []ActionDispatcher) bool {
+	lhsString, lhsError := yaml.Marshal(lhs)
+	rhsString, rhsError := yaml.Marshal(rhs)
+	return !(lhsError != nil || rhsError != nil) && (string(lhsString) == string(rhsString))
 }
 
 func loadRedis(doer RedisDoer) (b []byte, err error) {
@@ -203,6 +223,8 @@ func (m Mock) patchedWith(patch Mock) *Mock {
 		values[key] = value
 	}
 
+	actions := append(m.Actions, patch.Actions...)
+
 	baseStruct := structs.New(&m)
 	patchStruct := structs.New(patch)
 	for _, field := range patchStruct.Fields() {
@@ -218,6 +240,7 @@ func (m Mock) patchedWith(patch Mock) *Mock {
 		}
 	}
 	m.Values = values
+	m.Actions = actions
 
 	return &m
 }
