@@ -94,7 +94,6 @@
               ` | htmlEscapeString }}
           </xml>
 
-
 - key: soap_example
   kind: Behavior
   expect:
@@ -149,3 +148,20 @@
   extend: teapot
   values:
     color: purple
+
+- key: long_conditions
+  kind: Behavior
+  expect:
+    condition: >-
+      {{
+        (.HTTPQueryString | contains "foo1=bar1") | and
+        (.HTTPQueryString | contains "foo2=bar2") | and
+        (.HTTPQueryString | contains "foo3=bar3")
+      }}
+    http:
+      method: GET
+      path: /long_conditions
+  actions:
+    - reply_http:
+        status_code: 200
+        body: 'OK'
