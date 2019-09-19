@@ -3,13 +3,15 @@ package openmock
 import (
 	"bytes"
 	"fmt"
+	"net/url"
 	"time"
 
 	em "github.com/dafiti/echo-middleware"
+	"github.com/gomodule/redigo/redis"
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
 	"github.com/teamwork/reload"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 const reloadDelay = time.Second
@@ -53,6 +55,32 @@ func (om *OpenMock) StartAdmin() {
 
 		time.AfterFunc(reloadDelay, func() { reload.Exec() })
 		return c.String(200, string(b))
+	})
+
+	e.DELETE("/api/v1/templates/:key", func(c echo.Context) error {
+		key, err := url.QueryUnescape(c.Param("key"))
+		if err != nil {
+			return c.String(400, fmt.Sprintf("invalid key: %v. error: %s", key, err))
+		}
+
+		v, err := om.redis.Do("HGET", redisTemplatesStore, key)
+		m, err := redis.Bytes(v, err)
+
+		if err != nil {
+			return err
+		}
+
+		if m == nil {
+			return c.String(404, fmt.Sprintf("key not found: %v", key))
+		}
+
+		_, err = om.redis.Do("HDEL", redisTemplatesStore, key)
+		if err != nil {
+			return err
+		}
+
+		time.AfterFunc(reloadDelay, func() { reload.Exec() })
+		return c.String(200, fmt.Sprintf("deleted:\n\n%v", string(m)))
 	})
 
 	e.GET("/api/v1/templates", func(c echo.Context) error {
