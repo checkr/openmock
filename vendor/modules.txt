@@ -40,8 +40,8 @@ github.com/fsnotify/fsnotify
 # github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db
 github.com/golang/snappy
 # github.com/gomodule/redigo v2.0.0+incompatible
-github.com/gomodule/redigo/redis
 github.com/gomodule/redigo/internal
+github.com/gomodule/redigo/redis
 # github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c
 github.com/google/uuid
 # github.com/huandu/xstrings v1.0.0
@@ -52,9 +52,9 @@ github.com/imdario/mergo
 github.com/labstack/echo
 github.com/labstack/echo/middleware
 # github.com/labstack/gommon v0.0.0-20180613044413-d6898124de91
+github.com/labstack/gommon/bytes
 github.com/labstack/gommon/color
 github.com/labstack/gommon/log
-github.com/labstack/gommon/bytes
 github.com/labstack/gommon/random
 # github.com/mattn/go-colorable v0.0.9
 github.com/mattn/go-colorable
@@ -65,11 +65,11 @@ github.com/moul/http2curl
 # github.com/newrelic/go-agent v2.0.0+incompatible
 github.com/newrelic/go-agent
 github.com/newrelic/go-agent/internal
-github.com/newrelic/go-agent/internal/logger
-github.com/newrelic/go-agent/internal/utilization
 github.com/newrelic/go-agent/internal/cat
 github.com/newrelic/go-agent/internal/jsonx
+github.com/newrelic/go-agent/internal/logger
 github.com/newrelic/go-agent/internal/sysinfo
+github.com/newrelic/go-agent/internal/utilization
 # github.com/parnurzeal/gorequest v0.0.0-20171015110455-8e3aed27fe49
 github.com/parnurzeal/gorequest
 # github.com/pierrec/lz4 v2.0.3+incompatible
@@ -99,20 +99,20 @@ github.com/valyala/bytebufferpool
 github.com/valyala/fasttemplate
 # github.com/yuin/gopher-lua v0.0.0-20180827083657-b942cacc89fe
 github.com/yuin/gopher-lua
-github.com/yuin/gopher-lua/parse
 github.com/yuin/gopher-lua/ast
+github.com/yuin/gopher-lua/parse
 github.com/yuin/gopher-lua/pm
 # golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
-golang.org/x/crypto/scrypt
-golang.org/x/crypto/acme/autocert
-golang.org/x/crypto/ssh/terminal
-golang.org/x/crypto/pbkdf2
 golang.org/x/crypto/acme
+golang.org/x/crypto/acme/autocert
+golang.org/x/crypto/pbkdf2
+golang.org/x/crypto/scrypt
+golang.org/x/crypto/ssh/terminal
 # golang.org/x/net v0.0.0-20190311183353-d8887717615a
-golang.org/x/net/html/charset
-golang.org/x/net/publicsuffix
 golang.org/x/net/html
 golang.org/x/net/html/atom
+golang.org/x/net/html/charset
+golang.org/x/net/publicsuffix
 # golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a
 golang.org/x/sys/unix
 golang.org/x/sys/windows
@@ -120,17 +120,17 @@ golang.org/x/sys/windows
 golang.org/x/text/encoding
 golang.org/x/text/encoding/charmap
 golang.org/x/text/encoding/htmlindex
-golang.org/x/text/transform
-golang.org/x/text/encoding/internal/identifier
 golang.org/x/text/encoding/internal
+golang.org/x/text/encoding/internal/identifier
 golang.org/x/text/encoding/japanese
 golang.org/x/text/encoding/korean
 golang.org/x/text/encoding/simplifiedchinese
 golang.org/x/text/encoding/traditionalchinese
 golang.org/x/text/encoding/unicode
-golang.org/x/text/language
-golang.org/x/text/internal/utf8internal
-golang.org/x/text/runes
 golang.org/x/text/internal/tag
+golang.org/x/text/internal/utf8internal
+golang.org/x/text/language
+golang.org/x/text/runes
+golang.org/x/text/transform
 # gopkg.in/yaml.v2 v2.2.1
 gopkg.in/yaml.v2
