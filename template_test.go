@@ -189,9 +189,9 @@ func TestTemplateRender(t *testing.T) {
 
 func TestRenderConditions(t *testing.T) {
 	t.Run("match conditions happy code path", func(t *testing.T) {
-		raw := `{{eq (.AMQPPayload | jsonPath "dl_number") "K2879030"}}`
+		raw := `{{.AMQPPayload | jsonPath "dl_number" | contains "K1111111" | not}}`
 		c := Context{
-			AMQPPayload: `{"dl_number": "K2879030"}`,
+			AMQPPayload: `{"dl_number": "K3333333"}`,
 		}
 		assert.True(t, c.MatchCondition(raw))
 	})
@@ -199,7 +199,7 @@ func TestRenderConditions(t *testing.T) {
 	t.Run("match conditions not eq", func(t *testing.T) {
 		raw := `{{eq (.AMQPPayload | jsonPath "dl_number") "12345678"}}`
 		c := Context{
-			AMQPPayload: `{"dl_number": "K2879030"}`,
+			AMQPPayload: `{"dl_number": "K1111111"}`,
 		}
 		assert.False(t, c.MatchCondition(raw))
 	})
