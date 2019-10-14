@@ -99,7 +99,7 @@ func TestLoadBehaviors(t *testing.T) {
 		ping := &Mock{
 			Key: "ping",
 		}
-		om.populateBehaviors(MocksArray{ping})
+		om.populateBehaviors(MocksArray{ping}, false)
 		assert.Equal(t, ping, om.repo.Behaviors["ping"])
 	})
 	t.Run("actions are ordered if order specified", func(t *testing.T) {
@@ -128,7 +128,7 @@ func TestLoadBehaviors(t *testing.T) {
 				},
 			},
 		}
-		om.populateBehaviors(MocksArray{ping})
+		om.populateBehaviors(MocksArray{ping}, false)
 		assert.Equal(t, expectedActions, om.repo.Behaviors["ping"].Actions)
 	})
 }
@@ -159,7 +159,7 @@ func TestLoadExtendedBehaviors(t *testing.T) {
 	t.Run("inherits actions", func(t *testing.T) {
 		om := &OpenMock{}
 		om.setupRepo()
-		om.populateBehaviors(MocksArray{abstract, concrete})
+		om.populateBehaviors(MocksArray{abstract, concrete}, false)
 		assert.NotZero(t, om.repo.Behaviors["concrete"].Actions)
 		assert.Equal(t, "banana", om.repo.Behaviors["concrete"].Actions[0].ActionReplyHTTP.Body)
 	})
@@ -167,21 +167,21 @@ func TestLoadExtendedBehaviors(t *testing.T) {
 	t.Run("persists values", func(t *testing.T) {
 		om := &OpenMock{}
 		om.setupRepo()
-		om.populateBehaviors(MocksArray{abstract, concrete})
+		om.populateBehaviors(MocksArray{abstract, concrete}, false)
 		assert.Equal(t, "bar", om.repo.Behaviors["concrete"].Values["foo"])
 	})
 
 	t.Run("extended behavior defined after concrete behavior", func(t *testing.T) {
 		om := &OpenMock{}
 		om.setupRepo()
-		om.populateBehaviors(MocksArray{concrete, abstract})
+		om.populateBehaviors(MocksArray{concrete, abstract}, false)
 		assert.Equal(t, "banana", om.repo.Behaviors["concrete"].Actions[0].ActionReplyHTTP.Body)
 	})
 
 	t.Run("abstract behavior not exposed as actionable", func(t *testing.T) {
 		om := &OpenMock{}
 		om.setupRepo()
-		om.populateBehaviors(MocksArray{concrete, abstract})
+		om.populateBehaviors(MocksArray{concrete, abstract}, false)
 		assert.Equal(t, 1, len(om.repo.HTTPMocks[expectHTTP]))
 	})
 
@@ -201,7 +201,7 @@ func TestLoadExtendedBehaviors(t *testing.T) {
 	t.Run("combines actions", func(t *testing.T) {
 		om := &OpenMock{}
 		om.setupRepo()
-		om.populateBehaviors(MocksArray{abstract, concreteWithActions})
+		om.populateBehaviors(MocksArray{abstract, concreteWithActions}, false)
 		assert.NotZero(t, om.repo.Behaviors["concreteWithActions"].Actions)
 		assert.Equal(t, "banana", om.repo.Behaviors["concreteWithActions"].Actions[0].ActionReplyHTTP.Body)
 		assert.Equal(t, "hi", om.repo.Behaviors["concreteWithActions"].Actions[1].ActionRedis[0])
@@ -274,12 +274,46 @@ func TestOverrideBehaviorByKey(t *testing.T) {
 
 	om := &OpenMock{}
 	om.setupRepo()
-	om.populateBehaviors(MocksArray{nothealthy, healthy})
+	om.populateBehaviors(MocksArray{nothealthy, healthy}, false)
 
 	t.Run("should only have one behavior with the same key", func(t *testing.T) {
 		assert.Equal(t, 1, len(om.repo.HTTPMocks[expectHTTP]))
 	})
 	t.Run("should take values with latest behavior", func(t *testing.T) {
 		assert.Equal(t, "healthy-banana", om.repo.HTTPMocks[expectHTTP][0].Values["value"])
+	})
+}
+
+func TestOverrideBehaviorByKeyOptionallyNotAllowed(t *testing.T) {
+	expectHTTP := ExpectHTTP{
+		Method: "GET",
+		Path:   "/health-check",
+	}
+
+	nothealthy := &Mock{
+		Key: "health-check",
+		Expect: Expect{
+			HTTP: expectHTTP,
+		},
+		Values: map[string]interface{}{
+			"value": "not-healthy-banana",
+		},
+	}
+	healthy := &Mock{
+		Key: "health-check",
+		Expect: Expect{
+			HTTP: expectHTTP,
+		},
+		Values: map[string]interface{}{
+			"value": "healthy-banana",
+		},
+	}
+
+	om := &OpenMock{}
+	om.setupRepo()
+	err := om.populateBehaviors(MocksArray{nothealthy, healthy}, true)
+
+	t.Run("should result in an error", func(t *testing.T) {
+		assert.NotZero(t, err)
 	})
 }

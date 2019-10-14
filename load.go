@@ -2,6 +2,7 @@ package openmock
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -26,26 +27,20 @@ func (om *OpenMock) Load() error {
 		return err
 	}
 
+	om.populateMocks(f, false)
+	if err != nil {
+		return err
+	}
+
 	r, err := loadRedis(om.redis)
 	if err != nil {
 		return err
 	}
 
-	b := bytes.Join([][]byte{f, r}, []byte("\n"))
-
-	mocks := []*Mock{}
-	if err := yaml.UnmarshalStrict(b, &mocks); err != nil {
+	om.populateMocks(r, true)
+	if err != nil {
 		return err
 	}
-	for _, m := range mocks {
-		if err := m.Validate(); err != nil {
-			return err
-		}
-	}
-	if err := om.populateTemplates(mocks); err != nil {
-		return err
-	}
-	om.populateBehaviors(mocks)
 	return nil
 }
 
@@ -64,14 +59,36 @@ func (om *OpenMock) populateTemplates(mocks []*Mock) error {
 	return nil
 }
 
-func (om *OpenMock) populateBehaviors(mocks []*Mock) {
+func (om *OpenMock) populateMocks(rawMocks []byte, verifyUniqueBehaviors bool) error {
+	mocks := []*Mock{}
+	if err := yaml.UnmarshalStrict(rawMocks, &mocks); err != nil {
+		return err
+	}
+	for _, m := range mocks {
+		if err := m.Validate(); err != nil {
+			return err
+		}
+	}
+	if err := om.populateTemplates(mocks); err != nil {
+		return err
+	}
+	om.populateBehaviors(mocks, verifyUniqueBehaviors)
+	return nil
+}
+
+func (om *OpenMock) populateBehaviors(mocks []*Mock, verifyUniqueBehaviors bool) error {
 	r := om.repo
 
 	for i := range mocks {
 		m := mocks[i]
 		m.loadFile(om.TemplatesDir)
 		if r.Behaviors[m.Key] != nil {
-			logrus.WithField("key", m.Key).Info("Overriding existing behavior")
+			if verifyUniqueBehaviors {
+				logrus.WithField("key", m.Key).Error("Overriding existing behavior")
+				return errors.New("Overriding existing behavior from yaml not allowed")
+			} else {
+				logrus.WithField("key", m.Key).Info("Overriding existing behavior")
+			}
 		}
 		r.Behaviors[m.Key] = m
 	}
@@ -122,6 +139,8 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 			}
 		}
 	}
+
+	return nil
 }
 
 func actionsEqual(lhs []ActionDispatcher, rhs []ActionDispatcher) bool {
