@@ -165,3 +165,19 @@
     - reply_http:
         status_code: 200
         body: 'OK'
+
+
+- key: cors-options
+  kind: Behavior
+  expect:
+    http:
+      method: OPTIONS
+      path: /cors
+  actions:
+    - reply_http:
+        status_code: 204
+        body: ''
+        headers:
+          Access-Control-Allow-Origin: http://localhost:9991
+          Access-Control-Allow-Methods: POST, GET, OPTIONS
+          Access-Control-Allow-Headers: Content-Type
