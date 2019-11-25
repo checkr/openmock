@@ -288,6 +288,18 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
   {{.HTTPBody | xmlPath "node1/node2/node3"}}
   ```
 
+## Command Line Interface
+Openmock has a command-line interface to help with certain tasks interacting with openmock instances. This is 
+invoked with the `omctl` command.  This uses the [cobra](https://github.com/spf13/cobra) library to provide a discoverable CLI; run `omctl` for a list of commands / flags. 
+
+### CLI: Directory
+#### Push
+Pushes a local openmock model from the file system to a remote instance.
+```
+# Adds templates from the ./demo_templates directory to the instance running on localhost.
+omctl push --directory ./demo_templates --url http://localhost:9998
+```
+
 ### Example: Mock HTTP
 ```yaml
 # demo_templates/http.yaml

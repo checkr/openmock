@@ -5,8 +5,13 @@ vendor:
 	@GO111MODULE=on go mod tidy
 	@GO111MODULE=on go mod vendor
 
-build:
+build: build_om build_omctl
+
+build_om:
 	@GO111MODULE=on go build -mod=vendor -o $(PWD)/om github.com/checkr/openmock/cmd/om
+
+build_omctl:
+	@GO111MODULE=on go build -mod=vendor -o $(PWD)/omctl github.com/checkr/openmock/cmd/omctl
 
 test: lint
 	@GO111MODULE=on go test -mod=vendor -race -covermode=atomic .

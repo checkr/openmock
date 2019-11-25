@@ -181,18 +181,21 @@ func (m *Mock) loadFile(baseDir string) {
 			amqp := &a.ActionPublishAMQP
 			if amqp.PayloadFromFile != "" && amqp.Payload == "" {
 				amqp.Payload = readFile(m.Key, baseDir, amqp.PayloadFromFile)
+				amqp.PayloadFromFile = ""
 			}
 		}
 		if !structs.IsZero(a.ActionPublishKafka) {
 			kafka := &a.ActionPublishKafka
 			if kafka.PayloadFromFile != "" && kafka.Payload == "" {
 				kafka.Payload = readFile(m.Key, baseDir, kafka.PayloadFromFile)
+				kafka.PayloadFromFile = ""
 			}
 		}
 		if !structs.IsZero(a.ActionReplyHTTP) {
 			h := &a.ActionReplyHTTP
 			if h.BodyFromFile != "" && h.Body == "" {
 				h.Body = readFile(m.Key, baseDir, h.BodyFromFile)
+				h.BodyFromFile = ""
 			}
 		}
 	}
