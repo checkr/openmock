@@ -44,17 +44,6 @@ github.com/gomodule/redigo/internal
 github.com/gomodule/redigo/redis
 # github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c
 github.com/google/uuid
-# github.com/hashicorp/hcl v1.0.0
-github.com/hashicorp/hcl
-github.com/hashicorp/hcl/hcl/ast
-github.com/hashicorp/hcl/hcl/parser
-github.com/hashicorp/hcl/hcl/printer
-github.com/hashicorp/hcl/hcl/scanner
-github.com/hashicorp/hcl/hcl/strconv
-github.com/hashicorp/hcl/hcl/token
-github.com/hashicorp/hcl/json/parser
-github.com/hashicorp/hcl/json/scanner
-github.com/hashicorp/hcl/json/token
 # github.com/huandu/xstrings v1.0.0
 github.com/huandu/xstrings
 # github.com/imdario/mergo v0.3.6
@@ -71,14 +60,10 @@ github.com/labstack/gommon/bytes
 github.com/labstack/gommon/color
 github.com/labstack/gommon/log
 github.com/labstack/gommon/random
-# github.com/magiconair/properties v1.8.1
-github.com/magiconair/properties
 # github.com/mattn/go-colorable v0.0.9
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.3
 github.com/mattn/go-isatty
-# github.com/mitchellh/mapstructure v1.1.2
-github.com/mitchellh/mapstructure
 # github.com/moul/http2curl v1.0.0
 github.com/moul/http2curl
 # github.com/newrelic/go-agent v2.0.0+incompatible
@@ -91,8 +76,6 @@ github.com/newrelic/go-agent/internal/sysinfo
 github.com/newrelic/go-agent/internal/utilization
 # github.com/parnurzeal/gorequest v0.0.0-20171015110455-8e3aed27fe49
 github.com/parnurzeal/gorequest
-# github.com/pelletier/go-toml v1.2.0
-github.com/pelletier/go-toml
 # github.com/pierrec/lz4 v2.0.3+incompatible
 github.com/pierrec/lz4
 github.com/pierrec/lz4/internal/xxh32
@@ -106,25 +89,16 @@ github.com/prashantv/gostub
 github.com/rcrowley/go-metrics
 # github.com/sirupsen/logrus v1.2.0
 github.com/sirupsen/logrus
-# github.com/spf13/afero v1.1.2
-github.com/spf13/afero
-github.com/spf13/afero/mem
 # github.com/spf13/cast v1.3.0
 github.com/spf13/cast
 # github.com/spf13/cobra v0.0.5
 github.com/spf13/cobra
-# github.com/spf13/jwalterweatherman v1.0.0
-github.com/spf13/jwalterweatherman
 # github.com/spf13/pflag v1.0.3
 github.com/spf13/pflag
-# github.com/spf13/viper v1.5.0
-github.com/spf13/viper
 # github.com/streadway/amqp v0.0.0-20180806233856-70e15c650864
 github.com/streadway/amqp
 # github.com/stretchr/testify v1.2.2
 github.com/stretchr/testify/assert
-# github.com/subosito/gotenv v1.2.0
-github.com/subosito/gotenv
 # github.com/teamwork/reload v0.0.0-20190319183701-e8d47ccac39e
 github.com/teamwork/reload
 # github.com/valyala/bytebufferpool v1.0.0
@@ -166,6 +140,5 @@ golang.org/x/text/internal/utf8internal
 golang.org/x/text/language
 golang.org/x/text/runes
 golang.org/x/text/transform
-golang.org/x/text/unicode/norm
 # gopkg.in/yaml.v2 v2.2.4
 gopkg.in/yaml.v2
