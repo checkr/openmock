@@ -40,6 +40,10 @@ type OpenMock struct {
 	redis       RedisDoer
 }
 
+func (om *OpenMock) ToYAML() []byte {
+	return om.repo.ToYAML()
+}
+
 // ParseEnv loads env vars into the openmock struct
 func (om *OpenMock) ParseEnv() {
 	err := env.Parse(om)
@@ -48,7 +52,7 @@ func (om *OpenMock) ParseEnv() {
 	}
 }
 
-func (om *OpenMock) setupLogrus() {
+func (om *OpenMock) SetupLogrus() {
 	l, err := logrus.ParseLevel(om.LogLevel)
 	if err != nil {
 		logrus.WithField("err", err).Fatalf("failed to set logrus level:%s", om.LogLevel)
@@ -57,7 +61,7 @@ func (om *OpenMock) setupLogrus() {
 	logrus.SetOutput(os.Stdout)
 }
 
-func (om *OpenMock) setupRepo() {
+func (om *OpenMock) SetupRepo() {
 	om.repo = &MockRepo{
 		HTTPMocks:  HTTPMocks{},
 		KafkaMocks: KafkaMocks{},
@@ -78,8 +82,8 @@ func waitForSignal() {
 
 // Start starts the openmock
 func (om *OpenMock) Start() {
-	om.setupLogrus()
-	om.setupRepo()
+	om.SetupLogrus()
+	om.SetupRepo()
 
 	om.SetRedis()
 	om.StartAdmin()
