@@ -20,6 +20,7 @@ func (om *OpenMock) startHTTP() {
 			"http_res": string(resBody),
 		}).Info()
 	}))
+	e.Use(middleware.CORS())
 
 	mocks := om.repo.HTTPMocks
 	for h, ms := range mocks {
