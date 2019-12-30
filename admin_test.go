@@ -30,39 +30,18 @@ func testRequest(method, path string, e *echo.Echo) (int, string) {
 }
 
 func testRequestBody(method, path string, e *echo.Echo, body io.Reader) (int, string) {
+	return testRequestFull(method, path, e, body, map[string]string{})
+}
+
+func testRequestFull(method, path string, e *echo.Echo, body io.Reader, headers map[string]string) (int, string) {
 	req := httptest.NewRequest(method, path, body)
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 	return rec.Code, rec.Body.String()
 }
-
-// type FakeRedis struct {
-// }
-
-// func (fr *FakeRedis) hset(key string, field string, value string) (reply interface{}, err error) {
-// 	return "", nil
-// }
-
-// func (fr *FakeRedis) hdel(key string, field string) (reply interface{}, err error) {
-// 	return "", nil
-// }
-
-// func (fr *FakeRedis) hget(key string, field string) (reply interface{}, err error) {
-// 	return "", nil
-// }
-
-// func (fr *FakeRedis) Do(commandName string, args ...interface{}) (reply interface{}, err error) {
-// 	switch commandName {
-// 	case "HSET":
-// 		return fr.hset(args[0].(string), args[1].(string), args[2].(string))
-// 	case "HDEL":
-// 		return fr.hdel(args[0].(string), args[1].(string))
-// 	case "HGET":
-// 		return fr.hget(args[0].(string), args[1].(string))
-// 	default:
-// 		return "", fmt.Errorf("Unknown FakeRedis command %s", commandName)
-// 	}
-// }
 
 func TestGetTemplates(t *testing.T) {
 	t.Run("Get Templates returns YAML", func(t *testing.T) {
@@ -123,8 +102,7 @@ func TestPostTemplates(t *testing.T) {
 	e := echo.New()
 	e.POST("/", handler)
 
-	t.Run("Post Happy path", func(t *testing.T) {
-		bodyReader := strings.NewReader(`
+	bodyString := `
 - key: 123
   kind: Behavior
   expect:
@@ -137,12 +115,31 @@ func TestPostTemplates(t *testing.T) {
         body: OK
         headers:
           Content-Type: text/xml	
-    `)
+  `
+
+	t.Run("Post Happy path", func(t *testing.T) {
+		bodyReader := strings.NewReader(bodyString)
 		c, b := testRequestBody(http.MethodPost, "/", e, bodyReader)
 		assert.Equal(t, http.StatusOK, c)
 		assert.NotEmpty(t, b)
 
 		v, err := om.redis.Do("HGET", redisTemplatesStore, "123")
+		result, err := redis.Bytes(v, err)
+		assert.Empty(t, err)
+		assert.NotEmpty(t, string(result))
+	})
+
+	t.Run("Post with alternate key header", func(t *testing.T) {
+		postKey := "foobar"
+		headers := map[string]string{
+			postKeyHeader: postKey,
+		}
+		bodyReader := strings.NewReader(bodyString)
+		c, b := testRequestFull(http.MethodPost, "/", e, bodyReader, headers)
+		assert.Equal(t, http.StatusOK, c)
+		assert.NotEmpty(t, b)
+
+		v, err := om.redis.Do("HGET", redisTemplatesStore+"_"+postKey, "123")
 		result, err := redis.Bytes(v, err)
 		assert.Empty(t, err)
 		assert.NotEmpty(t, string(result))

@@ -16,6 +16,8 @@ import (
 
 const reloadDelay = time.Second
 
+const postKeyHeader = "X-OPENMOCK-POST-KEY"
+
 func PostTemplates(om *OpenMock, shouldRestart bool) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		body := c.Request().Body
@@ -35,9 +37,15 @@ func PostTemplates(om *OpenMock, shouldRestart bool) func(c echo.Context) error 
 			return c.String(400, fmt.Sprintf("not valid YAML %s", err))
 		}
 
+		redisKey := redisTemplatesStore
+		alternativeKey := c.Request().Header.Get(postKeyHeader)
+		if alternativeKey != "" {
+			redisKey = redisKey + "_" + alternativeKey
+		}
+
 		for _, mock := range mocks {
 			s, _ := yaml.Marshal([]*Mock{mock})
-			_, err := om.redis.Do("HSET", redisTemplatesStore, mock.Key, s)
+			_, err := om.redis.Do("HSET", redisKey, mock.Key, s)
 			if err != nil {
 				return err
 			}
