@@ -16,11 +16,11 @@ import (
 func getTestOM(t *testing.T) *OpenMock {
 	om := &OpenMock{
 		TemplatesDir: "demo_templates",
+		RedisType:    "",
 	}
 	om.SetupRepo()
 	err := om.Load()
 	assert.NoError(t, err)
-	om.RedisType = ""
 	om.SetRedis()
 	return om
 }
