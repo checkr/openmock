@@ -16,18 +16,8 @@ import (
 
 const reloadDelay = time.Second
 
-// StartAdmin starts an admin HTTP server
-// that can CRUD the templates
-func (om *OpenMock) StartAdmin() {
-	if !om.AdminHTTPEnabled {
-		return
-	}
-
-	e := echo.New()
-	e.HideBanner = true
-	e.Use(em.Logrus())
-
-	e.POST("/api/v1/templates", func(c echo.Context) error {
+func PostTemplates(om *OpenMock, shouldRestart bool) func(c echo.Context) error {
+	return func(c echo.Context) error {
 		body := c.Request().Body
 		defer body.Close()
 
@@ -53,11 +43,15 @@ func (om *OpenMock) StartAdmin() {
 			}
 		}
 
-		time.AfterFunc(reloadDelay, func() { reload.Exec() })
+		if shouldRestart {
+			time.AfterFunc(reloadDelay, func() { reload.Exec() })
+		}
 		return c.String(200, string(b))
-	})
+	}
+}
 
-	e.DELETE("/api/v1/templates/:key", func(c echo.Context) error {
+func DeleteTemplateByKey(om *OpenMock, shouldRestart bool) func(c echo.Context) error {
+	return func(c echo.Context) error {
 		key, err := url.QueryUnescape(c.Param("key"))
 		if err != nil {
 			return c.String(400, fmt.Sprintf("invalid key: %v. error: %s", key, err))
@@ -79,13 +73,35 @@ func (om *OpenMock) StartAdmin() {
 			return err
 		}
 
-		time.AfterFunc(reloadDelay, func() { reload.Exec() })
+		if shouldRestart {
+			time.AfterFunc(reloadDelay, func() { reload.Exec() })
+		}
 		return c.String(200, fmt.Sprintf("deleted:\n\n%v", string(m)))
-	})
+	}
+}
 
-	e.GET("/api/v1/templates", func(c echo.Context) error {
+func GetTemplates(om *OpenMock) func(c echo.Context) error {
+	return func(c echo.Context) error {
 		return c.String(200, string(om.repo.ToYAML()))
-	})
+	}
+}
+
+// StartAdmin starts an admin HTTP server
+// that can CRUD the templates
+func (om *OpenMock) StartAdmin() {
+	if !om.AdminHTTPEnabled {
+		return
+	}
+
+	e := echo.New()
+	e.HideBanner = true
+	e.Use(em.Logrus())
+
+	e.POST("/api/v1/templates", PostTemplates(om, true))
+
+	e.DELETE("/api/v1/templates/:key", DeleteTemplateByKey(om, true))
+
+	e.GET("/api/v1/templates", GetTemplates(om))
 
 	go func() {
 		logrus.Fatal(
