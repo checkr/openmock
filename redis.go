@@ -2,6 +2,7 @@ package openmock
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -70,7 +71,9 @@ func redisHandleReply(r interface{}, err error) (string, error) {
 }
 
 func redisDo(om *OpenMock) func(keyAndArgs ...interface{}) interface{} {
-	if om == nil {
+	bannedRedisKeysRegex, err := regexp.Compile(redisTemplatesStore + `(_[\w+])?`)
+
+	if err != nil || om == nil {
 		return func(keyAndArgs ...interface{}) interface{} {
 			return nil
 		}
@@ -80,6 +83,15 @@ func redisDo(om *OpenMock) func(keyAndArgs ...interface{}) interface{} {
 	}
 	return func(keyAndArgs ...interface{}) interface{} {
 		name, args := keyAndArgs[0], keyAndArgs[1:]
+
+		for _, arg := range args {
+			if v, ok := arg.(string); ok {
+				if bannedRedisKeysRegex.MatchString(v) {
+					return fmt.Errorf("may not redisDo operate on reserved keys (matching regex (%s))", bannedRedisKeysRegex.String())
+				}
+			}
+		}
+
 		v, err := redisHandleReply(om.redis.Do(name.(string), args...))
 		if err != nil {
 			logrus.WithFields(logrus.Fields{
