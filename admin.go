@@ -18,6 +18,15 @@ const reloadDelay = time.Second
 
 const postKeyHeader = "X-OPENMOCK-POST-KEY"
 
+func getRedisKey(c echo.Context) (redisKey string) {
+	redisKey = redisTemplatesStore
+	alternativeKey := c.Request().Header.Get(postKeyHeader)
+	if alternativeKey != "" {
+		redisKey = redisKey + "_" + alternativeKey
+	}
+	return redisKey
+}
+
 func PostTemplates(om *OpenMock, shouldRestart bool) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		body := c.Request().Body
@@ -37,11 +46,7 @@ func PostTemplates(om *OpenMock, shouldRestart bool) func(c echo.Context) error 
 			return c.String(400, fmt.Sprintf("not valid YAML %s", err))
 		}
 
-		redisKey := redisTemplatesStore
-		alternativeKey := c.Request().Header.Get(postKeyHeader)
-		if alternativeKey != "" {
-			redisKey = redisKey + "_" + alternativeKey
-		}
+		redisKey := getRedisKey(c)
 
 		for _, mock := range mocks {
 			s, _ := yaml.Marshal([]*Mock{mock})
@@ -55,6 +60,22 @@ func PostTemplates(om *OpenMock, shouldRestart bool) func(c echo.Context) error 
 			time.AfterFunc(reloadDelay, func() { reload.Exec() })
 		}
 		return c.String(200, string(b))
+	}
+}
+
+func DeleteTemplates(om *OpenMock, shouldRestart bool) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		redisKey := getRedisKey(c)
+
+		_, err := om.redis.Do("DEL", redisKey)
+		if err != nil {
+			return err
+		}
+
+		if shouldRestart {
+			time.AfterFunc(reloadDelay, func() { reload.Exec() })
+		}
+		return c.String(204, "")
 	}
 }
 
@@ -106,9 +127,8 @@ func (om *OpenMock) StartAdmin() {
 	e.Use(em.Logrus())
 
 	e.POST("/api/v1/templates", PostTemplates(om, true))
-
+	e.DELETE("/api/v1/templates", DeleteTemplates(om, true))
 	e.DELETE("/api/v1/templates/:key", DeleteTemplateByKey(om, true))
-
 	e.GET("/api/v1/templates", GetTemplates(om))
 
 	go func() {

@@ -68,6 +68,64 @@ func TestGetTemplates(t *testing.T) {
 	})
 }
 
+func TestDeleteTemplates(t *testing.T) {
+	t.Run("Delete all templates happy path", func(t *testing.T) {
+		om := getTestOM(t)
+		handler := DeleteTemplates(om, false)
+		e := echo.New()
+		e.DELETE("/", handler)
+
+		_, err := om.redis.Do("HSET", redisTemplatesStore, "123", "stuff")
+		if err != nil {
+			t.FailNow()
+		}
+
+		c, b := testRequest(http.MethodDelete, "/", e)
+		assert.Equal(t, http.StatusNoContent, c)
+		assert.Empty(t, b)
+
+		v, err := om.redis.Do("HGETALL", redisTemplatesStore)
+		result, err := redis.StringMap(v, err)
+		assert.Empty(t, err)
+		assert.Empty(t, result)
+	})
+	t.Run("Delete all templates with post key", func(t *testing.T) {
+		postKey := "foobar"
+
+		om := getTestOM(t)
+		handler := DeleteTemplates(om, false)
+		e := echo.New()
+		e.DELETE("/", handler)
+
+		_, err := om.redis.Do("HSET", redisTemplatesStore, "456", "stuff")
+		if err != nil {
+			t.FailNow()
+		}
+
+		_, err = om.redis.Do("HSET", redisTemplatesStore+"_"+postKey, "123", "stuff")
+		if err != nil {
+			t.FailNow()
+		}
+
+		headers := map[string]string{
+			postKeyHeader: postKey,
+		}
+		c, b := testRequestFull(http.MethodDelete, "/", e, nil, headers)
+		assert.Equal(t, http.StatusNoContent, c)
+		assert.Empty(t, b)
+
+		v, err := om.redis.Do("HGETALL", redisTemplatesStore)
+		result, err := redis.StringMap(v, err)
+		assert.Empty(t, err)
+		assert.NotEmpty(t, result)
+
+		x, err := om.redis.Do("HGETALL", redisTemplatesStore+"_"+postKey)
+		r, err := redis.StringMap(x, err)
+		assert.Empty(t, err)
+		assert.Empty(t, r)
+	})
+}
+
 func TestDeleteTemplateByKey(t *testing.T) {
 	om := getTestOM(t)
 	handler := DeleteTemplateByKey(om, false)
