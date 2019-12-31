@@ -95,7 +95,7 @@ func TestDeleteTemplates(t *testing.T) {
 		om := getTestOM(t)
 		handler := DeleteTemplates(om, false)
 		e := echo.New()
-		e.DELETE("/", handler)
+		e.DELETE("/:set_key", handler)
 
 		_, err := om.redis.Do("HSET", redisTemplatesStore, "456", "stuff")
 		if err != nil {
@@ -107,10 +107,7 @@ func TestDeleteTemplates(t *testing.T) {
 			t.FailNow()
 		}
 
-		headers := map[string]string{
-			postKeyHeader: postKey,
-		}
-		c, b := testRequestFull(http.MethodDelete, "/", e, nil, headers)
+		c, b := testRequest(http.MethodDelete, "/"+postKey, e)
 		assert.Equal(t, http.StatusNoContent, c)
 		assert.Empty(t, b)
 
@@ -159,6 +156,7 @@ func TestPostTemplates(t *testing.T) {
 	handler := PostTemplates(om, false)
 	e := echo.New()
 	e.POST("/", handler)
+	e.POST("/:set_key", handler)
 
 	bodyString := `
 - key: 123
@@ -189,11 +187,8 @@ func TestPostTemplates(t *testing.T) {
 
 	t.Run("Post with alternate key header", func(t *testing.T) {
 		postKey := "foobar"
-		headers := map[string]string{
-			postKeyHeader: postKey,
-		}
 		bodyReader := strings.NewReader(bodyString)
-		c, b := testRequestFull(http.MethodPost, "/", e, bodyReader, headers)
+		c, b := testRequestBody(http.MethodPost, "/"+postKey, e, bodyReader)
 		assert.Equal(t, http.StatusOK, c)
 		assert.NotEmpty(t, b)
 

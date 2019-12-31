@@ -16,11 +16,9 @@ import (
 
 const reloadDelay = time.Second
 
-const postKeyHeader = "X-OPENMOCK-POST-KEY"
-
 func getRedisKey(c echo.Context) (redisKey string) {
 	redisKey = redisTemplatesStore
-	alternativeKey := c.Request().Header.Get(postKeyHeader)
+	alternativeKey := c.Param("set_key")
 	if alternativeKey != "" {
 		redisKey = redisKey + "_" + alternativeKey
 	}
@@ -127,6 +125,8 @@ func (om *OpenMock) StartAdmin() {
 	e.Use(em.Logrus())
 
 	e.POST("/api/v1/templates", PostTemplates(om, true))
+	e.POST("/api/v1/template_sets/:set_key", PostTemplates(om, true))
+	e.DELETE("/api/v1/template_sets/:set_key", DeleteTemplates(om, true))
 	e.DELETE("/api/v1/templates", DeleteTemplates(om, true))
 	e.DELETE("/api/v1/templates/:key", DeleteTemplateByKey(om, true))
 	e.GET("/api/v1/templates", GetTemplates(om))
