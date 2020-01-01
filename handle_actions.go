@@ -23,19 +23,48 @@ func (m *Mock) DoActions(c Context) error {
 	if !c.MatchCondition(m.Expect.Condition) {
 		return nil
 	}
+	var replyAction Action
+
 	for _, actionDispatcher := range m.Actions {
 		actualAction := getActualAction(actionDispatcher)
-		if err := actualAction.Perform(c); err != nil {
-			logrus.WithFields(logrus.Fields{
-				"err":    err,
-				"action": fmt.Sprintf("%T", actualAction),
-			}).Errorf("failed to do action")
+		_, isReplyHTTP := actualAction.(ActionReplyHTTP)
+
+		if isReplyHTTP {
+			if replyAction != nil {
+				logrus.Fatalf("More than 1 reply_http defined for http behavior")
+			}
+
+			replyAction = actualAction
+		} else {
+			go func(actualAction Action, c Context) {
+				performAction(actualAction, c)
+			}(actualAction, c)
 		}
 	}
+
+	if replyAction != nil {
+		performAction(replyAction, c)
+	}
+
 	return nil
 }
 
+func performAction(action Action, c Context) {
+	err := action.Perform(c)
+
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err":    err,
+			"action": fmt.Sprintf("%T", action),
+		}).Errorf("failed to do action")
+	}
+}
+
 func (a ActionSendHTTP) Perform(context Context) error {
+	if a.Sleep != 0 {
+		time.Sleep(a.Sleep)
+	}
+
 	bodyStr, err := context.Render(a.Body)
 	if err != nil {
 		return err
@@ -70,6 +99,7 @@ func (a ActionReplyHTTP) Perform(context Context) error {
 	for k, v := range a.Headers {
 		ec.Response().Header().Set(k, v)
 	}
+
 	msg, err := context.Render(a.Body)
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for http")

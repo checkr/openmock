@@ -137,6 +137,7 @@ type ActionSendHTTP struct {
 	Headers      map[string]string `yaml:"headers,omitempty"`
 	Body         string            `yaml:"body,omitempty"`
 	BodyFromFile string            `yaml:"body_from_file,omitempty"`
+	Sleep        time.Duration     `yaml:"sleep,omitempty"`
 }
 
 // ActionReplyHTTP represents reply http action
