@@ -28,6 +28,7 @@ func (m *Mock) DoActions(c Context) error {
 	for _, actionDispatcher := range m.Actions {
 		actualAction := getActualAction(actionDispatcher)
 		_, isReplyHTTP := actualAction.(ActionReplyHTTP)
+		_, isSendHTTP := actualAction.(ActionSendHTTP)
 
 		if isReplyHTTP {
 			if replyAction != nil {
@@ -35,10 +36,12 @@ func (m *Mock) DoActions(c Context) error {
 			}
 
 			replyAction = actualAction
-		} else {
+		} else if isSendHTTP {
 			go func(actualAction Action, c Context) {
 				performAction(actualAction, c)
 			}(actualAction, c)
+		} else {
+			performAction(actualAction, c)
 		}
 	}
 
