@@ -19,7 +19,7 @@ func (ms MocksArray) DoActions(c Context) error {
 	return nil
 }
 
-// DoActions checks if a given condition matches and performs each action defined by m.Actions
+// DoActions checks if a given condition matches and performs each action in m.Actions
 func (m *Mock) DoActions(c Context) error {
 	c.Values = m.Values
 	if !c.MatchCondition(m.Expect.Condition) {
@@ -36,7 +36,7 @@ func (m *Mock) DoActions(c Context) error {
 
 // Perform defines the action to perform for the ActionSendHTTP action
 func (a ActionSendHTTP) Perform(context Context) {
-	go func(a ActionSendHTTP) {
+	go func() {
 		if a.Sleep != 0 {
 			time.Sleep(a.Sleep)
 		}
@@ -61,7 +61,7 @@ func (a ActionSendHTTP) Perform(context Context) {
 				handleActionErr(a, errs[0])
 			}
 		}
-	}(a)
+	}()
 }
 
 // Perform defines the action to perform for the ActionReplyHTTP action
