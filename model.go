@@ -124,7 +124,7 @@ type ActionDispatcher struct {
 }
 
 type Action interface {
-	Perform(context Context) error
+	Perform(context Context)
 }
 
 // ActionRedis represents a list of redis commands

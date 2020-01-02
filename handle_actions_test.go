@@ -12,10 +12,9 @@ type FakePerformer struct {
 	Performed       bool
 }
 
-func (fp *FakePerformer) Perform(context Context) error {
+func (fp *FakePerformer) Perform(context Context) {
 	fp.Performed = true
 	fp.ReceivedContext = context
-	return nil
 }
 
 func TestContextUpdate(t *testing.T) {
