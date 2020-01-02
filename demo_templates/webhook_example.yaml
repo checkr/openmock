@@ -1,0 +1,60 @@
+# Simulate a webhook - it will reply_http immediately, but then later sends to 
+# a 'webhook' endpoint on the requesting service (also implemented in mock)
+#
+- key: webhook-post
+  kind: Behavior
+  expect:
+    http:
+      method: POST
+      path: /webhook
+  actions:
+    - reply_http:
+        status_code: 200
+        body: "Awesome!"
+    - sleep:
+        duration: 10s
+    - send_http:
+        url: http://localhost:9999/webhook-receive?param=1
+        method: POST
+    - sleep:
+        duration: 10s
+    - send_http:
+        url: http://localhost:9999/webhook-receive?param=2
+        method: POST
+
+# receive the webhook replies from the webhook-post mock and store them in redis
+#
+- key: webhook-receive
+  kind: Behavior
+  expect:
+    http:
+      method: POST
+      path: /webhook-receive
+  actions:
+    - redis:
+      - '{{ .HTTPQueryString | redisDo "RPUSH" "webhook-received" }}'
+
+# check the log of webhook posts received in redis
+#
+- key: webhook-received
+  kind: Behavior
+  expect:
+    http:
+      method: GET
+      path: /webhook
+  actions:
+    - reply_http:
+        status_code: 200
+        body: >
+          {
+            "received": [
+              {{ $arr := redisDo "LRANGE" "webhook-received" 0 -1 | splitList ";;" }}
+              {{ range $i, $v := $arr }}
+                {{if isLastIndex $i $arr}}
+                  "{{$v}}"
+                {{else}}
+                  "{{$v}}",
+                {{end}}
+              {{end}}
+            ]
+          }

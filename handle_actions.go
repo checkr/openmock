@@ -80,7 +80,7 @@ func (a ActionReplyHTTP) Perform(context Context) error {
 		return err
 	}
 
-	// finalize the HTTP response so that further actions don't effect our response
+	// finalize the HTTP response so that further actions make our response wait
 	ec.Response().Flush()
 	conn, _, err := ec.Response().Hijack()
 	if err != nil {

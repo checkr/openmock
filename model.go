@@ -49,6 +49,16 @@ func (m *Mock) Validate() error {
 		if len(m.Template) != 0 {
 			return fmt.Errorf("kind behavior is only permitted to have `key`, `expect` and `actions` fields. found in: %s", m.Key)
 		}
+
+		foundReply := false
+		for _, a := range m.Actions {
+			if !structs.IsZero(a.ActionReplyHTTP) {
+				if foundReply {
+					return fmt.Errorf("Only one reply_http action allowed per behavior")
+				}
+				foundReply = true
+			}
+		}
 	case KindAbstractBehavior:
 	default:
 		return fmt.Errorf(

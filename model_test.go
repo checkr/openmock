@@ -86,6 +86,27 @@ func TestModelValidate(t *testing.T) {
 		assert.Error(t, m.Validate())
 	})
 
+	t.Run("invalid KindBehavior - behavior cannot have multiple reply_http actions", func(t *testing.T) {
+		m := &Mock{
+			Key:      "t1",
+			Template: "t1",
+			Expect: Expect{
+				HTTP: ExpectHTTP{
+					Path: "/t1",
+				},
+			},
+			Actions: []ActionDispatcher{
+				{
+					ActionReplyHTTP: ActionReplyHTTP{StatusCode: 200, Body: "OK"},
+				},
+				{
+					ActionReplyHTTP: ActionReplyHTTP{StatusCode: 200, Body: "GREAT"},
+				},
+			},
+		}
+		assert.Error(t, m.Validate())
+	})
+
 	t.Run("invalid Kind", func(t *testing.T) {
 		m := &Mock{
 			Kind: "invalid",
