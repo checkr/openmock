@@ -37,9 +37,7 @@ func (m *Mock) DoActions(c Context) error {
 // Perform defines the action to perform for the ActionSendHTTP action
 func (a ActionSendHTTP) Perform(context Context) {
 	go func() {
-		if a.Sleep != 0 {
-			time.Sleep(a.Sleep)
-		}
+		time.Sleep(a.Sleep)
 
 		bodyStr, err := context.Render(a.Body)
 		if err != nil {
