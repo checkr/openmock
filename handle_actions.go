@@ -28,13 +28,7 @@ func (m *Mock) DoActions(c Context) error {
 
 	for _, actionDispatcher := range m.Actions {
 		actualAction := getActualAction(actionDispatcher)
-		_, isReplyHTTP := actualAction.(ActionReplyHTTP)
-
-		if isReplyHTTP {
-			defer actualAction.Perform(c)
-		} else {
-			actualAction.Perform(c)
-		}
+		actualAction.Perform(c)
 	}
 
 	return nil
