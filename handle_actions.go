@@ -75,7 +75,20 @@ func (a ActionReplyHTTP) Perform(context Context) error {
 		logrus.WithField("err", err).Error("failed to render template for http")
 		return err
 	}
-	return ec.Blob(a.StatusCode, contentType, []byte(msg))
+	err = ec.Blob(a.StatusCode, contentType, []byte(msg))
+	if err != nil {
+		return err
+	}
+
+	// finalize the HTTP response so that further actions don't effect our response
+	ec.Response().Flush()
+	conn, _, err := ec.Response().Hijack()
+	if err != nil {
+		return nil
+	}
+	conn.Close()
+
+	return nil
 }
 
 func (a ActionRedis) Perform(context Context) error {
