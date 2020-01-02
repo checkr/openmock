@@ -42,10 +42,14 @@ func (a ActionSendHTTP) Perform(context Context) {
 		}
 
 		bodyStr, err := context.Render(a.Body)
-		handleActionErr(a, err)
+		if err != nil {
+			handleActionErr(a, err)
+		}
 
 		urlStr, err := context.Render(a.URL)
-		handleActionErr(a, err)
+		if err != nil {
+			handleActionErr(a, err)
+		}
 
 		request := gorequest.New().
 			SetDebug(true).
@@ -81,14 +85,18 @@ func (a ActionReplyHTTP) Perform(context Context) {
 	}
 
 	err = ec.Blob(a.StatusCode, contentType, []byte(msg))
-	handleActionErr(a, err)
+	if err != nil {
+		handleActionErr(a, err)
+	}
 }
 
 // Perform defines the action to perform for the ActionRedis action
 func (a ActionRedis) Perform(context Context) {
 	for _, cmd := range a {
 		_, err := context.Render(cmd)
-		handleActionErr(a, err)
+		if err != nil {
+			handleActionErr(a, err)
+		}
 	}
 }
 
@@ -125,10 +133,8 @@ func (a ActionPublishAMQP) Perform(context Context) {
 }
 
 func handleActionErr(a Action, err error) {
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"err":    err,
-			"action": fmt.Sprintf("%T", a),
-		}).Errorf("failed to do action")
-	}
+	logrus.WithFields(logrus.Fields{
+		"err":    err,
+		"action": fmt.Sprintf("%T", a),
+	}).Errorf("failed to do action")
 }
