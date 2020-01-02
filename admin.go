@@ -4,11 +4,15 @@ import (
 	"bytes"
 	"fmt"
 	"net/url"
+	"os"
+	"path/filepath"
+	"syscall"
 	"time"
 
 	em "github.com/dafiti/echo-middleware"
 	"github.com/gomodule/redigo/redis"
 	"github.com/labstack/echo"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/teamwork/reload"
 	"gopkg.in/yaml.v2"
@@ -55,7 +59,7 @@ func PostTemplates(om *OpenMock, shouldRestart bool) func(c echo.Context) error 
 		}
 
 		if shouldRestart {
-			time.AfterFunc(reloadDelay, func() { reload.Exec() })
+			reloadModel(om)
 		}
 		return c.String(200, string(b))
 	}
@@ -71,7 +75,7 @@ func DeleteTemplates(om *OpenMock, shouldRestart bool) func(c echo.Context) erro
 		}
 
 		if shouldRestart {
-			time.AfterFunc(reloadDelay, func() { reload.Exec() })
+			reloadModel(om)
 		}
 		return c.String(204, "")
 	}
@@ -101,7 +105,7 @@ func DeleteTemplateByKey(om *OpenMock, shouldRestart bool) func(c echo.Context) 
 		}
 
 		if shouldRestart {
-			time.AfterFunc(reloadDelay, func() { reload.Exec() })
+			reloadModel(om)
 		}
 		return c.String(200, fmt.Sprintf("deleted:\n\n%v", string(m)))
 	}
@@ -140,4 +144,47 @@ func (om *OpenMock) StartAdmin() {
 			)),
 		)
 	}()
+}
+
+func reloadModel(om *OpenMock) {
+	time.AfterFunc(reloadDelay, func() {
+		if om.TemplatesDirHotReload {
+			reload.Exec()
+		} else {
+
+			executableLoc, err := executableLocation()
+			if err != nil {
+				panic(fmt.Sprintf("Cannot restart can't find executableLoc: %v", err))
+			}
+
+			err = reloadProcess(executableLoc)
+			if err != nil {
+				panic(fmt.Sprintf("Cannot restart: %v", err))
+			}
+		}
+	})
+}
+
+// from reload; library doesn't allow you to use its process reload stuff
+// without watching SOME files.  So just copy/paste that functionality here.
+// https://github.com/Teamwork/reload/blob/master/reload.go
+
+// reloadProcess replaces the current process with a new copy of itself.
+func reloadProcess(binSelf string) error {
+	return syscall.Exec(binSelf, append([]string{binSelf}, os.Args[1:]...), os.Environ())
+}
+
+// Get location to executable.
+func executableLocation() (string, error) {
+	bin := os.Args[0]
+	if !filepath.IsAbs(bin) {
+		var err error
+		bin, err = os.Executable()
+		if err != nil {
+			return "", errors.Wrapf(err,
+				"cannot get path to binary %q (launch with absolute path): %v",
+				os.Args[0], err)
+		}
+	}
+	return bin, nil
 }
