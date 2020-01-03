@@ -70,17 +70,24 @@ func (a ActionReplyHTTP) Perform(context Context) error {
 	for k, v := range a.Headers {
 		ec.Response().Header().Set(k, v)
 	}
+
 	msg, err := context.Render(a.Body)
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for http")
 		return err
 	}
-	err = ec.Blob(a.StatusCode, contentType, []byte(msg))
+
+	// finalize the HTTP response so that further actions make our response wait
+	msgLen := fmt.Sprintf("%d", len(msg))
+	ec.Response().Header().Set("Content-Length", msgLen)
+	ec.Response().Header().Set("Content-Type", contentType)
+	ec.Response().WriteHeader(a.StatusCode)
+
+	_, err = ec.Response().Write([]byte(msg))
 	if err != nil {
 		return err
 	}
 
-	// finalize the HTTP response so that further actions make our response wait
 	ec.Response().Flush()
 	conn, _, err := ec.Response().Hijack()
 	if err != nil {
