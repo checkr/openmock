@@ -136,14 +136,23 @@ func loadRedis(doer RedisDoer) (b []byte, err error) {
 	}
 
 	logrus.Infof("Start to load templates from redis")
-	v, err := doer.Do("HGETALL", redisTemplatesStore)
-	m, err := redis.StringMap(v, err)
+	r, err := doer.Do("KEYS", redisTemplatesStore+"*")
+	s, err := redis.Strings(r, err)
 	if err != nil {
 		return nil, err
 	}
+
 	ss := []string{}
-	for _, s := range m {
-		ss = append(ss, s)
+	for _, key := range s {
+		v, err := doer.Do("HGETALL", key)
+		m, err := redis.StringMap(v, err)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, s := range m {
+			ss = append(ss, s)
+		}
 	}
 	return []byte(strings.Join(ss, "\n")), nil
 }

@@ -45,7 +45,9 @@ func TestRedis(t *testing.T) {
 }
 
 func TestRedisDo(t *testing.T) {
-	om := &OpenMock{}
+	om := &OpenMock{
+		RedisType: "",
+	}
 	r := redisDo(om)
 
 	t.Run("get non-exists", func(t *testing.T) {
@@ -57,5 +59,17 @@ func TestRedisDo(t *testing.T) {
 		r("SET", "hello", "456")
 		v := r("GET", "hello")
 		assert.Equal(t, "456", v)
+	})
+
+	t.Run("errors on template store args", func(t *testing.T) {
+		key := redisTemplatesStore + "_asdf123"
+		_, err := om.redis.Do("HSET", key, "123", "stuff")
+		assert.NoError(t, err)
+
+		v := r("SET", key, "123", "things")
+		assert.Error(t, v.(error))
+
+		_, err = om.redis.Do("DEL", key)
+		assert.NoError(t, err)
 	})
 }

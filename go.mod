@@ -40,6 +40,7 @@ require (
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/parnurzeal/gorequest v0.0.0-20171015110455-8e3aed27fe49
 	github.com/pierrec/lz4 v2.0.3+incompatible // indirect
+	github.com/pkg/errors v0.8.0
 	github.com/prashantv/gostub v1.0.0
 	github.com/rcrowley/go-metrics v0.0.0-20180503174638-e2704e165165 // indirect
 	github.com/sirupsen/logrus v1.2.0

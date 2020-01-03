@@ -6,6 +6,44 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestLoadRedis(t *testing.T) {
+	om := &OpenMock{
+		RedisType: "",
+	}
+	om.SetRedis()
+	redis := om.redis
+
+	t.Run("load redis happy", func(t *testing.T) {
+		_, err := om.redis.Do("HSET", redisTemplatesStore, "123", "stuff")
+		assert.NoError(t, err)
+
+		bytes, err := loadRedis(redis)
+		assert.Empty(t, err)
+		assert.Equal(t, "stuff", string(bytes))
+
+		_, err = om.redis.Do("HDEL", redisTemplatesStore, "123")
+		assert.NoError(t, err)
+	})
+	t.Run("load redis post keys", func(t *testing.T) {
+		postKey := "foobar"
+		_, err := om.redis.Do("HSET", redisTemplatesStore, "123", "stuff")
+		assert.NoError(t, err)
+
+		_, err = om.redis.Do("HSET", redisTemplatesStore+"_"+postKey, "123", "things")
+		assert.NoError(t, err)
+
+		bytes, err := loadRedis(redis)
+		assert.Empty(t, err)
+		assert.Equal(t, "stuff\nthings", string(bytes))
+
+		_, err = om.redis.Do("HDEL", redisTemplatesStore, "123")
+		assert.NoError(t, err)
+
+		_, err = om.redis.Do("HDEL", redisTemplatesStore+"_"+postKey, "123")
+		assert.NoError(t, err)
+	})
+}
+
 func TestLoadFile(t *testing.T) {
 	t.Run("kafka payload", func(t *testing.T) {
 		m := &Mock{
