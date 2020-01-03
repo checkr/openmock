@@ -64,16 +64,12 @@ func TestRedisDo(t *testing.T) {
 	t.Run("errors on template store args", func(t *testing.T) {
 		key := redisTemplatesStore + "_asdf123"
 		_, err := om.redis.Do("HSET", key, "123", "stuff")
-		if err != nil {
-			t.FailNow()
-		}
+		assert.NoError(t, err)
 
 		v := r("SET", key, "123", "things")
 		assert.Error(t, v.(error))
 
 		_, err = om.redis.Do("DEL", key)
-		if err != nil {
-			t.FailNow()
-		}
+		assert.NoError(t, err)
 	})
 }

@@ -56,9 +56,8 @@ func TestGetTemplates(t *testing.T) {
 		assert.Equal(t, http.StatusOK, c)
 
 		mocks := []*Mock{}
-		if err := yaml.UnmarshalStrict([]byte(b), &mocks); err != nil {
-			t.FailNow()
-		}
+		err := yaml.UnmarshalStrict([]byte(b), &mocks)
+		assert.NoError(t, err)
 
 		for _, m := range mocks {
 			if m.Key == "ping" {
@@ -76,9 +75,7 @@ func TestDeleteTemplates(t *testing.T) {
 		e.DELETE("/", handler)
 
 		_, err := om.redis.Do("HSET", redisTemplatesStore, "123", "stuff")
-		if err != nil {
-			t.FailNow()
-		}
+		assert.NoError(t, err)
 
 		c, b := testRequest(http.MethodDelete, "/", e)
 		assert.Equal(t, http.StatusNoContent, c)
@@ -98,14 +95,10 @@ func TestDeleteTemplates(t *testing.T) {
 		e.DELETE("/:set_key", handler)
 
 		_, err := om.redis.Do("HSET", redisTemplatesStore, "456", "stuff")
-		if err != nil {
-			t.FailNow()
-		}
+		assert.NoError(t, err)
 
 		_, err = om.redis.Do("HSET", redisTemplatesStore+"_"+postKey, "123", "stuff")
-		if err != nil {
-			t.FailNow()
-		}
+		assert.NoError(t, err)
 
 		c, b := testRequest(http.MethodDelete, "/"+postKey, e)
 		assert.Equal(t, http.StatusNoContent, c)
@@ -131,9 +124,7 @@ func TestDeleteTemplateByKey(t *testing.T) {
 
 	t.Run("Delete template at key deletes it", func(t *testing.T) {
 		_, err := om.redis.Do("HSET", redisTemplatesStore, "123", "stuff")
-		if err != nil {
-			t.FailNow()
-		}
+		assert.NoError(t, err)
 
 		c, b := testRequest(http.MethodDelete, "/123", e)
 		assert.Equal(t, http.StatusOK, c)
