@@ -39,6 +39,11 @@ func main() {
 }
 ```
 
+You can also use `reload.Exec()` to manually restart your process without
+calling `reload.Do()`.
+
+---
+
 This is an alternative to the "restart binary after any `*.go` file
 changed"-strategy that some other projects – such as
 [gin](https://github.com/codegangsta/gin) or
