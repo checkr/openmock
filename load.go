@@ -172,6 +172,7 @@ func loadYAML(searchDir string) ([]byte, error) {
 				return err
 			}
 			w.Write(content)
+			w.Write([]byte("\n"))
 		}
 		return nil
 	})
