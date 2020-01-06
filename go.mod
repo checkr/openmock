@@ -40,7 +40,7 @@ require (
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/parnurzeal/gorequest v0.0.0-20171015110455-8e3aed27fe49
 	github.com/pierrec/lz4 v2.0.3+incompatible // indirect
-	github.com/pkg/errors v0.8.0
+	github.com/pkg/errors v0.8.1
 	github.com/prashantv/gostub v1.0.0
 	github.com/rcrowley/go-metrics v0.0.0-20180503174638-e2704e165165 // indirect
 	github.com/sirupsen/logrus v1.2.0
@@ -49,7 +49,7 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/streadway/amqp v0.0.0-20180806233856-70e15c650864
 	github.com/stretchr/testify v1.2.2
-	github.com/teamwork/reload v0.0.0-20190319183701-e8d47ccac39e
+	github.com/teamwork/reload v1.3.0
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20180827083657-b942cacc89fe // indirect
