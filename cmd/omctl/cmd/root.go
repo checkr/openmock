@@ -29,7 +29,11 @@ var localDirectory string
 // URL of remote openmock instance to control
 var openMockURL string
 
+// set key used when post / delete directory with a specific key
+var setKey string
+
 func init() {
 	RootCmd.PersistentFlags().StringVarP(&localDirectory, "directory", "d", "./demo_templates", "Local directory in filesystem to upload to remote openmock")
 	RootCmd.PersistentFlags().StringVarP(&openMockURL, "url", "u", "http://localhost:9998", "URL for remote openmock instance to control")
+	RootCmd.PersistentFlags().StringVarP(&setKey, "set-key", "k", "", "'set' key to use when manipulating directory with a specific key")
 }

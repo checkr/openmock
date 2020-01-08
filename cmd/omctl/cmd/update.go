@@ -42,9 +42,14 @@ var pushCmd = &cobra.Command{
 			return err
 		}
 
+		httpPath := "/api/v1/templates"
+		if setKey != "" {
+			httpPath = "/api/v1/template_sets/" + setKey
+		}
+
 		// post the loaded templates at the openmock instance
 		templatesYaml := localOpenMock.ToYAML()
-		response, httpErr := http.Post(openMockURL+"/api/v1/templates", "application/yaml", bytes.NewReader(templatesYaml))
+		response, httpErr := http.Post(openMockURL+httpPath, "application/yaml", bytes.NewReader(templatesYaml))
 		if httpErr != nil {
 			logrus.Errorf("Error posting templates at %s: [%s]", openMockURL, httpErr)
 			return httpErr
