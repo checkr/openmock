@@ -215,6 +215,13 @@ func (m *Mock) loadFile(baseDir string) {
 				h.BodyFromFile = ""
 			}
 		}
+		if !structs.IsZero(a.ActionSendHTTP) {
+			h := &a.ActionSendHTTP
+			if h.BodyFromFile != "" && h.Body == "" {
+				h.Body = readFile(m.Key, baseDir, h.BodyFromFile)
+				h.BodyFromFile = ""
+			}
+		}
 	}
 	logrus.Infof("template with key:%s loaded.", m.Key)
 }
