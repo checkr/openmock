@@ -81,8 +81,15 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 			continue
 		}
 		if m.Extend != "" {
-			m = r.Behaviors[m.Extend].patchedWith(*m)
-			r.Behaviors[m.Key] = m
+			if r.Behaviors[m.Extend] == nil {
+				logrus.WithFields(logrus.Fields{
+					"name":   m.Key,
+					"extend": m.Extend,
+				}).Errorf("Mock %s attempt to extend unknown behavior %s", m.Key, m.Extend)
+			} else {
+				m = r.Behaviors[m.Extend].patchedWith(*m)
+				r.Behaviors[m.Key] = m
+			}
 		}
 		if !structs.IsZero(m.Expect.HTTP) {
 			_, ok := r.HTTPMocks[m.Expect.HTTP]
