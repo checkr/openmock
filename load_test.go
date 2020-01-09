@@ -73,7 +73,7 @@ func TestLoadFile(t *testing.T) {
 		assert.NotZero(t, m.Actions[0].ActionPublishAMQP.Payload)
 	})
 
-	t.Run("http body", func(t *testing.T) {
+	t.Run("reply_http body", func(t *testing.T) {
 		m := &Mock{
 			Actions: []ActionDispatcher{
 				{
@@ -85,6 +85,20 @@ func TestLoadFile(t *testing.T) {
 		}
 		m.loadFile("demo_templates")
 		assert.NotZero(t, m.Actions[0].ActionReplyHTTP.Body)
+	})
+
+	t.Run("send_http body", func(t *testing.T) {
+		m := &Mock{
+			Actions: []ActionDispatcher{
+				{
+					ActionSendHTTP: ActionSendHTTP{
+						BodyFromFile: "./files/colors.json",
+					},
+				},
+			},
+		}
+		m.loadFile("demo_templates")
+		assert.NotZero(t, m.Actions[0].ActionSendHTTP.Body)
 	})
 
 	t.Run("file not found", func(t *testing.T) {
