@@ -20,11 +20,11 @@ import (
 
 const reloadDelay = time.Second
 
-func getRedisKey(c echo.Context) (redisKey string) {
+func getRedisKey(setKey string) (redisKey string) {
 	redisKey = redisTemplatesStore
-	alternativeKey := c.Param("set_key")
-	if alternativeKey != "" {
-		redisKey = redisKey + "_" + alternativeKey
+
+	if setKey != "" {
+		redisKey = redisKey + "_" + setKey
 	}
 	return redisKey
 }
@@ -48,26 +48,36 @@ func PostTemplates(om *OpenMock, shouldRestart bool) func(c echo.Context) error 
 			return c.String(400, fmt.Sprintf("not valid YAML %s", err))
 		}
 
-		redisKey := getRedisKey(c)
-
-		for _, mock := range mocks {
-			s, _ := yaml.Marshal([]*Mock{mock})
-			_, err := om.redis.Do("HSET", redisKey, mock.Key, s)
-			if err != nil {
-				return err
-			}
+		setKey := c.Param("set_key")
+		err = AddTemplates(om, mocks, setKey, shouldRestart)
+		if err != nil {
+			return err
 		}
 
-		if shouldRestart {
-			reloadModel(om)
-		}
 		return c.String(200, string(b))
 	}
 }
 
+func AddTemplates(om *OpenMock, mocks []*Mock, setKey string, shouldRestart bool) error {
+	redisKey := getRedisKey(setKey)
+
+	for _, mock := range mocks {
+		s, _ := yaml.Marshal([]*Mock{mock})
+		_, err := om.redis.Do("HSET", redisKey, mock.Key, s)
+		if err != nil {
+			return err
+		}
+	}
+
+	if shouldRestart {
+		ReloadModel(om)
+	}
+	return nil
+}
+
 func DeleteTemplates(om *OpenMock, shouldRestart bool) func(c echo.Context) error {
 	return func(c echo.Context) error {
-		redisKey := getRedisKey(c)
+		redisKey := getRedisKey(c.Param("set_key"))
 
 		_, err := om.redis.Do("DEL", redisKey)
 		if err != nil {
@@ -75,7 +85,7 @@ func DeleteTemplates(om *OpenMock, shouldRestart bool) func(c echo.Context) erro
 		}
 
 		if shouldRestart {
-			reloadModel(om)
+			ReloadModel(om)
 		}
 		return c.String(204, "")
 	}
@@ -105,7 +115,7 @@ func DeleteTemplateByKey(om *OpenMock, shouldRestart bool) func(c echo.Context) 
 		}
 
 		if shouldRestart {
-			reloadModel(om)
+			ReloadModel(om)
 		}
 		return c.String(200, fmt.Sprintf("deleted:\n\n%v", string(m)))
 	}
@@ -146,7 +156,7 @@ func (om *OpenMock) StartAdmin() {
 	}()
 }
 
-func reloadModel(om *OpenMock) {
+func ReloadModel(om *OpenMock) {
 	time.AfterFunc(reloadDelay, func() {
 		if om.TemplatesDirHotReload {
 			reload.Exec()

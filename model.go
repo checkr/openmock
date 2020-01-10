@@ -15,6 +15,7 @@ const (
 )
 
 // Mock represents a mock struct
+// swagger:model
 type Mock struct {
 	// Common fields
 	Kind   string `yaml:"kind,omitempty"`
@@ -177,10 +178,7 @@ type ActionSleep struct {
 	Duration time.Duration `yaml:"duration,omitempty"`
 }
 
-// ToYAML outputs MockRepo to yaml bytes
-func (repo *MockRepo) ToYAML() []byte {
-	ret := []*Mock{}
-
+func (repo *MockRepo) AsArray() (ret []*Mock) {
 	for _, item := range repo.Templates {
 		ret = append(ret, item)
 	}
@@ -200,6 +198,13 @@ func (repo *MockRepo) ToYAML() []byte {
 			ret = append(ret, m)
 		}
 	}
+
+	return ret
+}
+
+// ToYAML outputs MockRepo to yaml bytes
+func (repo *MockRepo) ToYAML() []byte {
+	ret := repo.AsArray()
 	b, _ := yaml.Marshal(ret)
 	return b
 }

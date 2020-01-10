@@ -62,6 +62,10 @@ func (om *OpenMock) SetRedis() {
 	}
 }
 
+func (om *OpenMock) RedisDo(commandName string, args ...interface{}) (reply interface{}, err error) {
+	return om.redis.Do(commandName, args...)
+}
+
 func redisHandleReply(r interface{}, err error) (string, error) {
 	if err != nil {
 		return "", err

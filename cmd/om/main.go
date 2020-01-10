@@ -9,5 +9,5 @@ func main() {
 	om.ParseEnv()
 
 	defer om.Stop()
-	om.Start()
+	om.Start(true)
 }

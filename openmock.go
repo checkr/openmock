@@ -46,6 +46,10 @@ func (om *OpenMock) ToYAML() []byte {
 	return om.repo.ToYAML()
 }
 
+func (om *OpenMock) ToArray() []*Mock {
+	return om.repo.AsArray()
+}
+
 // ParseEnv loads env vars into the openmock struct
 func (om *OpenMock) ParseEnv() {
 	err := env.Parse(om)
@@ -83,12 +87,11 @@ func waitForSignal() {
 }
 
 // Start starts the openmock
-func (om *OpenMock) Start() {
+func (om *OpenMock) Start(standalone bool) {
 	om.SetupLogrus()
 	om.SetupRepo()
 
 	om.SetRedis()
-	om.StartAdmin()
 
 	err := om.Load()
 	if err != nil {
@@ -114,7 +117,10 @@ func (om *OpenMock) Start() {
 		}()
 	}
 
-	waitForSignal()
+	if standalone {
+		om.StartAdmin()
+		waitForSignal()
+	}
 }
 
 // Stop clean up and release some resources, it's optional.

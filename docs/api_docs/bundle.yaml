@@ -1,0 +1,406 @@
+swagger: '2.0'
+info:
+  description: >
+    OpenMock is a Go service that can mock services in integration tests,
+    staging environment, or anywhere.  The goal is to simplify the process of
+    writing mocks in various channels.  Currently it supports three channels:
+    HTTP Kafka AMQP (e.g. RabbitMQ) The admin API allows you to manipulate the
+    mock behaviour provided by openmock, live.  The base path for the admin API
+    is "/api/v1".
+  title: OpenMock
+  version: 0.2.0
+tags:
+  - name: template
+    description: manipulating 'mocks' in the model
+  - name: template_set
+    description: manipulating sets of 'mocks' in the model
+consumes:
+  - application/yaml
+  - application/json
+produces:
+  - application/yaml
+  - application/json
+schemes:
+  - http
+basePath: /api/v1
+paths:
+  /health:
+    get:
+      tags:
+        - health
+      operationId: getHealth
+      description: Check if Flagr is healthy
+      responses:
+        '200':
+          description: status of health check
+          schema:
+            $ref: '#/definitions/health'
+        default:
+          description: generic error response
+          schema:
+            $ref: '#/definitions/error'
+  /templates:
+    get:
+      tags:
+        - template
+      operationId: getTemplates
+      description: Get all templates in the loaded model
+      responses:
+        '200':
+          description: all the templates
+          schema:
+            $ref: '#/definitions/Mocks'
+        default:
+          description: generic error response
+          schema:
+            $ref: '#/definitions/error'
+    delete:
+      tags:
+        - template
+      operationId: deleteTemplates
+      description: >-
+        Deletes any templates that have been added to the admin endpoint
+        (without a setKey)
+      responses:
+        '204':
+          description: when successfully deleted
+        default:
+          description: server error
+          schema:
+            $ref: '#/definitions/error'
+    post:
+      tags:
+        - template
+      operationId: postTemplates
+      description: Modify templates in the base model by POSTing new ones
+      parameters:
+        - in: body
+          name: mocks
+          description: mocks to add
+          required: true
+          schema:
+            $ref: '#/definitions/Mocks'
+      responses:
+        '200':
+          description: returns the successfully posted templates
+          schema:
+            $ref: '#/definitions/Mocks'
+        '400':
+          description: if incoming templates were invalid
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: generic error response
+          schema:
+            $ref: '#/definitions/error'
+  '/templates/{templateKey}':
+    delete:
+      tags:
+        - template
+      operationId: deleteTemplate
+      description: delete a specific template that has been added by key
+      parameters:
+        - in: path
+          name: templateKey
+          description: key of template to delete
+          required: true
+          type: string
+      responses:
+        '204':
+          description: when successfully deleted
+        '400':
+          description: invalid key
+          schema:
+            $ref: '#/definitions/error'
+        '404':
+          description: not found
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: server error
+          schema:
+            $ref: '#/definitions/error'
+  '/template_sets/{setKey}':
+    post:
+      tags:
+        - template_set
+      operationId: postTemplateSet
+      description: creates / overrides the template set with setKey to the body contents
+      parameters:
+        - in: body
+          name: mocks
+          description: mocks to add
+          required: true
+          schema:
+            $ref: '#/definitions/Mocks'
+        - in: path
+          name: setKey
+          description: set key to create
+          required: true
+          type: string
+      responses:
+        '200':
+          description: returns the successfully posted templates
+          schema:
+            $ref: '#/definitions/Mocks'
+        '400':
+          description: if incoming templates were invalid
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: generic error response
+          schema:
+            $ref: '#/definitions/error'
+    delete:
+      tags:
+        - template_set
+      operationId: deleteTemplateSet
+      description: deletes specified template set
+      parameters:
+        - in: path
+          name: setKey
+          description: set key to delete
+          required: true
+          type: string
+      responses:
+        '204':
+          description: when successfully deleted
+        default:
+          description: server error
+          schema:
+            $ref: '#/definitions/error'
+definitions:
+  health:
+    type: object
+    properties:
+      status:
+        type: string
+  error:
+    type: object
+    required:
+      - message
+    properties:
+      message:
+        type: string
+        minLength: 1
+  Mocks:
+    type: array
+    description: collection of mocks
+    items:
+      $ref: '#/definitions/Mock'
+  Mock:
+    type: object
+    required:
+      - key
+    properties:
+      key:
+        type: string
+        description: Unique key for the item in OM's model
+        pattern: '[\w_\-\.]+'
+      kind:
+        type: string
+        enum:
+          - Behavior
+          - AbstractBehavior
+          - Template
+        description: >
+          The type of item this is. possible types are: Behavior - creates a new
+          mock behavior  AbstractBehavior - allows behaviors to use common
+          features from this item Template - used in template language rendering
+          to do fancy stuff
+      extend:
+        type: string
+        description: 'for behaviors, makes this behavior extend a specified AbstractBehavior'
+      expect:
+        $ref: '#/definitions/Expect'
+      actions:
+        type: array
+        items:
+          $ref: '#/definitions/ActionDispatcher'
+        description: 'for behaviors, the actions this mock would do when the expect is met'
+      values:
+        type: object
+        description: >-
+          Arbitrary values that can be used in go templates rendered by this
+          item
+        additionalProperties: true
+      template:
+        type: string
+        description: a go template to be embedded in other templates
+  Expect:
+    type: object
+    properties:
+      condition:
+        type: string
+        description: a go template that determines if this behavior triggers
+      http:
+        $ref: '#/definitions/ExpectHTTP'
+      kafka:
+        $ref: '#/definitions/ExpectKafka'
+      amqp:
+        $ref: '#/definitions/ExpectAMQP'
+  ExpectKafka:
+    type: object
+    required:
+      - topic
+    properties:
+      topic:
+        type: string
+        description: kafka topic to listen on
+  ExpectAMQP:
+    type: object
+    required:
+      - exchange
+      - routing_key
+      - queue
+    properties:
+      exchange:
+        type: string
+        description: TODO
+      routing_key:
+        type: string
+        description: TODO
+      queue:
+        type: string
+        description: TODO
+  ExpectHTTP:
+    type: object
+    required:
+      - method
+      - path
+    properties:
+      method:
+        type: string
+        enum:
+          - POST
+          - GET
+          - DELETE
+          - PUT
+          - OPTIONS
+          - HEAD
+        description: HTTP method to expect to trigger this behavior
+      path:
+        type: string
+        description: HTTP path to expect to trigger this behavior
+  ActionDispatcher:
+    type: object
+    properties:
+      order:
+        type: integer
+        format: int64
+        default: 0
+        description: used to explicitly order the actions run when a behavior triggers
+      publish_amqp:
+        $ref: '#/definitions/ActionPublishAMQP'
+      publish_kafka:
+        $ref: '#/definitions/ActionPublishKafka'
+      redis:
+        $ref: '#/definitions/ActionRedis'
+      reply_http:
+        $ref: '#/definitions/ActionReplyHTTP'
+      send_http:
+        $ref: '#/definitions/ActionSendHTTP'
+      sleep:
+        $ref: '#/definitions/ActionSleep'
+  ActionRedis:
+    type: array
+    description: a list of redis commands to run when the
+    items:
+      type: string
+  ActionSendHTTP:
+    type: object
+    description: Send a HTTP message as an action
+    required:
+      - url
+      - method
+    properties:
+      url:
+        type: string
+        description: The URL to send HTTP to
+      method:
+        type: string
+        enum:
+          - POST
+          - GET
+          - DELETE
+          - PUT
+          - OPTIONS
+          - HEAD
+        description: HTTP method to use for the send
+      headers:
+        type: object
+        additionalProperties: true
+        description: >-
+          map of string to string specifying HTTP headers to attach to our
+          message
+      body:
+        type: string
+        description: 'Text body to send over HTTP, can use templating'
+      body_from_file:
+        type: string
+        description: file name (relative to working directory of OM) to load HTTP body from
+  ActionReplyHTTP:
+    type: object
+    description: reply to incoming HTTP that triggered this behavior with a response
+    properties:
+      status_code:
+        type: integer
+        format: int64
+        default: 200
+        description: HTTP status code to reply with
+      headers:
+        type: object
+        additionalProperties: true
+        description: >-
+          map of string to string specifying HTTP headers to attach to our
+          message
+      body:
+        type: string
+        description: 'Text body to send over HTTP, can use templating'
+      body_from_file:
+        type: string
+        description: file name (relative to working directory of OM) to load HTTP body from
+  ActionPublishAMQP:
+    type: object
+    description: publish a message on AMQP if this behaviors condition is met
+    required:
+      - exchange
+      - routing_key
+    properties:
+      exchange:
+        type: string
+        description: TODO
+      routing_key:
+        type: string
+        description: TODO
+      payload:
+        type: string
+        description: string payload to send on AMQP
+      payload_from_file:
+        type: string
+        description: file name (relative to working directory of OM) to load HTTP body from
+  ActionPublishKafka:
+    type: object
+    description: publish a message on kafka
+    required:
+      - topic
+    properties:
+      topic:
+        type: string
+        description: kafka topic to publish on
+      payload:
+        type: string
+        description: string payload to send on AMQP
+      payload_from_file:
+        type: string
+        description: file name (relative to working directory of OM) to load HTTP body from
+  ActionSleep:
+    type: object
+    description: pause the action thread for a time
+    required:
+      - duration
+    properties:
+      duration:
+        type: string
+        description: time to wait in seconds; e.g. '1s'
+        pattern: '[\d+]s'

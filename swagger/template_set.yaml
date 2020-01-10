@@ -1,0 +1,48 @@
+post:
+  tags:
+    - template_set
+  operationId: postTemplateSet
+  description: creates / overrides the template set with setKey to the body contents
+  parameters:
+    - in: body
+      name: mocks
+      description: mocks to add
+      required: true
+      schema:
+        $ref: "#/definitions/Mocks"
+    - in: path
+      name: setKey
+      description: set key to create
+      required: true
+      type: string
+  responses: 
+    200: 
+      description: returns the successfully posted templates
+      schema: 
+        $ref: "#/definitions/Mocks"
+    400:
+      description: if incoming templates were invalid
+      schema: 
+        $ref: "#/definitions/error"
+    default:
+      description: generic error response
+      schema:
+        $ref: "#/definitions/error"
+delete:
+  tags:
+    - template_set
+  operationId: deleteTemplateSet
+  description: deletes specified template set
+  parameters:
+    - in: path
+      name: setKey
+      description: set key to delete
+      required: true
+      type: string
+  responses: 
+    204:
+      description: when successfully deleted
+    default:
+      description: server error
+      schema:
+        $ref: "#/definitions/error"

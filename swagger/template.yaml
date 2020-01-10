@@ -1,0 +1,26 @@
+delete:
+  tags:
+    - template
+  operationId: deleteTemplate
+  description: delete a specific template that has been added by key
+  parameters:
+    - in: path
+      name: templateKey
+      description: key of template to delete
+      required: true
+      type: string
+  responses: 
+    204:
+      description: when successfully deleted
+    400:
+      description: invalid key
+      schema:
+        $ref: "#/definitions/error"
+    404:
+      description: not found
+      schema:
+        $ref: "#/definitions/error"
+    default:
+      description: server error
+      schema:
+        $ref: "#/definitions/error"
