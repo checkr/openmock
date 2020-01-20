@@ -10,9 +10,8 @@ WORKDIR /go/src/github.com/checkr/openmock
 RUN apk add --no-cache ca-certificates libc6-compat
 COPY --from=builder /go/src/github.com/checkr/openmock/om ./om
 COPY --from=builder /go/src/github.com/checkr/openmock/omctl ./omctl
-COPY --from=builder /go/src/github.com/checkr/openmock/om-swagger ./om-swagger
 COPY --from=builder /go/src/github.com/checkr/openmock/docs/api_docs/bundle.yaml ./swagger-docs.yaml
 COPY --from=swagger-builder /usr/bin/swagger ./swagger
 ENV OPENMOCK_HTTP_HOST=0.0.0.0
 ENV OPENMOCK_TEMPLATES_DIR=/data/templates
-CMD ./om-swagger --port 9998 --host 0.0.0.0
+CMD ./om

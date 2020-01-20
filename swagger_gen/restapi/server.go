@@ -25,6 +25,7 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	"golang.org/x/net/netutil"
 
+	"github.com/checkr/openmock"
 	"github.com/checkr/openmock/swagger_gen/restapi/operations"
 )
 
@@ -152,6 +153,12 @@ func (s *Server) hasScheme(scheme string) bool {
 
 // Serve the api
 func (s *Server) Serve() (err error) {
+	// get host and port name from OpenMock config
+	om := openmock.OpenMock{}
+	om.ParseEnv()
+	s.Port = om.AdminHTTPPort
+	s.Host = om.AdminHTTPHost
+
 	if !s.hasListeners {
 		if err = s.Listen(); err != nil {
 			return err

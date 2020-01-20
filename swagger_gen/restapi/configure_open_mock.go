@@ -6,6 +6,9 @@ import (
 	"crypto/tls"
 	"io"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	errors "github.com/go-openapi/errors"
 
@@ -44,8 +47,23 @@ func configureAPI(api *operations.OpenMockAPI) http.Handler {
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.JSONProducer = runtime.JSONProducer()
 
-	admin.Setup(api)
-	return setupGlobalMiddleware(api.Serve(setupMiddlewares))
+	shouldRunAdmin := admin.Setup(api)
+	if shouldRunAdmin {
+		return setupGlobalMiddleware(api.Serve(setupMiddlewares))
+	}
+
+	logrus.Info("Admin API disabled")
+	waitForSignal()
+	panic("terminating")
+}
+
+func waitForSignal() {
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(
+		signalChan,
+		syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT,
+	)
+	<-signalChan
 }
 
 // The TLS configuration before HTTPS server starts.
@@ -58,6 +76,7 @@ func configureTLS(tlsConfig *tls.Config) {
 // This function can be called multiple times, depending on the number of serving schemes.
 // scheme value will be set accordingly: "http", "https" or "unix"
 func configureServer(s *http.Server, scheme, addr string) {
+
 }
 
 // The middleware configuration is for the handler executors. These do not apply to the swagger.json document.

@@ -34,6 +34,11 @@ Use it with docker.
 $ docker run -it -p 9999:9999 -v $(pwd)/demo_templates:/data/templates checkr/openmock 
 ```
 
+More complete openmock instance (e.g. redis) with docker-compose.
+```bash
+$ docker-compose up
+```
+
 Test it.
 ```bash
 $ curl localhost:9999/ping
@@ -288,6 +293,12 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
   {{.HTTPBody | xmlPath "node1/node2/node3"}}
   ```
 
+## Admin Interface
+Openmock also by default provides an API on port 9998 to control the running instance.  See [api documentation](docs/api_docs/bundle.yaml).  You can serve the api documentation by getting [go-swagger](https://github.com/go-swagger/go-swagger) and running:
+```
+./swagger serve --host 0.0.0.0 --port 9997 docs/api_docs/bundle.yaml"
+```
+
 ## Command Line Interface
 Openmock has a command-line interface to help with certain tasks interacting with openmock instances. This is 
 invoked with the `omctl` command.  This uses the [cobra](https://github.com/spf13/cobra) library to provide a discoverable CLI; run `omctl` for a list of commands / flags. 
@@ -300,6 +311,7 @@ Pushes a local openmock model from the file system to a remote instance.
 omctl push --directory ./demo_templates --url http://localhost:9998
 ```
 
+## Examples
 ### Example: Mock HTTP
 ```yaml
 # demo_templates/http.yaml
@@ -538,7 +550,7 @@ func main() {
         KafkaConsumePipelineFunc: consumePipelineFunc,
         KafkaPublishPipelineFunc: publishPipelineFunc,
     }
-    om.Start(true)
+    om.Start()
 }
 ```
 
@@ -564,12 +576,8 @@ pkg/
 ```
 
 ### Generate
-`make gen` - bundles the separate swagger files and generates swagger_gen
-`make build` - builds the `om-swagger` executable as well as `om` and `omctl`
+* `make gen` - bundles the separate swagger files and generates swagger_gen
+* `make build` - builds the executables `om` and `omctl`
 
 ### Run
-`OPENMOCK_REDIS_TYPE=redis OPENMOCK_REDIS_URL=<redis Url, e.g. redis://localhost:6379> OPENMOCK_TEMPLATES_DIR=./demo_templates ./om-swagger --port 9998`
-
-### Run Swagger UI
-`swagger serve docs/api_docs/bundle.yaml --port 9997`
-This will open your browser at `localhost:9997/docs` with a UI to view the swagger API documentation.  It displays the incorrect server URL sometimes. 
+`OPENMOCK_REDIS_TYPE=redis OPENMOCK_REDIS_URL=<redis Url, e.g. redis://localhost:6379> OPENMOCK_TEMPLATES_DIR=./demo_templates ./om --port 9998`

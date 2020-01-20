@@ -3,8 +3,6 @@ package openmock
 import (
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/caarlos0/env"
 	"github.com/sirupsen/logrus"
@@ -77,17 +75,8 @@ func (om *OpenMock) SetupRepo() {
 	}
 }
 
-func waitForSignal() {
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(
-		signalChan,
-		syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT,
-	)
-	<-signalChan
-}
-
 // Start starts the openmock
-func (om *OpenMock) Start(standalone bool) {
+func (om *OpenMock) Start() {
 	om.SetupLogrus()
 	om.SetupRepo()
 
@@ -115,11 +104,6 @@ func (om *OpenMock) Start(standalone bool) {
 				logrus.Fatal(err)
 			}
 		}()
-	}
-
-	if standalone {
-		om.StartAdmin()
-		waitForSignal()
 	}
 }
 
