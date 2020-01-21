@@ -53,6 +53,8 @@ Dependencies.
 - AMQP (optional)
   - To enable mocking amqp, set env `OPENMOCK_AMQP_ENABLED=true`
   - One can also config `OPENMOCK_AMQP_URL`.
+- NPM (development only)
+  - Used in Makefile during swagger admin API server generation
 
 # OpenMock Templates
 Templates are YAML files that describe the behavior of OpenMock.

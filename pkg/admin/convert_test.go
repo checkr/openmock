@@ -16,11 +16,11 @@ func TestSwaggerToOpenmockMock(t *testing.T) {
 	statusCode := int64(200)
 	swagger := model.Mock{
 		Kind: "Behavior",
-		Key:  &key,
+		Key:  key,
 		Expect: &model.Expect{
 			HTTP: &model.ExpectHTTP{
-				Method: &method,
-				Path:   &path,
+				Method: method,
+				Path:   path,
 			},
 		},
 		Actions: []*model.ActionDispatcher{{

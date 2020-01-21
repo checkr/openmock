@@ -20,13 +20,11 @@ import (
 type ExpectHTTP struct {
 
 	// HTTP method to expect to trigger this behavior
-	// Required: true
 	// Enum: [POST GET DELETE PUT OPTIONS HEAD]
-	Method *string `json:"method"`
+	Method string `json:"method,omitempty"`
 
 	// HTTP path to expect to trigger this behavior
-	// Required: true
-	Path *string `json:"path"`
+	Path string `json:"path,omitempty"`
 }
 
 // Validate validates this expect HTTP
@@ -34,10 +32,6 @@ func (m *ExpectHTTP) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMethod(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePath(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -90,21 +84,12 @@ func (m *ExpectHTTP) validateMethodEnum(path, location string, value string) err
 
 func (m *ExpectHTTP) validateMethod(formats strfmt.Registry) error {
 
-	if err := validate.Required("method", "body", m.Method); err != nil {
-		return err
+	if swag.IsZero(m.Method) { // not required
+		return nil
 	}
 
 	// value enum
-	if err := m.validateMethodEnum("method", "body", *m.Method); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *ExpectHTTP) validatePath(formats strfmt.Registry) error {
-
-	if err := validate.Required("path", "body", m.Path); err != nil {
+	if err := m.validateMethodEnum("method", "body", m.Method); err != nil {
 		return err
 	}
 

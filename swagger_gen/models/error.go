@@ -18,9 +18,8 @@ import (
 type Error struct {
 
 	// message
-	// Required: true
 	// Min Length: 1
-	Message *string `json:"message"`
+	Message string `json:"message,omitempty"`
 }
 
 // Validate validates this error
@@ -39,11 +38,11 @@ func (m *Error) Validate(formats strfmt.Registry) error {
 
 func (m *Error) validateMessage(formats strfmt.Registry) error {
 
-	if err := validate.Required("message", "body", m.Message); err != nil {
-		return err
+	if swag.IsZero(m.Message) { // not required
+		return nil
 	}
 
-	if err := validate.MinLength("message", "body", string(*m.Message), 1); err != nil {
+	if err := validate.MinLength("message", "body", string(m.Message), 1); err != nil {
 		return err
 	}
 

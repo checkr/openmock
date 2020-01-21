@@ -8,9 +8,7 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // ActionPublishKafka publish a message on kafka
@@ -24,30 +22,11 @@ type ActionPublishKafka struct {
 	PayloadFromFile string `json:"payload_from_file,omitempty"`
 
 	// kafka topic to publish on
-	// Required: true
-	Topic *string `json:"topic"`
+	Topic string `json:"topic,omitempty"`
 }
 
 // Validate validates this action publish kafka
 func (m *ActionPublishKafka) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateTopic(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ActionPublishKafka) validateTopic(formats strfmt.Registry) error {
-
-	if err := validate.Required("topic", "body", m.Topic); err != nil {
-		return err
-	}
-
 	return nil
 }
 

@@ -29,13 +29,11 @@ type ActionSendHTTP struct {
 	Headers interface{} `json:"headers,omitempty"`
 
 	// HTTP method to use for the send
-	// Required: true
 	// Enum: [POST GET DELETE PUT OPTIONS HEAD]
-	Method *string `json:"method"`
+	Method string `json:"method,omitempty"`
 
 	// The URL to send HTTP to
-	// Required: true
-	URL *string `json:"url"`
+	URL string `json:"url,omitempty"`
 }
 
 // Validate validates this action send HTTP
@@ -43,10 +41,6 @@ func (m *ActionSendHTTP) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMethod(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateURL(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -99,21 +93,12 @@ func (m *ActionSendHTTP) validateMethodEnum(path, location string, value string)
 
 func (m *ActionSendHTTP) validateMethod(formats strfmt.Registry) error {
 
-	if err := validate.Required("method", "body", m.Method); err != nil {
-		return err
+	if swag.IsZero(m.Method) { // not required
+		return nil
 	}
 
 	// value enum
-	if err := m.validateMethodEnum("method", "body", *m.Method); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *ActionSendHTTP) validateURL(formats strfmt.Registry) error {
-
-	if err := validate.Required("url", "body", m.URL); err != nil {
+	if err := m.validateMethodEnum("method", "body", m.Method); err != nil {
 		return err
 	}
 

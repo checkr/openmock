@@ -8,9 +8,7 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // ExpectAMQP expect a m q p
@@ -18,64 +16,17 @@ import (
 type ExpectAMQP struct {
 
 	// TODO
-	// Required: true
-	Exchange *string `json:"exchange"`
+	Exchange string `json:"exchange,omitempty"`
 
 	// TODO
-	// Required: true
-	Queue *string `json:"queue"`
+	Queue string `json:"queue,omitempty"`
 
 	// TODO
-	// Required: true
-	RoutingKey *string `json:"routing_key"`
+	RoutingKey string `json:"routing_key,omitempty"`
 }
 
 // Validate validates this expect a m q p
 func (m *ExpectAMQP) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateExchange(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateQueue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRoutingKey(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ExpectAMQP) validateExchange(formats strfmt.Registry) error {
-
-	if err := validate.Required("exchange", "body", m.Exchange); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *ExpectAMQP) validateQueue(formats strfmt.Registry) error {
-
-	if err := validate.Required("queue", "body", m.Queue); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *ExpectAMQP) validateRoutingKey(formats strfmt.Registry) error {
-
-	if err := validate.Required("routing_key", "body", m.RoutingKey); err != nil {
-		return err
-	}
-
 	return nil
 }
 

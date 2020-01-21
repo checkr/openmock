@@ -8,9 +8,7 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // ExpectKafka expect kafka
@@ -18,30 +16,11 @@ import (
 type ExpectKafka struct {
 
 	// kafka topic to listen on
-	// Required: true
-	Topic *string `json:"topic"`
+	Topic string `json:"topic,omitempty"`
 }
 
 // Validate validates this expect kafka
 func (m *ExpectKafka) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateTopic(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ExpectKafka) validateTopic(formats strfmt.Registry) error {
-
-	if err := validate.Required("topic", "body", m.Topic); err != nil {
-		return err
-	}
-
 	return nil
 }
 

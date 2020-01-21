@@ -59,7 +59,7 @@ func (c *crud) PostTemplates(params template.PostTemplatesParams) middleware.Res
 		logrus.Errorf("Couldn't add OM templates %v", err)
 		resp := template.NewPostTemplatesBadRequest()
 		message := fmt.Sprintf("%v", err)
-		resp.SetPayload(&models.Error{Message: &message})
+		resp.SetPayload(&models.Error{Message: message})
 		return resp
 	}
 
@@ -73,7 +73,7 @@ func (c *crud) DeleteTemplates(params template.DeleteTemplatesParams) middleware
 	if err != nil {
 		resp := template.NewDeleteTemplatesDefault(500)
 		message := fmt.Sprintf("%v", err)
-		resp.SetPayload(&models.Error{Message: &message})
+		resp.SetPayload(&models.Error{Message: message})
 		return resp
 	}
 
@@ -85,19 +85,24 @@ func (c *crud) DeleteTemplates(params template.DeleteTemplatesParams) middleware
 
 func (c *crud) DeleteTemplate(params template.DeleteTemplateParams) middleware.Responder {
 	v, err := c.om.RedisDo("HGET", c.om.RedisTemplatesStore(), params.TemplateKey)
-	m, err := redis.Bytes(v, err)
-
 	if err != nil {
 		resp := template.NewDeleteTemplateDefault(500)
 		message := fmt.Sprintf("%v", err)
-		resp.SetPayload(&models.Error{Message: &message})
+		resp.SetPayload(&models.Error{Message: message})
 		return resp
 	}
 
+	m, err := redis.Bytes(v, err)
+	if err != nil {
+		resp := template.NewDeleteTemplateDefault(500)
+		message := fmt.Sprintf("%v", err)
+		resp.SetPayload(&models.Error{Message: message})
+		return resp
+	}
 	if m == nil {
 		resp := template.NewDeleteTemplateNotFound()
 		message := fmt.Sprintf("key not found: %s", params.TemplateKey)
-		resp.SetPayload(&models.Error{Message: &message})
+		resp.SetPayload(&models.Error{Message: message})
 		return resp
 	}
 
@@ -105,7 +110,7 @@ func (c *crud) DeleteTemplate(params template.DeleteTemplateParams) middleware.R
 	if err != nil {
 		resp := template.NewDeleteTemplateDefault(500)
 		message := fmt.Sprintf("%v", err)
-		resp.SetPayload(&models.Error{Message: &message})
+		resp.SetPayload(&models.Error{Message: message})
 		return resp
 	}
 
@@ -124,7 +129,7 @@ func (c *crud) PostTemplateSet(params template_set.PostTemplateSetParams) middle
 		logrus.Errorf("Couldn't add OM templates %v", err)
 		resp := template_set.NewPostTemplateSetBadRequest()
 		message := fmt.Sprintf("%v", err)
-		resp.SetPayload(&models.Error{Message: &message})
+		resp.SetPayload(&models.Error{Message: message})
 		return resp
 	}
 
@@ -140,7 +145,7 @@ func (c *crud) DeleteTemplateSet(params template_set.DeleteTemplateSetParams) mi
 	if err != nil {
 		resp := template_set.NewDeleteTemplateSetDefault(500)
 		message := fmt.Sprintf("%v", err)
-		resp.SetPayload(&models.Error{Message: &message})
+		resp.SetPayload(&models.Error{Message: message})
 		return resp
 	}
 

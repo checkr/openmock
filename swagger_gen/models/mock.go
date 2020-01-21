@@ -30,9 +30,8 @@ type Mock struct {
 	Extend string `json:"extend,omitempty"`
 
 	// Unique key for the item in OM's model
-	// Required: true
 	// Pattern: [\w_\-\.]+
-	Key *string `json:"key"`
+	Key string `json:"key,omitempty"`
 
 	// The type of item this is. possible types are: Behavior - creates a new mock behavior  AbstractBehavior - allows behaviors to use common features from this item Template - used in template language rendering to do fancy stuff
 	//
@@ -117,11 +116,11 @@ func (m *Mock) validateExpect(formats strfmt.Registry) error {
 
 func (m *Mock) validateKey(formats strfmt.Registry) error {
 
-	if err := validate.Required("key", "body", m.Key); err != nil {
-		return err
+	if swag.IsZero(m.Key) { // not required
+		return nil
 	}
 
-	if err := validate.Pattern("key", "body", string(*m.Key), `[\w_\-\.]+`); err != nil {
+	if err := validate.Pattern("key", "body", string(m.Key), `[\w_\-\.]+`); err != nil {
 		return err
 	}
 

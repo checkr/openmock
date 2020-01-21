@@ -177,8 +177,6 @@ definitions:
         type: string
   error:
     type: object
-    required:
-      - message
     properties:
       message:
         type: string
@@ -190,8 +188,6 @@ definitions:
       $ref: '#/definitions/Mock'
   Mock:
     type: object
-    required:
-      - key
     properties:
       key:
         type: string
@@ -241,18 +237,12 @@ definitions:
         $ref: '#/definitions/ExpectAMQP'
   ExpectKafka:
     type: object
-    required:
-      - topic
     properties:
       topic:
         type: string
         description: kafka topic to listen on
   ExpectAMQP:
     type: object
-    required:
-      - exchange
-      - routing_key
-      - queue
     properties:
       exchange:
         type: string
@@ -265,9 +255,6 @@ definitions:
         description: TODO
   ExpectHTTP:
     type: object
-    required:
-      - method
-      - path
     properties:
       method:
         type: string
@@ -310,9 +297,6 @@ definitions:
   ActionSendHTTP:
     type: object
     description: Send a HTTP message as an action
-    required:
-      - url
-      - method
     properties:
       url:
         type: string
@@ -363,9 +347,6 @@ definitions:
   ActionPublishAMQP:
     type: object
     description: publish a message on AMQP if this behaviors condition is met
-    required:
-      - exchange
-      - routing_key
     properties:
       exchange:
         type: string
@@ -382,8 +363,6 @@ definitions:
   ActionPublishKafka:
     type: object
     description: publish a message on kafka
-    required:
-      - topic
     properties:
       topic:
         type: string
@@ -397,8 +376,6 @@ definitions:
   ActionSleep:
     type: object
     description: pause the action thread for a time
-    required:
-      - duration
     properties:
       duration:
         type: string

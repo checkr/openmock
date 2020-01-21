@@ -288,10 +288,6 @@ func init() {
     "ActionPublishAMQP": {
       "description": "publish a message on AMQP if this behaviors condition is met",
       "type": "object",
-      "required": [
-        "exchange",
-        "routing_key"
-      ],
       "properties": {
         "exchange": {
           "description": "TODO",
@@ -314,9 +310,6 @@ func init() {
     "ActionPublishKafka": {
       "description": "publish a message on kafka",
       "type": "object",
-      "required": [
-        "topic"
-      ],
       "properties": {
         "payload": {
           "description": "string payload to send on AMQP",
@@ -367,10 +360,6 @@ func init() {
     "ActionSendHTTP": {
       "description": "Send a HTTP message as an action",
       "type": "object",
-      "required": [
-        "url",
-        "method"
-      ],
       "properties": {
         "body": {
           "description": "Text body to send over HTTP, can use templating",
@@ -406,9 +395,6 @@ func init() {
     "ActionSleep": {
       "description": "pause the action thread for a time",
       "type": "object",
-      "required": [
-        "duration"
-      ],
       "properties": {
         "duration": {
           "description": "time to wait in seconds; e.g. '1s'",
@@ -437,11 +423,6 @@ func init() {
     },
     "ExpectAMQP": {
       "type": "object",
-      "required": [
-        "exchange",
-        "routing_key",
-        "queue"
-      ],
       "properties": {
         "exchange": {
           "description": "TODO",
@@ -459,10 +440,6 @@ func init() {
     },
     "ExpectHTTP": {
       "type": "object",
-      "required": [
-        "method",
-        "path"
-      ],
       "properties": {
         "method": {
           "description": "HTTP method to expect to trigger this behavior",
@@ -484,9 +461,6 @@ func init() {
     },
     "ExpectKafka": {
       "type": "object",
-      "required": [
-        "topic"
-      ],
       "properties": {
         "topic": {
           "description": "kafka topic to listen on",
@@ -496,9 +470,6 @@ func init() {
     },
     "Mock": {
       "type": "object",
-      "required": [
-        "key"
-      ],
       "properties": {
         "actions": {
           "description": "for behaviors, the actions this mock would do when the expect is met",
@@ -548,9 +519,6 @@ func init() {
     },
     "error": {
       "type": "object",
-      "required": [
-        "message"
-      ],
       "properties": {
         "message": {
           "type": "string",
@@ -849,10 +817,6 @@ func init() {
     "ActionPublishAMQP": {
       "description": "publish a message on AMQP if this behaviors condition is met",
       "type": "object",
-      "required": [
-        "exchange",
-        "routing_key"
-      ],
       "properties": {
         "exchange": {
           "description": "TODO",
@@ -875,9 +839,6 @@ func init() {
     "ActionPublishKafka": {
       "description": "publish a message on kafka",
       "type": "object",
-      "required": [
-        "topic"
-      ],
       "properties": {
         "payload": {
           "description": "string payload to send on AMQP",
@@ -928,10 +889,6 @@ func init() {
     "ActionSendHTTP": {
       "description": "Send a HTTP message as an action",
       "type": "object",
-      "required": [
-        "url",
-        "method"
-      ],
       "properties": {
         "body": {
           "description": "Text body to send over HTTP, can use templating",
@@ -967,9 +924,6 @@ func init() {
     "ActionSleep": {
       "description": "pause the action thread for a time",
       "type": "object",
-      "required": [
-        "duration"
-      ],
       "properties": {
         "duration": {
           "description": "time to wait in seconds; e.g. '1s'",
@@ -998,11 +952,6 @@ func init() {
     },
     "ExpectAMQP": {
       "type": "object",
-      "required": [
-        "exchange",
-        "routing_key",
-        "queue"
-      ],
       "properties": {
         "exchange": {
           "description": "TODO",
@@ -1020,10 +969,6 @@ func init() {
     },
     "ExpectHTTP": {
       "type": "object",
-      "required": [
-        "method",
-        "path"
-      ],
       "properties": {
         "method": {
           "description": "HTTP method to expect to trigger this behavior",
@@ -1045,9 +990,6 @@ func init() {
     },
     "ExpectKafka": {
       "type": "object",
-      "required": [
-        "topic"
-      ],
       "properties": {
         "topic": {
           "description": "kafka topic to listen on",
@@ -1057,9 +999,6 @@ func init() {
     },
     "Mock": {
       "type": "object",
-      "required": [
-        "key"
-      ],
       "properties": {
         "actions": {
           "description": "for behaviors, the actions this mock would do when the expect is met",
@@ -1109,9 +1048,6 @@ func init() {
     },
     "error": {
       "type": "object",
-      "required": [
-        "message"
-      ],
       "properties": {
         "message": {
           "type": "string",

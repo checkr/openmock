@@ -18,9 +18,8 @@ import (
 type ActionSleep struct {
 
 	// time to wait in seconds; e.g. '1s'
-	// Required: true
 	// Pattern: [\d+]s
-	Duration *string `json:"duration"`
+	Duration string `json:"duration,omitempty"`
 }
 
 // Validate validates this action sleep
@@ -39,11 +38,11 @@ func (m *ActionSleep) Validate(formats strfmt.Registry) error {
 
 func (m *ActionSleep) validateDuration(formats strfmt.Registry) error {
 
-	if err := validate.Required("duration", "body", m.Duration); err != nil {
-		return err
+	if swag.IsZero(m.Duration) { // not required
+		return nil
 	}
 
-	if err := validate.Pattern("duration", "body", string(*m.Duration), `[\d+]s`); err != nil {
+	if err := validate.Pattern("duration", "body", string(m.Duration), `[\d+]s`); err != nil {
 		return err
 	}
 

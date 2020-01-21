@@ -16,7 +16,7 @@ func Setup(api *operations.OpenMockAPI, customOpenmock *openmock.OpenMock) bool 
 	om := customOpenmock
 	if om == nil {
 		// Start openmock
-		om := &openmock.OpenMock{}
+		om = &openmock.OpenMock{}
 		om.ParseEnv()
 	}
 

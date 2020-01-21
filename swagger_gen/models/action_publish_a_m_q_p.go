@@ -8,9 +8,7 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // ActionPublishAMQP publish a message on AMQP if this behaviors condition is met
@@ -18,8 +16,7 @@ import (
 type ActionPublishAMQP struct {
 
 	// TODO
-	// Required: true
-	Exchange *string `json:"exchange"`
+	Exchange string `json:"exchange,omitempty"`
 
 	// string payload to send on AMQP
 	Payload string `json:"payload,omitempty"`
@@ -28,43 +25,11 @@ type ActionPublishAMQP struct {
 	PayloadFromFile string `json:"payload_from_file,omitempty"`
 
 	// TODO
-	// Required: true
-	RoutingKey *string `json:"routing_key"`
+	RoutingKey string `json:"routing_key,omitempty"`
 }
 
 // Validate validates this action publish a m q p
 func (m *ActionPublishAMQP) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateExchange(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRoutingKey(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ActionPublishAMQP) validateExchange(formats strfmt.Registry) error {
-
-	if err := validate.Required("exchange", "body", m.Exchange); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *ActionPublishAMQP) validateRoutingKey(formats strfmt.Registry) error {
-
-	if err := validate.Required("routing_key", "body", m.RoutingKey); err != nil {
-		return err
-	}
-
 	return nil
 }
 
