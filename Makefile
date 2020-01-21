@@ -45,7 +45,7 @@ verify_swagger:
 	@swagger validate $(PWD)/docs/api_docs/bundle.yaml
 
 # list of files that contain custom edits and shouldn't be overwritten by generation
-PROTECTED_FILES := restapi/configure_open_mock.go restapi/server.go
+PROTECTED_FILES := restapi/configure_open_mock.go restapi/server.go cmd/open-mock-server/main.go
 
 swagger: verify_swagger
 	@echo "Regenerate swagger files"

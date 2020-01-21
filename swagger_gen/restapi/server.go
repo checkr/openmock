@@ -54,9 +54,9 @@ func NewServer(api *operations.OpenMockAPI) *Server {
 }
 
 // ConfigureAPI configures the API and handlers.
-func (s *Server) ConfigureAPI() {
+func (s *Server) ConfigureAPI(customOpenmock *openmock.OpenMock) {
 	if s.api != nil {
-		s.handler = configureAPI(s.api)
+		s.handler = configureAPI(s.api, customOpenmock)
 	}
 }
 
@@ -126,7 +126,7 @@ func (s *Server) Fatalf(f string, args ...interface{}) {
 }
 
 // SetAPI configures the server with the specified API. Needs to be called before Serve
-func (s *Server) SetAPI(api *operations.OpenMockAPI) {
+func (s *Server) SetAPI(api *operations.OpenMockAPI, customOpenmock *openmock.OpenMock) {
 	if api == nil {
 		s.api = nil
 		s.handler = nil
@@ -134,7 +134,7 @@ func (s *Server) SetAPI(api *operations.OpenMockAPI) {
 	}
 
 	s.api = api
-	s.handler = configureAPI(api)
+	s.handler = configureAPI(api, customOpenmock)
 }
 
 func (s *Server) hasScheme(scheme string) bool {

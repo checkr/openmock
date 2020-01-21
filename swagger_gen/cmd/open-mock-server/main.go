@@ -48,7 +48,7 @@ func main() {
 		os.Exit(code)
 	}
 
-	server.ConfigureAPI()
+	server.ConfigureAPI(nil)
 
 	if err := server.Serve(); err != nil {
 		log.Fatalln(err)

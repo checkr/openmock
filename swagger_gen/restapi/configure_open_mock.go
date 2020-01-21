@@ -12,6 +12,7 @@ import (
 
 	errors "github.com/go-openapi/errors"
 
+	"github.com/checkr/openmock"
 	"github.com/checkr/openmock/pkg/admin"
 	"github.com/checkr/openmock/swagger_gen/restapi/operations"
 	"github.com/sirupsen/logrus"
@@ -29,7 +30,7 @@ func configureFlags(api *operations.OpenMockAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
 }
 
-func configureAPI(api *operations.OpenMockAPI) http.Handler {
+func configureAPI(api *operations.OpenMockAPI, customOpenmock *openmock.OpenMock) http.Handler {
 	// configure the api here
 	api.ServeError = errors.ServeError
 
@@ -47,7 +48,7 @@ func configureAPI(api *operations.OpenMockAPI) http.Handler {
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.JSONProducer = runtime.JSONProducer()
 
-	shouldRunAdmin := admin.Setup(api)
+	shouldRunAdmin := admin.Setup(api, customOpenmock)
 	if shouldRunAdmin {
 		return setupGlobalMiddleware(api.Serve(setupMiddlewares))
 	}

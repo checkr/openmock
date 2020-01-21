@@ -12,10 +12,14 @@ import (
 
 // Setup initialize all the handler functions, returns whether admin HTTP
 // should be enabled
-func Setup(api *operations.OpenMockAPI) bool {
-	// Start openmock
-	om := &openmock.OpenMock{}
-	om.ParseEnv()
+func Setup(api *operations.OpenMockAPI, customOpenmock *openmock.OpenMock) bool {
+	om := customOpenmock
+	if om == nil {
+		// Start openmock
+		om := &openmock.OpenMock{}
+		om.ParseEnv()
+	}
+
 	defer om.Stop()
 	om.Start()
 
