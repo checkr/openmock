@@ -22,7 +22,7 @@ type ActionSendHTTP struct {
 	// Text body to send over HTTP, can use templating
 	Body string `json:"body,omitempty"`
 
-	// file name (relative to working directory of OM) to load HTTP body from
+	// file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load HTTP body from
 	BodyFromFile string `json:"body_from_file,omitempty"`
 
 	// map of string to string specifying HTTP headers to attach to our message

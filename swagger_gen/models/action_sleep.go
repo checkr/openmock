@@ -8,9 +8,7 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // ActionSleep pause the action thread for a time
@@ -18,34 +16,11 @@ import (
 type ActionSleep struct {
 
 	// time to wait in seconds; e.g. '1s'
-	// Pattern: [\d+]s
 	Duration string `json:"duration,omitempty"`
 }
 
 // Validate validates this action sleep
 func (m *ActionSleep) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateDuration(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ActionSleep) validateDuration(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Duration) { // not required
-		return nil
-	}
-
-	if err := validate.Pattern("duration", "body", string(m.Duration), `[\d+]s`); err != nil {
-		return err
-	}
-
 	return nil
 }
 

@@ -18,7 +18,7 @@ type ActionPublishKafka struct {
 	// string payload to send on AMQP
 	Payload string `json:"payload,omitempty"`
 
-	// file name (relative to working directory of OM) to load HTTP body from
+	// file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load body from
 	PayloadFromFile string `json:"payload_from_file,omitempty"`
 
 	// kafka topic to publish on

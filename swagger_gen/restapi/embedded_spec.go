@@ -290,7 +290,7 @@ func init() {
       "type": "object",
       "properties": {
         "exchange": {
-          "description": "TODO",
+          "description": "AMQP exchange name",
           "type": "string"
         },
         "payload": {
@@ -298,11 +298,11 @@ func init() {
           "type": "string"
         },
         "payload_from_file": {
-          "description": "file name (relative to working directory of OM) to load HTTP body from",
+          "description": "file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load body from",
           "type": "string"
         },
         "routing_key": {
-          "description": "TODO",
+          "description": "AMQP routing key",
           "type": "string"
         }
       }
@@ -316,7 +316,7 @@ func init() {
           "type": "string"
         },
         "payload_from_file": {
-          "description": "file name (relative to working directory of OM) to load HTTP body from",
+          "description": "file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load body from",
           "type": "string"
         },
         "topic": {
@@ -366,7 +366,7 @@ func init() {
           "type": "string"
         },
         "body_from_file": {
-          "description": "file name (relative to working directory of OM) to load HTTP body from",
+          "description": "file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load HTTP body from",
           "type": "string"
         },
         "headers": {
@@ -398,8 +398,7 @@ func init() {
       "properties": {
         "duration": {
           "description": "time to wait in seconds; e.g. '1s'",
-          "type": "string",
-          "pattern": "[\\d+]s"
+          "type": "string"
         }
       }
     },
@@ -819,7 +818,7 @@ func init() {
       "type": "object",
       "properties": {
         "exchange": {
-          "description": "TODO",
+          "description": "AMQP exchange name",
           "type": "string"
         },
         "payload": {
@@ -827,11 +826,11 @@ func init() {
           "type": "string"
         },
         "payload_from_file": {
-          "description": "file name (relative to working directory of OM) to load HTTP body from",
+          "description": "file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load body from",
           "type": "string"
         },
         "routing_key": {
-          "description": "TODO",
+          "description": "AMQP routing key",
           "type": "string"
         }
       }
@@ -845,7 +844,7 @@ func init() {
           "type": "string"
         },
         "payload_from_file": {
-          "description": "file name (relative to working directory of OM) to load HTTP body from",
+          "description": "file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load body from",
           "type": "string"
         },
         "topic": {
@@ -895,7 +894,7 @@ func init() {
           "type": "string"
         },
         "body_from_file": {
-          "description": "file name (relative to working directory of OM) to load HTTP body from",
+          "description": "file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load HTTP body from",
           "type": "string"
         },
         "headers": {
@@ -927,8 +926,7 @@ func init() {
       "properties": {
         "duration": {
           "description": "time to wait in seconds; e.g. '1s'",
-          "type": "string",
-          "pattern": "[\\d+]s"
+          "type": "string"
         }
       }
     },

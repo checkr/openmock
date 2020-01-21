@@ -61,8 +61,6 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20180827083657-b942cacc89fe // indirect
-	golang.org/x/crypto v0.0.0-20190617133340-57b3e21c3d56 // indirect
 	golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297
-	golang.org/x/tools v0.0.0-20190617190820-da514acc4774 // indirect
 	gopkg.in/yaml.v2 v2.2.4
 )

@@ -197,7 +197,7 @@ definitions:
         description: Text body to send over HTTP, can use templating
       body_from_file:
         type: string
-        description: file name (relative to working directory of OM) to load HTTP body from
+        description: file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load HTTP body from
   
   ActionReplyHTTP:
     type: object
@@ -225,16 +225,16 @@ definitions:
     properties:
       exchange: 
         type: string
-        description: TODO
+        description: AMQP exchange name
       routing_key: 
         type: string
-        description: TODO
+        description: AMQP routing key
       payload:
         type: string
         description: string payload to send on AMQP
       payload_from_file:
         type: string
-        description: file name (relative to working directory of OM) to load HTTP body from
+        description: file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load body from
 
   ActionPublishKafka:
     type: object
@@ -248,7 +248,7 @@ definitions:
         description: string payload to send on AMQP
       payload_from_file:
         type: string
-        description: file name (relative to working directory of OM) to load HTTP body from
+        description: file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load body from
 
   ActionSleep:
     type: object
@@ -257,4 +257,3 @@ definitions:
       duration:
         type: string
         description: time to wait in seconds; e.g. '1s'
-        pattern: '[\d+]s'

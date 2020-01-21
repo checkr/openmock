@@ -15,16 +15,16 @@ import (
 // swagger:model ActionPublishAMQP
 type ActionPublishAMQP struct {
 
-	// TODO
+	// AMQP exchange name
 	Exchange string `json:"exchange,omitempty"`
 
 	// string payload to send on AMQP
 	Payload string `json:"payload,omitempty"`
 
-	// file name (relative to working directory of OM) to load HTTP body from
+	// file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load body from
 	PayloadFromFile string `json:"payload_from_file,omitempty"`
 
-	// TODO
+	// AMQP routing key
 	RoutingKey string `json:"routing_key,omitempty"`
 }
 
