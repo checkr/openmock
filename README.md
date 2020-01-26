@@ -531,28 +531,36 @@ omctl push --directory ./demo_templates --url http://localhost:9998
 
 # Advanced pipeline functions
 To enable advanced mocks, for example, your own encoding/decoding of the kafka messages,
-one can develop by directly importing the `github.com/checkr/openmock` package.
+one can develop by directly importing the `github.com/checkr/openmock` package, making a copy of the swagger-generated server main, and passing in a custom OpenMock.
 
 For example:
+(see [example](https://github.com/sesquipedalian-dev/openmock-custom-example/blob/master/main.go))
 ```go
 package main
 
-import "github.com/checkr/openmock"
+import (
+  "github.com/checkr/openmock"
+  "github.com/checkr/openmock/swagger_gen/restapi"
+  "github.com/checkr/openmock/swagger_gen/restapi/operations"
+  /// etc
+)
 
 func consumePipelineFunc(c openmock.Context, in []byte) (out []byte, error) {
   return decode(in), nil
 }
 
-func publishPipelineFunc(c openmock.Context, in []byte) (out []byte, error) {
-  return encode(in), nil
-}
-
 func main() {
-    om := openmock.OpenMock{
-        KafkaConsumePipelineFunc: consumePipelineFunc,
-        KafkaPublishPipelineFunc: publishPipelineFunc,
-    }
-    om.Start()
+  // server set up copy & paste...
+  
+  // add our custom openmock functionality
+  om := &openmock.OpenMock{}
+  om.ParseEnv()
+  om.KafkaConsumePipelineFunc
+  consumePipelineFunc
+
+  server.ConfigureAPI(om)
+
+  // rest of server set up copy & paste...
 }
 ```
 
