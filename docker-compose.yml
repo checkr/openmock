@@ -46,6 +46,12 @@ services:
     ports:
       - "6379:6379"
 
+  openmock-docs:
+    build: .
+    ports:
+      - "9997:9997"
+    command: "./swagger serve --host 0.0.0.0 --port 9997 --no-open swagger-docs.yaml"
+
   openmock:
     build: .
     container_name: openmock

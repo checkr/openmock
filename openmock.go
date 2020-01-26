@@ -3,8 +3,6 @@ package openmock
 import (
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/caarlos0/env"
 	"github.com/sirupsen/logrus"
@@ -46,6 +44,10 @@ func (om *OpenMock) ToYAML() []byte {
 	return om.repo.ToYAML()
 }
 
+func (om *OpenMock) ToArray() []*Mock {
+	return om.repo.AsArray()
+}
+
 // ParseEnv loads env vars into the openmock struct
 func (om *OpenMock) ParseEnv() {
 	err := env.Parse(om)
@@ -73,22 +75,12 @@ func (om *OpenMock) SetupRepo() {
 	}
 }
 
-func waitForSignal() {
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(
-		signalChan,
-		syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT,
-	)
-	<-signalChan
-}
-
 // Start starts the openmock
 func (om *OpenMock) Start() {
 	om.SetupLogrus()
 	om.SetupRepo()
 
 	om.SetRedis()
-	om.StartAdmin()
 
 	err := om.Load()
 	if err != nil {
@@ -113,8 +105,6 @@ func (om *OpenMock) Start() {
 			}
 		}()
 	}
-
-	waitForSignal()
 }
 
 // Stop clean up and release some resources, it's optional.

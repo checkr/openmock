@@ -2,7 +2,11 @@
 github.com/Masterminds/semver
 # github.com/Masterminds/sprig v2.15.0+incompatible
 github.com/Masterminds/sprig
-# github.com/Shopify/sarama v1.17.0
+# github.com/PuerkitoBio/purell v1.1.1
+github.com/PuerkitoBio/purell
+# github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578
+github.com/PuerkitoBio/urlesc
+# github.com/Shopify/sarama v1.19.0
 github.com/Shopify/sarama
 # github.com/alicebob/gopher-json v0.0.0-20180125190556-5a6b3ba71ee6
 github.com/alicebob/gopher-json
@@ -17,6 +21,8 @@ github.com/antchfx/xmlquery
 github.com/antchfx/xpath
 # github.com/aokoli/goutils v1.0.1
 github.com/aokoli/goutils
+# github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a
+github.com/asaskevich/govalidator
 # github.com/bsm/sarama-cluster v2.1.15+incompatible
 github.com/bsm/sarama-cluster
 # github.com/caarlos0/env v3.3.0+incompatible
@@ -27,6 +33,8 @@ github.com/dafiti/echo-middleware
 github.com/davecgh/go-spew/spew
 # github.com/dgrijalva/jwt-go v3.2.0+incompatible
 github.com/dgrijalva/jwt-go
+# github.com/docker/go-units v0.4.0
+github.com/docker/go-units
 # github.com/eapache/go-resiliency v1.1.0
 github.com/eapache/go-resiliency/breaker
 # github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21
@@ -37,12 +45,45 @@ github.com/eapache/queue
 github.com/fatih/structs
 # github.com/fsnotify/fsnotify v1.4.7
 github.com/fsnotify/fsnotify
+# github.com/ghodss/yaml v1.0.0
+github.com/ghodss/yaml
+# github.com/go-openapi/analysis v0.19.5
+github.com/go-openapi/analysis
+github.com/go-openapi/analysis/internal
+# github.com/go-openapi/errors v0.19.3
+github.com/go-openapi/errors
+# github.com/go-openapi/jsonpointer v0.19.3
+github.com/go-openapi/jsonpointer
+# github.com/go-openapi/jsonreference v0.19.3
+github.com/go-openapi/jsonreference
+# github.com/go-openapi/loads v0.19.4
+github.com/go-openapi/loads
+# github.com/go-openapi/runtime v0.19.9
+github.com/go-openapi/runtime
+github.com/go-openapi/runtime/flagext
+github.com/go-openapi/runtime/logger
+github.com/go-openapi/runtime/middleware
+github.com/go-openapi/runtime/middleware/denco
+github.com/go-openapi/runtime/middleware/header
+github.com/go-openapi/runtime/middleware/untyped
+github.com/go-openapi/runtime/security
+github.com/go-openapi/runtime/yamlpc
+# github.com/go-openapi/spec v0.19.5
+github.com/go-openapi/spec
+# github.com/go-openapi/strfmt v0.19.4
+github.com/go-openapi/strfmt
+# github.com/go-openapi/swag v0.19.6
+github.com/go-openapi/swag
+# github.com/go-openapi/validate v0.19.5
+github.com/go-openapi/validate
+# github.com/go-stack/stack v1.8.0
+github.com/go-stack/stack
 # github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db
 github.com/golang/snappy
 # github.com/gomodule/redigo v2.0.0+incompatible
 github.com/gomodule/redigo/internal
 github.com/gomodule/redigo/redis
-# github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c
+# github.com/google/uuid v1.1.1
 github.com/google/uuid
 # github.com/huandu/xstrings v1.0.0
 github.com/huandu/xstrings
@@ -50,6 +91,8 @@ github.com/huandu/xstrings
 github.com/imdario/mergo
 # github.com/inconshreveable/mousetrap v1.0.0
 github.com/inconshreveable/mousetrap
+# github.com/jessevdk/go-flags v1.4.0
+github.com/jessevdk/go-flags
 # github.com/konsorten/go-windows-terminal-sequences v1.0.1
 github.com/konsorten/go-windows-terminal-sequences
 # github.com/labstack/echo v3.3.5+incompatible
@@ -60,13 +103,19 @@ github.com/labstack/gommon/bytes
 github.com/labstack/gommon/color
 github.com/labstack/gommon/log
 github.com/labstack/gommon/random
+# github.com/mailru/easyjson v0.7.0
+github.com/mailru/easyjson/buffer
+github.com/mailru/easyjson/jlexer
+github.com/mailru/easyjson/jwriter
 # github.com/mattn/go-colorable v0.0.9
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.3
 github.com/mattn/go-isatty
+# github.com/mitchellh/mapstructure v1.1.2
+github.com/mitchellh/mapstructure
 # github.com/moul/http2curl v1.0.0
 github.com/moul/http2curl
-# github.com/newrelic/go-agent v2.0.0+incompatible
+# github.com/newrelic/go-agent v2.1.0+incompatible
 github.com/newrelic/go-agent
 github.com/newrelic/go-agent/internal
 github.com/newrelic/go-agent/internal/cat
@@ -76,7 +125,7 @@ github.com/newrelic/go-agent/internal/sysinfo
 github.com/newrelic/go-agent/internal/utilization
 # github.com/parnurzeal/gorequest v0.0.0-20171015110455-8e3aed27fe49
 github.com/parnurzeal/gorequest
-# github.com/pierrec/lz4 v2.0.3+incompatible
+# github.com/pierrec/lz4 v2.0.5+incompatible
 github.com/pierrec/lz4
 github.com/pierrec/lz4/internal/xxh32
 # github.com/pkg/errors v0.8.1
@@ -85,7 +134,7 @@ github.com/pkg/errors
 github.com/pmezard/go-difflib/difflib
 # github.com/prashantv/gostub v1.0.0
 github.com/prashantv/gostub
-# github.com/rcrowley/go-metrics v0.0.0-20180503174638-e2704e165165
+# github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a
 github.com/rcrowley/go-metrics
 # github.com/sirupsen/logrus v1.2.0
 github.com/sirupsen/logrus
@@ -97,7 +146,7 @@ github.com/spf13/cobra
 github.com/spf13/pflag
 # github.com/streadway/amqp v0.0.0-20180806233856-70e15c650864
 github.com/streadway/amqp
-# github.com/stretchr/testify v1.2.2
+# github.com/stretchr/testify v1.4.0
 github.com/stretchr/testify/assert
 # github.com/teamwork/reload v1.3.0
 github.com/teamwork/reload
@@ -110,21 +159,30 @@ github.com/yuin/gopher-lua
 github.com/yuin/gopher-lua/ast
 github.com/yuin/gopher-lua/parse
 github.com/yuin/gopher-lua/pm
-# golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+# go.mongodb.org/mongo-driver v1.1.2
+go.mongodb.org/mongo-driver/bson
+go.mongodb.org/mongo-driver/bson/bsoncodec
+go.mongodb.org/mongo-driver/bson/bsonrw
+go.mongodb.org/mongo-driver/bson/bsontype
+go.mongodb.org/mongo-driver/bson/primitive
+go.mongodb.org/mongo-driver/x/bsonx/bsoncore
+# golang.org/x/crypto v0.0.0-20190617133340-57b3e21c3d56
 golang.org/x/crypto/acme
 golang.org/x/crypto/acme/autocert
 golang.org/x/crypto/pbkdf2
 golang.org/x/crypto/scrypt
 golang.org/x/crypto/ssh/terminal
-# golang.org/x/net v0.0.0-20190522155817-f3200d17e092
+# golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297
 golang.org/x/net/html
 golang.org/x/net/html/atom
 golang.org/x/net/html/charset
+golang.org/x/net/idna
+golang.org/x/net/netutil
 golang.org/x/net/publicsuffix
 # golang.org/x/sys v0.0.0-20191110163157-d32e6e3b99c4
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/text v0.3.0
+# golang.org/x/text v0.3.2
 golang.org/x/text/encoding
 golang.org/x/text/encoding/charmap
 golang.org/x/text/encoding/htmlindex
@@ -135,10 +193,16 @@ golang.org/x/text/encoding/korean
 golang.org/x/text/encoding/simplifiedchinese
 golang.org/x/text/encoding/traditionalchinese
 golang.org/x/text/encoding/unicode
+golang.org/x/text/internal/language
+golang.org/x/text/internal/language/compact
 golang.org/x/text/internal/tag
 golang.org/x/text/internal/utf8internal
 golang.org/x/text/language
 golang.org/x/text/runes
+golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
+golang.org/x/text/unicode/bidi
+golang.org/x/text/unicode/norm
+golang.org/x/text/width
 # gopkg.in/yaml.v2 v2.2.4
 gopkg.in/yaml.v2

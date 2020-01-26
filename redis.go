@@ -1,6 +1,7 @@
 package openmock
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -60,6 +61,13 @@ func (om *OpenMock) SetRedis() {
 		}
 		om.redis = NewRedisDoer(fmt.Sprintf("redis://%s:%s", s.Host(), s.Port()))
 	}
+}
+
+func (om *OpenMock) RedisDo(commandName string, args ...interface{}) (reply interface{}, err error) {
+	if om.redis == nil {
+		return "", errors.New("RedisDo before redis set up")
+	}
+	return om.redis.Do(commandName, args...)
 }
 
 func redisHandleReply(r interface{}, err error) (string, error) {

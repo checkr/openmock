@@ -19,6 +19,10 @@ const (
 	redisTemplatesStore = "redis_templates_store"
 )
 
+func (om *OpenMock) RedisTemplatesStore() string {
+	return redisTemplatesStore
+}
+
 // Load returns a map of Mocks
 func (om *OpenMock) Load() error {
 	f, err := loadYAML(om.TemplatesDir)

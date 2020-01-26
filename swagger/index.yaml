@@ -1,0 +1,259 @@
+---
+swagger: "2.0"
+info:
+  description: >
+    OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. 
+    The goal is to simplify the process of writing mocks in various channels. 
+    Currently it supports three channels:
+    HTTP
+    Kafka
+    AMQP (e.g. RabbitMQ)
+    The admin API allows you to manipulate the mock behaviour provided by openmock, live. 
+    The base path for the admin API is "/api/v1".
+  title: OpenMock
+  version: 0.2.0
+tags:
+  - name: template
+    description: manipulating 'mocks' in the model
+  - name: template_set
+    description: manipulating sets of 'mocks' in the model
+consumes:
+- application/yaml
+- application/json
+produces:
+- application/yaml
+- application/json
+schemes:
+- http
+basePath: "/api/v1"
+paths:
+  /health:
+    $ref: ./health.yaml
+  /templates:
+    $ref: ./templates.yaml
+  /templates/{templateKey}:
+    $ref: ./template.yaml
+  /template_sets/{setKey}:
+    $ref: ./template_set.yaml
+definitions:
+  # Health check
+  health:
+    type: object
+    properties:
+      status:
+        type: string
+
+  # Default Error
+  error:
+    type: object
+    properties:
+      message:
+        type: string
+        minLength: 1
+
+  Mocks: 
+    type: array
+    description: collection of mocks
+    items: 
+      $ref: "#/definitions/Mock"
+
+  Mock:
+    type: object
+    properties:
+      key:
+        type: string
+        description: Unique key for the item in OM's model
+        # TODO: pattern same as yaml key?
+        pattern: '[\w_\-\.]+'
+      kind:
+        type: string
+        enum:
+          - Behavior
+          - AbstractBehavior
+          - Template
+        description: >
+          The type of item this is. possible types are:
+          Behavior - creates a new mock behavior 
+          AbstractBehavior - allows behaviors to use common features from this item
+          Template - used in template language rendering to do fancy stuff
+      extend:
+        type: string
+        description: for behaviors, makes this behavior extend a specified AbstractBehavior
+      expect:
+        $ref: '#/definitions/Expect'
+      actions:
+        type: array
+        items:
+          $ref: "#/definitions/ActionDispatcher"
+        description: for behaviors, the actions this mock would do when the expect is met
+      values:
+        type: object
+        description: Arbitrary values that can be used in go templates rendered by this item
+        additionalProperties: true
+      template:
+        type: string
+        description: a go template to be embedded in other templates
+
+  Expect:
+    type: object
+    properties: 
+      condition: 
+        type: string
+        description: a go template that determines if this behavior triggers
+      http:
+        $ref: "#/definitions/ExpectHTTP"
+      kafka:
+        $ref: "#/definitions/ExpectKafka"
+      amqp:
+        $ref: "#/definitions/ExpectAMQP"
+    
+  ExpectKafka:
+    type: object
+    properties:
+      topic:
+        type: string
+        description: kafka topic to listen on
+  
+  ExpectAMQP:
+    type: object
+    properties: 
+      exchange:
+        type: string 
+        description: TODO
+      routing_key:
+        type: string
+        description: TODO
+      queue: 
+        type: string
+        description: TODO
+  
+  ExpectHTTP:
+    type: object
+    properties: 
+      method:
+        type: string
+        enum: 
+          - POST
+          - GET
+          - DELETE
+          - PUT
+          - OPTIONS
+          - HEAD
+        description: HTTP method to expect to trigger this behavior
+      path: 
+        type: string
+        description: HTTP path to expect to trigger this behavior
+
+  ActionDispatcher:
+    type: object
+    properties:
+      order:
+        type: integer
+        format: int64
+        default: 0
+        description: used to explicitly order the actions run when a behavior triggers
+      publish_amqp:
+        $ref: "#/definitions/ActionPublishAMQP"
+      publish_kafka:
+        $ref: "#/definitions/ActionPublishKafka"
+      redis:
+        $ref: "#/definitions/ActionRedis"
+      reply_http:
+        $ref: "#/definitions/ActionReplyHTTP"
+      send_http:
+        $ref: "#/definitions/ActionSendHTTP"
+      sleep:
+        $ref: "#/definitions/ActionSleep"
+    
+  ActionRedis:
+    type: array
+    description: a list of redis commands to run when the 
+    items:
+      type: string
+
+  ActionSendHTTP:
+    type: object
+    description: Send a HTTP message as an action
+    properties: 
+      url:
+        type: string
+        description: The URL to send HTTP to 
+      method: 
+        type: string
+        enum: 
+          - POST
+          - GET
+          - DELETE
+          - PUT
+          - OPTIONS
+          - HEAD
+        description: HTTP method to use for the send
+      headers:
+        type: object
+        additionalProperties: true
+        description: map of string to string specifying HTTP headers to attach to our message
+      body:
+        type: string
+        description: Text body to send over HTTP, can use templating
+      body_from_file:
+        type: string
+        description: file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load HTTP body from
+  
+  ActionReplyHTTP:
+    type: object
+    description: reply to incoming HTTP that triggered this behavior with a response
+    properties:
+      status_code:
+        type: integer
+        format: int64
+        default: 200
+        description: HTTP status code to reply with
+      headers:
+        type: object
+        additionalProperties: true
+        description: map of string to string specifying HTTP headers to attach to our message
+      body:
+        type: string
+        description: Text body to send over HTTP, can use templating
+      body_from_file:
+        type: string
+        description: file name (relative to working directory of OM) to load HTTP body from
+
+  ActionPublishAMQP:
+    type: object
+    description: publish a message on AMQP if this behaviors condition is met
+    properties:
+      exchange: 
+        type: string
+        description: AMQP exchange name
+      routing_key: 
+        type: string
+        description: AMQP routing key
+      payload:
+        type: string
+        description: string payload to send on AMQP
+      payload_from_file:
+        type: string
+        description: file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load body from
+
+  ActionPublishKafka:
+    type: object
+    description: publish a message on kafka
+    properties: 
+      topic:
+        type: string
+        description: kafka topic to publish on
+      payload:
+        type: string
+        description: string payload to send on AMQP
+      payload_from_file:
+        type: string
+        description: file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load body from
+
+  ActionSleep:
+    type: object
+    description: pause the action thread for a time
+    properties:
+      duration:
+        type: string
+        description: time to wait in seconds; e.g. '1s'

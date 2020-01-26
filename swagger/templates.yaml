@@ -1,0 +1,51 @@
+get:
+  tags:
+    - template
+  operationId: getTemplates
+  description: Get all templates in the loaded model
+  responses:
+    200:
+      description: all the templates
+      schema:
+        $ref: "#/definitions/Mocks"
+    default:
+      description: generic error response
+      schema:
+        $ref: "#/definitions/error"
+delete:
+  tags:
+    - template
+  operationId: deleteTemplates
+  description: Deletes any templates that have been added to the admin endpoint (without a setKey)
+  responses: 
+    204:
+      description: when successfully deleted
+    default:
+      description: server error
+      schema:
+        $ref: "#/definitions/error"
+post:
+  tags:
+    - template
+  operationId: postTemplates
+  description: Modify templates in the base model by POSTing new ones
+  parameters:
+    - in: body
+      name: mocks
+      description: mocks to add
+      required: true
+      schema:
+        $ref: "#/definitions/Mocks"
+  responses: 
+    200: 
+      description: returns the successfully posted templates
+      schema: 
+        $ref: "#/definitions/Mocks"
+    400:
+      description: if incoming templates were invalid
+      schema: 
+        $ref: "#/definitions/error"
+    default:
+      description: generic error response
+      schema:
+        $ref: "#/definitions/error"
