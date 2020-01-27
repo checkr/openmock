@@ -555,8 +555,7 @@ func main() {
   // add our custom openmock functionality
   om := &openmock.OpenMock{}
   om.ParseEnv()
-  om.KafkaConsumePipelineFunc
-  consumePipelineFunc
+  om.KafkaConsumePipelineFunc = consumePipelineFunc
 
   server.ConfigureAPI(om)
 
