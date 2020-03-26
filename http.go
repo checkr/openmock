@@ -22,7 +22,6 @@ func (om *OpenMock) startHTTP() {
 		}).Info()
 	}))
 	if om.CorsEnabled {
-		e := echo.New()
 		e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 			AllowOrigins: []string{"*"},
 			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
