@@ -3,7 +3,6 @@ package openmock
 import (
 	"fmt"
 	"io/ioutil"
-	"net/http"
 
 	em "github.com/dafiti/echo-middleware"
 	"github.com/labstack/echo"
@@ -23,9 +22,10 @@ func (om *OpenMock) startHTTP() {
 	}))
 	if om.CorsEnabled {
 		e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-			AllowOrigins: []string{"*"},
-			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
-			AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
+			AllowOrigins:     []string{"*"},
+			AllowCredentials: true,
+			AllowHeaders:     []string{"*"},
+			AllowMethods:     []string{"*"},
 		}))
 	}
 	mocks := om.repo.HTTPMocks
