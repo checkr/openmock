@@ -22,13 +22,6 @@ Currently it supports three channels:
 - AMQP (e.g. RabbitMQ)
 
 # Usage
-Use it directly with the go cli: `om`.
-
-```bash
-$ go get github.com/checkr/openmock/cmd/om
-$ OPENMOCK_TEMPLATES_DIR=./demo_templates om
-```
-
 Use it with docker.
 ```bash
 $ docker run -it -p 9999:9999 -v $(pwd)/demo_templates:/data/templates checkr/openmock 
