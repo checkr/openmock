@@ -203,7 +203,7 @@ Templates can be useful to assemble your payloads from parts
 Abstract Behaviors can be used to parameterize some data.
 
 When an abstract behavior and a behavior extending it both have actions defined, all of them are run when the behavior matches.  Actions will run from lowest to highest value of the 'order' field; if this is the same for two actions the action defined earlier in the abstract behavior runs first, followed by actions in the concrete behavior.
-Be aware that values with all digits will be interpreted into `int` type, and it will fail the condition check. Pipe to `toString` before the comparison or alternatively put quotes around the values. See example in `abstract_behaviors.yml`.
+Be aware that values with all digits will be interpreted into `int` type (YAML syntax), and it will fail the condition check given that some helper functions are returning `string` types. Pipe to `toString` before the comparison or alternatively put quotes around the values. See example in `abstract_behaviors.yml`.
 ```yaml
 - key: fruit-of-the-day
   kind: AbstractBehavior
