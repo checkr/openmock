@@ -24,3 +24,33 @@
   extend: fruit-of-the-day
   values:
     day: tuesday
+
+#  Be aware that values with all digits will be interpreted into int type, and it will fail the condition check.
+#  Pipe to toString before the comparison (i.e. eq, contains, etc.) or alternatively put quotes around the values.
+- key: value-with-numbers
+  kind: AbstractBehavior
+  values:
+    count: 0
+  expect:
+    condition: '{{.HTTPQueryString | toString | eq .Values.count}}'
+    http:
+      method: GET
+      path: /value-with-numbers
+  actions:
+    - reply_http:
+        status_code: 200
+        body: '{"word": "{{.Values.word}}"}'
+
+- key: count-one
+  kind: Behavior
+  extend: value-with-numbers
+  values:
+    count: 1
+    word: one
+
+- key: count-two
+  kind: Behavior
+  extend: value-with-numbers
+  values:
+    count: 2
+    word: two
