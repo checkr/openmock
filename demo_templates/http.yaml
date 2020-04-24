@@ -181,3 +181,15 @@
           Access-Control-Allow-Origin: http://localhost:9991
           Access-Control-Allow-Methods: POST, GET, OPTIONS
           Access-Control-Allow-Headers: Content-Type
+
+- key: condition-on-http-body
+  kind: Behavior
+  expect:
+    condition: '{{ .HTTPBody | jsonPath "foo" | toString | eq "123" }}'
+    http:
+      method: POST
+      path: /query_body
+  actions:
+    - reply_http:
+        status_code: 200
+        body: '{{ .HTTPBody | jsonPath "foo" }}'
