@@ -1,0 +1,8 @@
+- key: example_grpc
+  expect:
+    grpc:
+      service: demo_protobuf.ExampleService
+      method: ExampleMethod
+  actions:
+    - reply_grpc:
+        payload_from_file: './files/example_grpc_response.json'

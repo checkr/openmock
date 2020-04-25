@@ -87,6 +87,20 @@ func TestLoadFile(t *testing.T) {
 		assert.NotZero(t, m.Actions[0].ActionReplyHTTP.Body)
 	})
 
+	t.Run("reply_grpc body", func(t *testing.T) {
+		m := &Mock{
+			Actions: []ActionDispatcher{
+				{
+					ActionReplyGRPC: ActionReplyGRPC{
+						PayloadFromFile: "./files/example_grpc_response.json",
+					},
+				},
+			},
+		}
+		m.loadFile("demo_templates")
+		assert.NotZero(t, m.Actions[0].ActionReplyGRPC.Payload)
+	})
+
 	t.Run("send_http body", func(t *testing.T) {
 		m := &Mock{
 			Actions: []ActionDispatcher{

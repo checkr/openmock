@@ -103,6 +103,14 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 				r.HTTPMocks[m.Expect.HTTP] = append(r.HTTPMocks[m.Expect.HTTP], m)
 			}
 		}
+        if !structs.IsZero(m.Expect.GRPC) {
+            _, ok := r.GRPCMocks[m.Expect.GRPC]
+            if !ok {
+                r.GRPCMocks[m.Expect.GRPC] = []*Mock{m}
+            } else {
+                r.GRPCMocks[m.Expect.GRPC] = append(r.GRPCMocks[m.Expect.GRPC], m)
+            }
+        }
 		if !structs.IsZero(m.Expect.Kafka) {
 			_, ok := r.KafkaMocks[m.Expect.Kafka]
 			if !ok {
@@ -226,6 +234,13 @@ func (m *Mock) loadFile(baseDir string) {
 				h.BodyFromFile = ""
 			}
 		}
+        if !structs.IsZero(a.ActionReplyGRPC) {
+            grpc := &a.ActionReplyGRPC
+			if grpc.PayloadFromFile != "" && grpc.Payload == "" {
+				grpc.Payload = readFile(m.Key, baseDir, grpc.PayloadFromFile)
+				grpc.PayloadFromFile = ""
+			}
+        }
 	}
 	logrus.Infof("template with key:%s loaded.", m.Key)
 }

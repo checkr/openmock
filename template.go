@@ -8,6 +8,7 @@ import (
 
 	"github.com/Masterminds/sprig"
 	"github.com/labstack/echo"
+	grpc_echo "github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,6 +19,14 @@ type Context struct {
 	HTTPBody        string
 	HTTPPath        string
 	HTTPQueryString string
+
+	GRPCService  string
+	GRPCMethod   string
+	GRPCResponse string
+	GRPCContext  grpc_echo.Context
+	GRPCHeader   http.Header
+	GRPCPayload     string
+
 
 	KafkaTopic   string
 	KafkaPayload string
@@ -67,6 +76,8 @@ func (c Context) MatchCondition(condition string) (r bool) {
 			logger.WithFields(logrus.Fields{
 				"HTTPHeader":   c.HTTPHeader,
 				"HTTPBody":     c.HTTPBody,
+				"GRPCHeader":   c.GRPCHeader,
+				"GRPCPayload":  c.GRPCPayload,
 				"KafkaPayload": c.KafkaPayload,
 				"AMQPPayload":  c.AMQPPayload,
 				"condition":    condition,

@@ -40,6 +40,8 @@ $ curl localhost:9999/ping
 Dependencies.
 - HTTP (native supported, thanks to https://echo.labstack.com/)
   - One can configure HTTP port, set env `OPENMOCK_HTTP_PORT=80`
+- GRPC (supported through through HTTP/2 interface)
+  - One can configure HTTP port, set env `OPENMOCK_GRPC_PORT=50051`
 - Kafka (optional)
   - To enable mocking kafka, set env `OPENMOCK_KAFKA_ENABLED=true`.
   - One can also config `OPENMOCK_KAFKA_CLIENT_ID` and `OPENMOCK_KAFKA_SEED_BROKERS`.
@@ -86,6 +88,7 @@ actions of the behavior to be performed. Available channels are:
 - http
 - kafka
 - amqp
+- grpc
 
 For example, under what condition and from what channel should
 we proceed with the actions.
@@ -116,6 +119,7 @@ Actions are a series of functions to run. Availabe actions are:
 - redis
 - reply_http
 - send_http
+- reply_grpc
 - sleep
 
 ```yaml
@@ -355,6 +359,20 @@ omctl push --directory ./demo_templates --url http://localhost:9998
         status_code: 401
         body: Invalid X-Token
 
+```
+
+### Example: Mock GRPC
+```yaml
+# demo_templates/grpc.yaml
+
+- key: example_grpc
+  expect:
+    grpc:
+      service: demo_protobuf.ExampleService
+      method: ExampleMethod
+  actions:
+    - reply_grpc:
+        payload_from_file: './files/example_grpc_response.json'
 ```
 
 ### Example: Mock Kafka

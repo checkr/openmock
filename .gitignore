@@ -12,3 +12,5 @@
 *.out
 /om
 /omctl
+
+.idea/

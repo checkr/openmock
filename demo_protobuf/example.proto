@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package demo_protobuf;
+// to compile 'protoc -I=demo_protobuf --go_out=plugins=grpc:. demo_protobuf/example.proto'
+option go_package = ".;demo_protobuf";
+
+service ExampleService {
+    rpc ExampleMethod (ExampleRequest) returns (ExampleResponse) {};
+}
+
+message ExampleRequest {
+    uint32          one = 1;
+    string          two = 2;
+    repeated uint32 three = 3;
+}
+
+message ExampleResponse {
+    string message = 1;
+    uint32 code    = 2;
+}

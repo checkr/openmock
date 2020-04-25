@@ -1,12 +1,15 @@
 package openmock
 
 import (
+	"encoding/binary"
 	"fmt"
 	"time"
 
 	"github.com/labstack/echo"
 	"github.com/parnurzeal/gorequest"
 	"github.com/sirupsen/logrus"
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/jsonpb"
 )
 
 func (ms MocksArray) DoActions(ctx Context) error {
@@ -110,6 +113,61 @@ func (a ActionReplyHTTP) Perform(ctx Context) (err error) {
 	conn.Close()
 
 	return nil
+}
+
+func (a ActionReplyGRPC) Perform(context Context) error {
+	ec := context.GRPCContext
+
+	msg, err := context.Render(a.Payload)
+	if err != nil {
+		logrus.WithField("err", err).Error("failed to render template for grpc")
+		return err
+	}
+
+	ec.Response().Header().Set("Content-Type", "application/grpc")
+	ec.Response().Header().Set("Trailer", "grpc-status, grpc-message")
+	//ec.Response().WriteHeader(200)
+
+	responseStruct := ServiceMethodResponseMap[context.GRPCService][context.GRPCMethod]
+	jsonpb.UnmarshalString(msg, responseStruct)
+	b, err := proto.Marshal(responseStruct)
+	hdr, data := msgHeader(b)
+
+	// length-prefixed message, see https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md
+	_, err = ec.Response().Write(hdr)
+	_, err = ec.Response().Write(data)
+
+	ec.Response().Header().Set("grpc-status", "0")
+	ec.Response().Header().Set("grpc-message", "OK")
+
+
+	if err != nil {
+		return err
+	}
+
+	ec.Response().Flush()
+
+	if err != nil {
+		return nil
+	}
+
+	return nil
+}
+
+const (
+	payloadLen = 1
+	sizeLen    = 4
+	headerLen  = payloadLen + sizeLen
+)
+
+func msgHeader(data []byte) (hdr []byte, payload []byte) {
+	hdr = make([]byte, headerLen)
+
+	hdr[0] = byte(0)
+
+	// Write length of payload into buf
+	binary.BigEndian.PutUint32(hdr[payloadLen:], uint32(len(data)))
+	return hdr, data
 }
 
 func (a ActionRedis) Perform(ctx Context) error {

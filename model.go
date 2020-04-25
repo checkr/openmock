@@ -82,12 +82,16 @@ type (
 	// KafkaMocks is keyed by Topic
 	KafkaMocks map[ExpectKafka]MocksArray
 
+    // KafkaMocks is keyed by Service?  Endpoint?
+    GRPCMocks map[ExpectGRPC]MocksArray
+
 	// AMQPMocks is keyed by Queue name
 	AMQPMocks map[ExpectAMQP]MocksArray
 
 	// MockRepo stores a repository of Mocks
 	MockRepo struct {
 		HTTPMocks  HTTPMocks
+		GRPCMocks  GRPCMocks
 		KafkaMocks KafkaMocks
 		AMQPMocks  AMQPMocks
 		Templates  MocksArray
@@ -102,6 +106,7 @@ type (
 		HTTP      ExpectHTTP  `yaml:"http,omitempty"`
 		Kafka     ExpectKafka `yaml:"kafka,omitempty"`
 		AMQP      ExpectAMQP  `yaml:"amqp,omitempty"`
+		GRPC      ExpectGRPC  `yaml:"grpc,omitempty"`
 	}
 
 	// ExpectKafka represents kafka expectation
@@ -121,6 +126,12 @@ type (
 		Method string `yaml:"method,omitempty"`
 		Path   string `yaml:"path,omitempty"`
 	}
+
+    // ExpectGRPC represents grpc expectation
+    ExpectGRPC struct {
+        Service string `yaml:"service,omitempty"`
+        Method  string `yaml:"method,omitempty"`
+    }
 )
 
 // Action represents actions
@@ -131,6 +142,7 @@ type ActionDispatcher struct {
 	ActionRedis        ActionRedis        `yaml:"redis,omitempty"`
 	ActionReplyHTTP    ActionReplyHTTP    `yaml:"reply_http,omitempty"`
 	ActionSendHTTP     ActionSendHTTP     `yaml:"send_http,omitempty"`
+    ActionReplyGRPC    ActionReplyGRPC    `yaml:"reply_grpc,omitempty"`
 	ActionSleep        ActionSleep        `yaml:"sleep,omitempty"`
 }
 
@@ -156,6 +168,12 @@ type ActionReplyHTTP struct {
 	Headers      map[string]string `yaml:"headers,omitempty"`
 	Body         string            `yaml:"body,omitempty"`
 	BodyFromFile string            `yaml:"body_from_file,omitempty"`
+}
+
+// ActionReplyGRPC represents reply grpc action
+type ActionReplyGRPC struct {
+    Payload             string `yaml:"payload,omitempty"`
+	PayloadFromFile string `yaml:"payload_from_file,omitempty"`
 }
 
 // ActionPublishAMQP represents publish AMQP action
@@ -198,6 +216,11 @@ func (repo *MockRepo) AsArray() (ret []*Mock) {
 			ret = append(ret, m)
 		}
 	}
+    for _, arr := range repo.GRPCMocks {
+        for _, m := range arr {
+            ret = append(ret, m)
+        }
+    }
 
 	return ret
 }
@@ -219,6 +242,9 @@ var getActualAction = func(action ActionDispatcher) Action {
 	if !structs.IsZero(action.ActionReplyHTTP) {
 		return action.ActionReplyHTTP
 	}
+    if !structs.IsZero(action.ActionReplyGRPC) {
+        return action.ActionReplyGRPC
+    }
 	if len(action.ActionRedis) > 0 {
 		return action.ActionRedis
 	}
