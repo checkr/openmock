@@ -82,8 +82,8 @@ type (
 	// KafkaMocks is keyed by Topic
 	KafkaMocks map[ExpectKafka]MocksArray
 
-    // KafkaMocks is keyed by Service?  Endpoint?
-    GRPCMocks map[ExpectGRPC]MocksArray
+	// KafkaMocks is keyed by Service?  Endpoint?
+	GRPCMocks map[ExpectGRPC]MocksArray
 
 	// AMQPMocks is keyed by Queue name
 	AMQPMocks map[ExpectAMQP]MocksArray
@@ -127,11 +127,11 @@ type (
 		Path   string `yaml:"path,omitempty"`
 	}
 
-    // ExpectGRPC represents grpc expectation
-    ExpectGRPC struct {
-        Service string `yaml:"service,omitempty"`
-        Method  string `yaml:"method,omitempty"`
-    }
+	// ExpectGRPC represents grpc expectation
+	ExpectGRPC struct {
+		Service string `yaml:"service,omitempty"`
+		Method  string `yaml:"method,omitempty"`
+	}
 )
 
 // Action represents actions
@@ -142,7 +142,7 @@ type ActionDispatcher struct {
 	ActionRedis        ActionRedis        `yaml:"redis,omitempty"`
 	ActionReplyHTTP    ActionReplyHTTP    `yaml:"reply_http,omitempty"`
 	ActionSendHTTP     ActionSendHTTP     `yaml:"send_http,omitempty"`
-    ActionReplyGRPC    ActionReplyGRPC    `yaml:"reply_grpc,omitempty"`
+	ActionReplyGRPC    ActionReplyGRPC    `yaml:"reply_grpc,omitempty"`
 	ActionSleep        ActionSleep        `yaml:"sleep,omitempty"`
 }
 
@@ -172,7 +172,7 @@ type ActionReplyHTTP struct {
 
 // ActionReplyGRPC represents reply grpc action
 type ActionReplyGRPC struct {
-    Payload             string `yaml:"payload,omitempty"`
+	Payload         string `yaml:"payload,omitempty"`
 	PayloadFromFile string `yaml:"payload_from_file,omitempty"`
 }
 
@@ -216,11 +216,11 @@ func (repo *MockRepo) AsArray() (ret []*Mock) {
 			ret = append(ret, m)
 		}
 	}
-    for _, arr := range repo.GRPCMocks {
-        for _, m := range arr {
-            ret = append(ret, m)
-        }
-    }
+	for _, arr := range repo.GRPCMocks {
+		for _, m := range arr {
+			ret = append(ret, m)
+		}
+	}
 
 	return ret
 }
@@ -242,9 +242,9 @@ var getActualAction = func(action ActionDispatcher) Action {
 	if !structs.IsZero(action.ActionReplyHTTP) {
 		return action.ActionReplyHTTP
 	}
-    if !structs.IsZero(action.ActionReplyGRPC) {
-        return action.ActionReplyGRPC
-    }
+	if !structs.IsZero(action.ActionReplyGRPC) {
+		return action.ActionReplyGRPC
+	}
 	if len(action.ActionRedis) > 0 {
 		return action.ActionRedis
 	}

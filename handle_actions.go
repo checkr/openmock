@@ -8,8 +8,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/parnurzeal/gorequest"
 	"github.com/sirupsen/logrus"
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/jsonpb"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
 
 func (ms MocksArray) DoActions(ctx Context) error {
@@ -129,17 +129,35 @@ func (a ActionReplyGRPC) Perform(context Context) error {
 	//ec.Response().WriteHeader(200)
 
 	responseStruct := ServiceMethodResponseMap[context.GRPCService][context.GRPCMethod]
-	jsonpb.UnmarshalString(msg, responseStruct)
+	err = protojson.Unmarshal([]byte(msg), responseStruct)
+
+	if err != nil {
+		return err
+	}
+
 	b, err := proto.Marshal(responseStruct)
+
+	if err != nil {
+		return err
+	}
+
 	hdr, data := msgHeader(b)
 
 	// length-prefixed message, see https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md
 	_, err = ec.Response().Write(hdr)
+
+	if err != nil {
+		return err
+	}
+
 	_, err = ec.Response().Write(data)
+
+	if err != nil {
+		return err
+	}
 
 	ec.Response().Header().Set("grpc-status", "0")
 	ec.Response().Header().Set("grpc-message", "OK")
-
 
 	if err != nil {
 		return err

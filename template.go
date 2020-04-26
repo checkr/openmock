@@ -25,8 +25,7 @@ type Context struct {
 	GRPCResponse string
 	GRPCContext  grpc_echo.Context
 	GRPCHeader   http.Header
-	GRPCPayload     string
-
+	GRPCPayload  string
 
 	KafkaTopic   string
 	KafkaPayload string

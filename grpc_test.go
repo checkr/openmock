@@ -6,12 +6,12 @@ import (
 	"testing"
 	"time"
 
-	"google.golang.org/grpc"
 	pb "github.com/checkr/openmock/demo_protobuf"
+	"google.golang.org/grpc"
 )
 
 const (
-	grpcaddress     = "localhost:50051"
+	grpcaddress = "localhost:50051"
 )
 
 // need to have a running grpc server on openmock to run this test
