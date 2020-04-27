@@ -5,6 +5,7 @@ linters:
     - golint
   disable:
     - maligned
+    - gocognit
   presets:
     - bugs
     - complexity

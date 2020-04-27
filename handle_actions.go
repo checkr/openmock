@@ -9,23 +9,23 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (ms MocksArray) DoActions(c Context) error {
+func (ms MocksArray) DoActions(ctx Context) error {
 	for _, m := range ms {
-		if err := m.DoActions(c); err != nil {
+		if err := m.DoActions(ctx); err != nil {
 			return nil
 		}
 	}
 	return nil
 }
 
-func (m *Mock) DoActions(c Context) error {
-	c.Values = m.Values
-	if !c.MatchCondition(m.Expect.Condition) {
+func (m *Mock) DoActions(ctx Context) error {
+	ctx.Values = m.Values
+	if !ctx.MatchCondition(m.Expect.Condition) {
 		return nil
 	}
 	for _, actionDispatcher := range m.Actions {
 		actualAction := getActualAction(actionDispatcher)
-		if err := actualAction.Perform(c); err != nil {
+		if err := actualAction.Perform(ctx); err != nil {
 			logrus.WithFields(logrus.Fields{
 				"err":    err,
 				"action": fmt.Sprintf("%T", actualAction),
@@ -35,13 +35,13 @@ func (m *Mock) DoActions(c Context) error {
 	return nil
 }
 
-func (a ActionSendHTTP) Perform(context Context) error {
-	bodyStr, err := context.Render(a.Body)
+func (a ActionSendHTTP) Perform(ctx Context) error {
+	bodyStr, err := ctx.Render(a.Body)
 	if err != nil {
 		return err
 	}
 
-	urlStr, err := context.Render(a.URL)
+	urlStr, err := ctx.Render(a.URL)
 	if err != nil {
 		return err
 	}
@@ -49,6 +49,11 @@ func (a ActionSendHTTP) Perform(context Context) error {
 	request := gorequest.New().
 		SetDebug(true).
 		CustomMethod(a.Method, urlStr)
+
+	a.Headers, err = renderHeaders(ctx, a.Headers)
+	if err != nil {
+		return err
+	}
 
 	for k, v := range a.Headers {
 		request.Set(k, v)
@@ -61,19 +66,25 @@ func (a ActionSendHTTP) Perform(context Context) error {
 	return nil
 }
 
-func (a ActionReplyHTTP) Perform(context Context) error {
-	ec := context.HTTPContext
+func (a ActionReplyHTTP) Perform(ctx Context) (err error) {
+	ec := ctx.HTTPContext
 	contentType := echo.MIMEApplicationJSON // default to JSON
 	if ct, ok := a.Headers[echo.HeaderContentType]; ok {
 		contentType = ct
 	}
+
+	a.Headers, err = renderHeaders(ctx, a.Headers)
+	if err != nil {
+		return err
+	}
+
 	for k, v := range a.Headers {
 		ec.Response().Header().Set(k, v)
 	}
 
-	msg, err := context.Render(a.Body)
+	msg, err := ctx.Render(a.Body)
 	if err != nil {
-		logrus.WithField("err", err).Error("failed to render template for http")
+		logrus.WithField("err", err).Error("failed to render template for http body")
 		return err
 	}
 
@@ -98,9 +109,9 @@ func (a ActionReplyHTTP) Perform(context Context) error {
 	return nil
 }
 
-func (a ActionRedis) Perform(context Context) error {
+func (a ActionRedis) Perform(ctx Context) error {
 	for _, cmd := range a {
-		_, err := context.Render(cmd)
+		_, err := ctx.Render(cmd)
 		if err != nil {
 			return err
 		}
@@ -108,36 +119,49 @@ func (a ActionRedis) Perform(context Context) error {
 	return nil
 }
 
-func (a ActionSleep) Perform(context Context) error {
+func (a ActionSleep) Perform(ctx Context) error {
 	time.Sleep(a.Duration)
 	return nil
 }
 
-func (a ActionPublishKafka) Perform(context Context) error {
+func (a ActionPublishKafka) Perform(ctx Context) error {
 	msg := a.Payload
-	msg, err := context.Render(msg)
+	msg, err := ctx.Render(msg)
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for kafka payload")
 		return err
 	}
-	err = context.om.kafkaClient.sendMessage(a.Topic, []byte(msg))
+	err = ctx.om.kafkaClient.sendMessage(a.Topic, []byte(msg))
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to publish to kafka")
 	}
 	return err
 }
 
-func (a ActionPublishAMQP) Perform(context Context) error {
-	msg, err := context.Render(a.Payload)
+func (a ActionPublishAMQP) Perform(ctx Context) error {
+	msg, err := ctx.Render(a.Payload)
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for amqp")
 		return err
 	}
 	publishToAMQP(
-		context.om.AMQPURL,
+		ctx.om.AMQPURL,
 		a.Exchange,
 		a.RoutingKey,
 		msg,
 	)
 	return nil
+}
+
+func renderHeaders(ctx Context, headers map[string]string) (map[string]string, error) {
+	ret := make(map[string]string)
+	for k, v := range headers {
+		msg, err := ctx.Render(v)
+		if err != nil {
+			logrus.WithField("err", err).Error("failed to render template for http headers")
+			return nil, err
+		}
+		ret[k] = msg
+	}
+	return ret, nil
 }

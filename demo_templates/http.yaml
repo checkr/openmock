@@ -193,3 +193,15 @@
     - reply_http:
         status_code: 200
         body: '{{ .HTTPBody | jsonPath "foo" }}'
+
+- key: base64-basicauth-with-env
+  kind: Behavior
+  expect:
+    http:
+      method: POST
+      path: /base64-basicauth-with-env
+  actions:
+    - reply_http:
+        headers:
+          Authorization: '{{ printf "foobar:%s" (env "BASIC_AUTH_PASS") | b64enc }}'
+        status_code: 200
