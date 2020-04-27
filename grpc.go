@@ -70,6 +70,7 @@ func (om *OpenMock) startGRPC() {
 	}
 	e.Logger.Fatal(e.StartH2CServer(fmt.Sprintf("%s:%d", om.GRPCHost, om.GRPCPort), s))
 
+	e.Logger.Info("Serving GRPC traffic on %s:%d", om.GRPCHost, om.GRPCPort)
 	e.Logger.Fatal(
 		e.Start(fmt.Sprintf("%s:%d", om.GRPCHost, om.GRPCPort)),
 	)

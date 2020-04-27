@@ -41,7 +41,7 @@ Dependencies.
 - HTTP (native supported, thanks to https://echo.labstack.com/)
   - One can configure HTTP port, set env `OPENMOCK_HTTP_PORT=80`
 - GRPC (supported through through HTTP/2 interface)
-  - One can configure HTTP port, set env `OPENMOCK_GRPC_PORT=50051`
+  - One can configure GRPC port, set env `OPENMOCK_GRPC_PORT=50051`
 - Kafka (optional)
   - To enable mocking kafka, set env `OPENMOCK_KAFKA_ENABLED=true`.
   - One can also config `OPENMOCK_KAFKA_CLIENT_ID` and `OPENMOCK_KAFKA_SEED_BROKERS`.
@@ -252,8 +252,8 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 
 - Usage of `{{ expr }}`. One can put `{{ expr }}` inside three types of places:
   - `expect.condition`
-  - `action.http.body`, `action.kafka.payload`, `action.amqp.payload`
-  - `action.http.body_from_file`, `action.kafka.payload_from_file`, `action.amqp.payload_from_file` (`{{ expr }}` will be in the file)
+  - `action.http.body`, `action.grpc.payload`, `action.kafka.payload`, `action.amqp.payload`
+  - `action.http.body_from_file`, `action.grpc.payload_from_file`, `action.kafka.payload_from_file`, `action.amqp.payload_from_file` (`{{ expr }}` will be in the file)
 - Use Context inside `{{ expr }}`.
   ```bash
   .HTTPHeader      # type: http.Header; example: {{.HTTPHeader.Get "X-Token"}}
@@ -261,6 +261,10 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
   .HTTPPath        # type: string;      example: {{.HTTPPath}}
   .HTTPQueryString # type: string;      example: {{.HTTPQueryString}}
 
+  .GRPCPayload     # type: string;      example: {{.GRPCPayload}}
+  .GRPCService     # type: string;      example: {{.GRPCService}}
+  .GRPCMethod      # type: string;      example: {{.GRPCMethod}}
+  
   .KafkaTopic      # type: string;      example: {{.KafkaTopic}}
   .KafkaPayload    # type: string;      example: {{.KafkaPayload}}
 

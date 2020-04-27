@@ -154,6 +154,7 @@ func TestLoad(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotZero(t, len(om.repo.AMQPMocks))
 		assert.NotZero(t, len(om.repo.HTTPMocks))
+		assert.NotZero(t, len(om.repo.GRPCMocks))
 		assert.NotZero(t, len(om.repo.KafkaMocks))
 	})
 }
