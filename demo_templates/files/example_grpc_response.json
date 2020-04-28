@@ -1,1 +1,1 @@
-{"message":  "success", "code":  227}
+{"message":  "{{.GRPCPayload | jsonPath `two` }}", "code":  227}

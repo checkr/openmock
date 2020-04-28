@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/checkr/openmock/demo_protobuf"
@@ -16,10 +17,38 @@ import (
 
 // ServiceMethodResponseMap Map of services, methods with the response protobuf they expect.
 // This is needed to give a proper response to the GRPC client.
-var ServiceMethodResponseMap = map[string]map[string]proto.Message{
+var ServiceMethodResponseMap = map[string]map[string]RequestResponsePair{
 	"demo_protobuf.ExampleService": {
-		"ExampleMethod": &demo_protobuf.ExampleResponse{},
+		"ExampleMethod": RequestResponsePair{
+			request:  &demo_protobuf.ExampleRequest{},
+			response: &demo_protobuf.ExampleResponse{},
+		},
 	},
+}
+
+type RequestResponsePair struct {
+	request  proto.Message
+	response proto.Message
+}
+
+// convertBodyToJSON is how we support JSONPath to take values from GRPC requests and include them in responses
+func convertBodyToJSON(h ExpectGRPC, body []byte) string {
+	m := ServiceMethodResponseMap[h.Service][h.Method].request
+
+	// first 5 bytes are compression and size information
+	err := proto.Unmarshal(body[5:], m)
+
+	if err != nil {
+		logrus.Fatalf("error unmarshalling body and message: %v, %v", err, m)
+	}
+
+	jsonRequestMsg, err := protojson.Marshal(m)
+
+	if err != nil {
+		logrus.Fatalf("error marshalling proto to json %v", m)
+	}
+
+	return string(jsonRequestMsg)
 }
 
 func (om *OpenMock) startGRPC() {
@@ -48,10 +77,12 @@ func (om *OpenMock) startGRPC() {
 				fmt.Sprintf("/%s/%s", h.Service, h.Method),
 				func(ec echo.Context) error {
 					body, _ := ioutil.ReadAll(ec.Request().Body)
+					JSONRequestBody := convertBodyToJSON(h, body)
+
 					c := Context{
 						GRPCContext: ec,
 						GRPCHeader:  ec.Request().Header,
-						GRPCPayload: string(body),
+						GRPCPayload: JSONRequestBody,
 						GRPCMethod:  h.Method,
 						GRPCService: h.Service,
 						om:          om,

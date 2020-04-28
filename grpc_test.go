@@ -41,11 +41,10 @@ func TestGRPCServer(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	r, err := c.ExampleMethod(ctx, &pb.ExampleRequest{})
+	r, err := c.ExampleMethod(ctx, &pb.ExampleRequest{Two: "success"})
 	if err != nil {
 		log.Fatalf("could not greet: %v, return %v", err, r)
 	}
 	assert.Equal(t, 227, int(r.GetCode()))
 	assert.Equal(t, "success", r.GetMessage())
-	//log.Fatalf("Greeting iz: %d, %s", r.GetCode(), r.GetMessage())
 }

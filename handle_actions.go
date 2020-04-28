@@ -119,6 +119,7 @@ func (a ActionReplyGRPC) Perform(context Context) error {
 	ec := context.GRPCContext
 
 	msg, err := context.Render(a.Payload)
+
 	if err != nil {
 		logrus.WithField("err", err).Error("failed to render template for grpc")
 		return err
@@ -128,7 +129,7 @@ func (a ActionReplyGRPC) Perform(context Context) error {
 	ec.Response().Header().Set("Trailer", "grpc-status, grpc-message")
 	//ec.Response().WriteHeader(200)
 
-	responseStruct := ServiceMethodResponseMap[context.GRPCService][context.GRPCMethod]
+	responseStruct := ServiceMethodResponseMap[context.GRPCService][context.GRPCMethod].response
 	err = protojson.Unmarshal([]byte(msg), responseStruct)
 
 	if err != nil {
