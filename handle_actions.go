@@ -129,7 +129,7 @@ func (a ActionReplyGRPC) Perform(ctx Context) error {
 	ec.Response().Header().Set("Trailer", "grpc-status, grpc-message")
 	//ec.Response().WriteHeader(200)
 
-	responseStruct := ServiceMethodResponseMap[ctx.GRPCService][ctx.GRPCMethod].response
+	responseStruct := GRPCServiceMethodResponseMap[ctx.GRPCService][ctx.GRPCMethod].Response
 	err = protojson.Unmarshal([]byte(msg), responseStruct)
 
 	if err != nil {

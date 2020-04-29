@@ -15,25 +15,25 @@ import (
 	"github.com/checkr/openmock/demo_protobuf"
 )
 
-// ServiceMethodResponseMap Map of services, methods with the response protobuf they expect.
+// GRPCServiceMethodResponseMap Map of services, methods with the response protobuf they expect.
 // This is needed to give a proper response to the GRPC client.
-var ServiceMethodResponseMap = map[string]map[string]RequestResponsePair{
+var GRPCServiceMethodResponseMap = map[string]map[string]RequestResponsePair{
 	"demo_protobuf.ExampleService": {
 		"ExampleMethod": RequestResponsePair{
-			request:  &demo_protobuf.ExampleRequest{},
-			response: &demo_protobuf.ExampleResponse{},
+			Request:  &demo_protobuf.ExampleRequest{},
+			Response: &demo_protobuf.ExampleResponse{},
 		},
 	},
 }
 
 type RequestResponsePair struct {
-	request  proto.Message
-	response proto.Message
+	Request  proto.Message
+	Response proto.Message
 }
 
 // convertBodyToJSON is how we support JSONPath to take values from GRPC requests and include them in responses
 func convertBodyToJSON(h ExpectGRPC, body []byte) string {
-	m := ServiceMethodResponseMap[h.Service][h.Method].request
+	m := GRPCServiceMethodResponseMap[h.Service][h.Method].Request
 
 	// first 5 bytes are compression and size information
 	err := proto.Unmarshal(body[5:], m)
