@@ -23,7 +23,7 @@ type OpenMock struct {
 	AdminHTTPHost         string   `env:"OPENMOCK_ADMIN_HTTP_HOST" envDefault:"0.0.0.0"`
 	KafkaEnabled          bool     `env:"OPENMOCK_KAFKA_ENABLED" envDefault:"false"`
 	KafkaClientID         string   `env:"OPENMOCK_KAFKA_CLIENT_ID" envDefault:"openmock"`
-	KafkaSeedBrokers      []string `env:"OPENMOCK_KAFKA_SEED_BROKERS" envDefault:"kafka:9092,localhost:9092" envSeparator:","`
+	KafkaSeedBrokers      []string `env:"OPENMOCK_KAFKA_SEED_BROKERS" envDefault:"kafka:9092" envSeparator:","`
 	AMQPEnabled           bool     `env:"OPENMOCK_AMQP_ENABLED" envDefault:"false"`
 	AMQPURL               string   `env:"OPENMOCK_AMQP_URL" envDefault:"amqp://guest:guest@rabbitmq:5672"`
 	RedisType             string   `env:"OPENMOCK_REDIS_TYPE" envDefault:"memory"`

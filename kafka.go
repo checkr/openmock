@@ -94,7 +94,7 @@ func (om *OpenMock) startKafka() {
 	if err := om.configKafka(); err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
-		}).Errorf("failed to config kafka")
+		}).Fatal("failed to config kafka")
 		return
 	}
 	for kafka, ms := range om.repo.KafkaMocks {
@@ -109,7 +109,7 @@ func (om *OpenMock) startKafka() {
 				logrus.WithFields(logrus.Fields{
 					"err":   err,
 					"topic": kafka.Topic,
-				}).Errorf("failed to create a consumer")
+				}).Fatal("failed to create a consumer")
 				return
 			}
 			logrus.Infof("consumer started for topic:%s", kafka.Topic)
