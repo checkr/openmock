@@ -379,11 +379,25 @@ omctl push --directory ./demo_templates --url http://localhost:9998
   kind: Behavior
   expect:
     kafka:
-      topic: hello_kafka_in
+      topic: hello_kafka_in_2
   actions:
     - publish_kafka:
         topic: hello_kafka_out
         payload_from_file: './files/colors.json' # the path is relative to OPENMOCK_TEMPLATES_DIR
+```
+
+If you started the example from docker-compose, you can test the above kafka mocks by using a kt docker container.
+
+```bash
+# Exec into the container
+docker-compose exec kt bash
+
+# Run some kt commands inside the container
+# Notice that the container is within the docker-compose network, and it connects to "kafka:9092"
+
+$ kt topic
+$ echo '{"123":"hi"}' | kt produce -topic hello_kafka_in -literal
+$ kt consume -topic hello_kafka_out -offsets all=newest:newest
 ```
 
 ### Example: Mock AMQP (e.g. RabbitMQ)
