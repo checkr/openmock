@@ -261,6 +261,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
   .HTTPPath        # type: string;      example: {{.HTTPPath}}
   .HTTPQueryString # type: string;      example: {{.HTTPQueryString}}
 
+  .GRPCHeader      # type: string;      example: {{.GRPCHeader}}
   .GRPCPayload     # type: string;      example: {{.GRPCPayload}}
   .GRPCService     # type: string;      example: {{.GRPCService}}
   .GRPCMethod      # type: string;      example: {{.GRPCMethod}}
@@ -591,6 +592,37 @@ func main() {
 
   // rest of server set up copy & paste...
 }
+```
+
+## GRPC Configuration Notes
+OpenMock uses the APIv2 protobuf module (google.golang.org/protobuf). If your project uses the APIv1 protobuf module,
+you can use https://github.com/golang/protobuf/releases/tag/v1.4.0 and convert your messages to be APIv2 compatible
+with the `proto.MessageV2` method.
+
+Please note that OpenMock expects the `payload` or `payload_from_file` for a reply_grpc action to be in the json
+form of your `Response` protobuf message.  The request should be in the `Request` protobuf message format
+as it is parsed into json to support JSONPath operations.
+
+Example configuration by directly importing the `github.com/checkr/openmock` package into a wrapper project.
+```
+func main() {
+  // server set up copy & paste...
+  
+  // add our custom openmock functionality
+  om := &openmock.OpenMock{}
+  om.ParseEnv()
+
+  openmock.GRPCServiceMethodResponseMap = map[string]map[string]openmock.RequestResponsePair{
+      "demo_protobuf.ExampleService": {
+          "ExampleMethod": openmock.RequestResponsePair{
+              Request:  proto.MessageV2(&demo_protobuf.ExampleRequest{}),
+              Response: proto.MessageV2(&demo_protobuf.ExampleResponse{}),
+          },
+      },
+  }
+  server.ConfigureAPI(om)
+
+  // rest of server set up copy & paste...
 ```
 
 ## Swagger 

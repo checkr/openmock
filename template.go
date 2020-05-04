@@ -20,12 +20,11 @@ type Context struct {
 	HTTPPath        string
 	HTTPQueryString string
 
-	GRPCService  string
-	GRPCMethod   string
-	GRPCResponse string
-	GRPCContext  grpc_echo.Context
-	GRPCHeader   http.Header
-	GRPCPayload  string
+	GRPCService string
+	GRPCMethod  string
+	GRPCContext grpc_echo.Context
+	GRPCHeader  http.Header
+	GRPCPayload string
 
 	KafkaTopic   string
 	KafkaPayload string
