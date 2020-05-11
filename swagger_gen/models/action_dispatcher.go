@@ -6,13 +6,13 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // ActionDispatcher action dispatcher
+//
 // swagger:model ActionDispatcher
 type ActionDispatcher struct {
 
@@ -27,6 +27,9 @@ type ActionDispatcher struct {
 
 	// redis
 	Redis ActionRedis `json:"redis,omitempty"`
+
+	// reply grpc
+	ReplyGrpc *ActionReplyGRPC `json:"reply_grpc,omitempty"`
 
 	// reply http
 	ReplyHTTP *ActionReplyHTTP `json:"reply_http,omitempty"`
@@ -51,6 +54,10 @@ func (m *ActionDispatcher) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRedis(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReplyGrpc(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -119,6 +126,24 @@ func (m *ActionDispatcher) validateRedis(formats strfmt.Registry) error {
 			return ve.ValidateName("redis")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *ActionDispatcher) validateReplyGrpc(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ReplyGrpc) { // not required
+		return nil
+	}
+
+	if m.ReplyGrpc != nil {
+		if err := m.ReplyGrpc.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("reply_grpc")
+			}
+			return err
+		}
 	}
 
 	return nil

@@ -6,13 +6,13 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // Expect expect
+//
 // swagger:model Expect
 type Expect struct {
 
@@ -21,6 +21,9 @@ type Expect struct {
 
 	// a go template that determines if this behavior triggers
 	Condition string `json:"condition,omitempty"`
+
+	// grpc
+	Grpc *ExpectGRPC `json:"grpc,omitempty"`
 
 	// http
 	HTTP *ExpectHTTP `json:"http,omitempty"`
@@ -34,6 +37,10 @@ func (m *Expect) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAmqp(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateGrpc(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -61,6 +68,24 @@ func (m *Expect) validateAmqp(formats strfmt.Registry) error {
 		if err := m.Amqp.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("amqp")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Expect) validateGrpc(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Grpc) { // not required
+		return nil
+	}
+
+	if m.Grpc != nil {
+		if err := m.Grpc.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("grpc")
 			}
 			return err
 		}

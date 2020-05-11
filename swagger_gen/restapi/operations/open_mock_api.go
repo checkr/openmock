@@ -10,14 +10,14 @@ import (
 	"net/http"
 	"strings"
 
-	errors "github.com/go-openapi/errors"
-	loads "github.com/go-openapi/loads"
-	runtime "github.com/go-openapi/runtime"
-	middleware "github.com/go-openapi/runtime/middleware"
-	security "github.com/go-openapi/runtime/security"
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/loads"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/security"
 	"github.com/go-openapi/runtime/yamlpc"
-	spec "github.com/go-openapi/spec"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/spec"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
 	"github.com/checkr/openmock/swagger_gen/restapi/operations/health"
@@ -34,41 +34,45 @@ func NewOpenMockAPI(spec *loads.Document) *OpenMockAPI {
 		defaultProduces:     "application/json",
 		customConsumers:     make(map[string]runtime.Consumer),
 		customProducers:     make(map[string]runtime.Producer),
+		PreServerShutdown:   func() {},
 		ServerShutdown:      func() {},
 		spec:                spec,
 		ServeError:          errors.ServeError,
 		BasicAuthenticator:  security.BasicAuth,
 		APIKeyAuthenticator: security.APIKeyAuth,
 		BearerAuthenticator: security.BearerAuth,
-		JSONConsumer:        runtime.JSONConsumer(),
-		YamlConsumer:        yamlpc.YAMLConsumer(),
-		JSONProducer:        runtime.JSONProducer(),
-		YamlProducer:        yamlpc.YAMLProducer(),
+
+		JSONConsumer: runtime.JSONConsumer(),
+		YamlConsumer: yamlpc.YAMLConsumer(),
+
+		JSONProducer: runtime.JSONProducer(),
+		YamlProducer: yamlpc.YAMLProducer(),
+
 		TemplateDeleteTemplateHandler: template.DeleteTemplateHandlerFunc(func(params template.DeleteTemplateParams) middleware.Responder {
-			return middleware.NotImplemented("operation TemplateDeleteTemplate has not yet been implemented")
+			return middleware.NotImplemented("operation template.DeleteTemplate has not yet been implemented")
 		}),
 		TemplateSetDeleteTemplateSetHandler: template_set.DeleteTemplateSetHandlerFunc(func(params template_set.DeleteTemplateSetParams) middleware.Responder {
-			return middleware.NotImplemented("operation TemplateSetDeleteTemplateSet has not yet been implemented")
+			return middleware.NotImplemented("operation template_set.DeleteTemplateSet has not yet been implemented")
 		}),
 		TemplateDeleteTemplatesHandler: template.DeleteTemplatesHandlerFunc(func(params template.DeleteTemplatesParams) middleware.Responder {
-			return middleware.NotImplemented("operation TemplateDeleteTemplates has not yet been implemented")
+			return middleware.NotImplemented("operation template.DeleteTemplates has not yet been implemented")
 		}),
 		HealthGetHealthHandler: health.GetHealthHandlerFunc(func(params health.GetHealthParams) middleware.Responder {
-			return middleware.NotImplemented("operation HealthGetHealth has not yet been implemented")
+			return middleware.NotImplemented("operation health.GetHealth has not yet been implemented")
 		}),
 		TemplateGetTemplatesHandler: template.GetTemplatesHandlerFunc(func(params template.GetTemplatesParams) middleware.Responder {
-			return middleware.NotImplemented("operation TemplateGetTemplates has not yet been implemented")
+			return middleware.NotImplemented("operation template.GetTemplates has not yet been implemented")
 		}),
 		TemplateSetPostTemplateSetHandler: template_set.PostTemplateSetHandlerFunc(func(params template_set.PostTemplateSetParams) middleware.Responder {
-			return middleware.NotImplemented("operation TemplateSetPostTemplateSet has not yet been implemented")
+			return middleware.NotImplemented("operation template_set.PostTemplateSet has not yet been implemented")
 		}),
 		TemplatePostTemplatesHandler: template.PostTemplatesHandlerFunc(func(params template.PostTemplatesParams) middleware.Responder {
-			return middleware.NotImplemented("operation TemplatePostTemplates has not yet been implemented")
+			return middleware.NotImplemented("operation template.PostTemplates has not yet been implemented")
 		}),
 	}
 }
 
-/*OpenMockAPI OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere.  The goal is to simplify the process of writing mocks in various channels.  Currently it supports three channels: HTTP Kafka AMQP (e.g. RabbitMQ) The admin API allows you to manipulate the mock behaviour provided by openmock, live.  The base path for the admin API is "/api/v1".
+/*OpenMockAPI OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere.  The goal is to simplify the process of writing mocks in various channels.  Currently it supports four channels: HTTP Kafka AMQP (e.g. RabbitMQ) GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live.  The base path for the admin API is "/api/v1".
  */
 type OpenMockAPI struct {
 	spec            *loads.Document
@@ -91,14 +95,18 @@ type OpenMockAPI struct {
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthentication) runtime.Authenticator
 
-	// JSONConsumer registers a consumer for a "application/json" mime type
+	// JSONConsumer registers a consumer for the following mime types:
+	//   - application/json
 	JSONConsumer runtime.Consumer
-	// YamlConsumer registers a consumer for a "application/yaml" mime type
+	// YamlConsumer registers a consumer for the following mime types:
+	//   - application/yaml
 	YamlConsumer runtime.Consumer
 
-	// JSONProducer registers a producer for a "application/json" mime type
+	// JSONProducer registers a producer for the following mime types:
+	//   - application/json
 	JSONProducer runtime.Producer
-	// YamlProducer registers a producer for a "application/yaml" mime type
+	// YamlProducer registers a producer for the following mime types:
+	//   - application/yaml
 	YamlProducer runtime.Producer
 
 	// TemplateDeleteTemplateHandler sets the operation handler for the delete template operation
@@ -115,10 +123,13 @@ type OpenMockAPI struct {
 	TemplateSetPostTemplateSetHandler template_set.PostTemplateSetHandler
 	// TemplatePostTemplatesHandler sets the operation handler for the post templates operation
 	TemplatePostTemplatesHandler template.PostTemplatesHandler
-
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
+
+	// PreServerShutdown is called before the HTTP(S) server is shutdown
+	// This allows for custom functions to get executed before the HTTP(S) server stops accepting traffic
+	PreServerShutdown func()
 
 	// ServerShutdown is called when the HTTP(S) server is shut down and done
 	// handling all active connections and does not accept connections any more
@@ -173,7 +184,6 @@ func (o *OpenMockAPI) Validate() error {
 	if o.JSONConsumer == nil {
 		unregistered = append(unregistered, "JSONConsumer")
 	}
-
 	if o.YamlConsumer == nil {
 		unregistered = append(unregistered, "YamlConsumer")
 	}
@@ -181,7 +191,6 @@ func (o *OpenMockAPI) Validate() error {
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
 	}
-
 	if o.YamlProducer == nil {
 		unregistered = append(unregistered, "YamlProducer")
 	}
@@ -189,27 +198,21 @@ func (o *OpenMockAPI) Validate() error {
 	if o.TemplateDeleteTemplateHandler == nil {
 		unregistered = append(unregistered, "template.DeleteTemplateHandler")
 	}
-
 	if o.TemplateSetDeleteTemplateSetHandler == nil {
 		unregistered = append(unregistered, "template_set.DeleteTemplateSetHandler")
 	}
-
 	if o.TemplateDeleteTemplatesHandler == nil {
 		unregistered = append(unregistered, "template.DeleteTemplatesHandler")
 	}
-
 	if o.HealthGetHealthHandler == nil {
 		unregistered = append(unregistered, "health.GetHealthHandler")
 	}
-
 	if o.TemplateGetTemplatesHandler == nil {
 		unregistered = append(unregistered, "template.GetTemplatesHandler")
 	}
-
 	if o.TemplateSetPostTemplateSetHandler == nil {
 		unregistered = append(unregistered, "template_set.PostTemplateSetHandler")
 	}
-
 	if o.TemplatePostTemplatesHandler == nil {
 		unregistered = append(unregistered, "template.PostTemplatesHandler")
 	}
@@ -228,31 +231,24 @@ func (o *OpenMockAPI) ServeErrorFor(operationID string) func(http.ResponseWriter
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
 func (o *OpenMockAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
-
 	return nil
-
 }
 
 // Authorizer returns the registered authorizer
 func (o *OpenMockAPI) Authorizer() runtime.Authorizer {
-
 	return nil
-
 }
 
-// ConsumersFor gets the consumers for the specified media types
+// ConsumersFor gets the consumers for the specified media types.
+// MIME type parameters are ignored here.
 func (o *OpenMockAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consumer {
-
-	result := make(map[string]runtime.Consumer)
+	result := make(map[string]runtime.Consumer, len(mediaTypes))
 	for _, mt := range mediaTypes {
 		switch mt {
-
 		case "application/json":
 			result["application/json"] = o.JSONConsumer
-
 		case "application/yaml":
 			result["application/yaml"] = o.YamlConsumer
-
 		}
 
 		if c, ok := o.customConsumers[mt]; ok {
@@ -260,22 +256,18 @@ func (o *OpenMockAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consu
 		}
 	}
 	return result
-
 }
 
-// ProducersFor gets the producers for the specified media types
+// ProducersFor gets the producers for the specified media types.
+// MIME type parameters are ignored here.
 func (o *OpenMockAPI) ProducersFor(mediaTypes []string) map[string]runtime.Producer {
-
-	result := make(map[string]runtime.Producer)
+	result := make(map[string]runtime.Producer, len(mediaTypes))
 	for _, mt := range mediaTypes {
 		switch mt {
-
 		case "application/json":
 			result["application/json"] = o.JSONProducer
-
 		case "application/yaml":
 			result["application/yaml"] = o.YamlProducer
-
 		}
 
 		if p, ok := o.customProducers[mt]; ok {
@@ -283,7 +275,6 @@ func (o *OpenMockAPI) ProducersFor(mediaTypes []string) map[string]runtime.Produ
 		}
 	}
 	return result
-
 }
 
 // HandlerFor gets a http.Handler for the provided operation method and path
@@ -313,7 +304,6 @@ func (o *OpenMockAPI) Context() *middleware.Context {
 
 func (o *OpenMockAPI) initHandlerCache() {
 	o.Context() // don't care about the result, just that the initialization happened
-
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
@@ -322,37 +312,30 @@ func (o *OpenMockAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/templates/{templateKey}"] = template.NewDeleteTemplate(o.context, o.TemplateDeleteTemplateHandler)
-
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/template_sets/{setKey}"] = template_set.NewDeleteTemplateSet(o.context, o.TemplateSetDeleteTemplateSetHandler)
-
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/templates"] = template.NewDeleteTemplates(o.context, o.TemplateDeleteTemplatesHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/health"] = health.NewGetHealth(o.context, o.HealthGetHealthHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/templates"] = template.NewGetTemplates(o.context, o.TemplateGetTemplatesHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/template_sets/{setKey}"] = template_set.NewPostTemplateSet(o.context, o.TemplateSetPostTemplateSetHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/templates"] = template.NewPostTemplates(o.context, o.TemplatePostTemplatesHandler)
-
 }
 
 // Serve creates a http handler to serve the API over HTTP
@@ -381,4 +364,16 @@ func (o *OpenMockAPI) RegisterConsumer(mediaType string, consumer runtime.Consum
 // RegisterProducer allows you to add (or override) a producer for a media type.
 func (o *OpenMockAPI) RegisterProducer(mediaType string, producer runtime.Producer) {
 	o.customProducers[mediaType] = producer
+}
+
+// AddMiddlewareFor adds a http middleware to existing handler
+func (o *OpenMockAPI) AddMiddlewareFor(method, path string, builder middleware.Builder) {
+	um := strings.ToUpper(method)
+	if path == "/" {
+		path = ""
+	}
+	o.Init()
+	if h, ok := o.handlers[um][path]; ok {
+		o.handlers[method][path] = builder(h)
+	}
 }

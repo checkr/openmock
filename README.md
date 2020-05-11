@@ -646,6 +646,13 @@ pkg/
   admin/                    # code implementing the handlers for the swagger API
 ```
 
+### Install Swagger
+
+```
+brew tap go-swagger/go-swagger
+brew install go-swagger
+```
+
 ### Generate
 * `make gen` - bundles the separate swagger files and generates swagger_gen
 * `make build` - builds the executables `om` and `omctl`

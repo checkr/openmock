@@ -82,7 +82,7 @@ type (
 	// KafkaMocks is keyed by Topic
 	KafkaMocks map[ExpectKafka]MocksArray
 
-	// KafkaMocks is keyed by Service?  Endpoint?
+	// GRPCMocks is keyed by service/method
 	GRPCMocks map[ExpectGRPC]MocksArray
 
 	// AMQPMocks is keyed by Queue name

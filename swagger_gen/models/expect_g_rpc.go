@@ -10,22 +10,25 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// ActionSleep pause the action thread for a time
+// ExpectGRPC expect g RPC
 //
-// swagger:model ActionSleep
-type ActionSleep struct {
+// swagger:model ExpectGRPC
+type ExpectGRPC struct {
 
-	// time to wait in seconds; e.g. '1s'
-	Duration string `json:"duration,omitempty"`
+	// GRPC method to expect to trigger this behavior
+	Method string `json:"method,omitempty"`
+
+	// GRPC service to expect to trigger this behavior
+	Service string `json:"service,omitempty"`
 }
 
-// Validate validates this action sleep
-func (m *ActionSleep) Validate(formats strfmt.Registry) error {
+// Validate validates this expect g RPC
+func (m *ExpectGRPC) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *ActionSleep) MarshalBinary() ([]byte, error) {
+func (m *ExpectGRPC) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -33,8 +36,8 @@ func (m *ActionSleep) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *ActionSleep) UnmarshalBinary(b []byte) error {
-	var res ActionSleep
+func (m *ExpectGRPC) UnmarshalBinary(b []byte) error {
+	var res ExpectGRPC
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

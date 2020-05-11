@@ -4,10 +4,11 @@ info:
   description: >
     OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. 
     The goal is to simplify the process of writing mocks in various channels. 
-    Currently it supports three channels:
+    Currently it supports four channels:
     HTTP
     Kafka
     AMQP (e.g. RabbitMQ)
+    GRPC
     The admin API allows you to manipulate the mock behaviour provided by openmock, live. 
     The base path for the admin API is "/api/v1".
   title: OpenMock
@@ -106,6 +107,8 @@ definitions:
         $ref: "#/definitions/ExpectKafka"
       amqp:
         $ref: "#/definitions/ExpectAMQP"
+      grpc:
+        $ref: "#/definitions/ExpectGRPC"
     
   ExpectKafka:
     type: object
@@ -144,6 +147,16 @@ definitions:
         type: string
         description: HTTP path to expect to trigger this behavior
 
+  ExpectGRPC:
+    type: object
+    properties:
+      service:
+        type: string
+        description: GRPC service to expect to trigger this behavior
+      method:
+        type: string
+        description: GRPC method to expect to trigger this behavior
+
   ActionDispatcher:
     type: object
     properties:
@@ -162,6 +175,8 @@ definitions:
         $ref: "#/definitions/ActionReplyHTTP"
       send_http:
         $ref: "#/definitions/ActionSendHTTP"
+      reply_grpc:
+        $ref: "#/definitions/ActionReplyGRPC"
       sleep:
         $ref: "#/definitions/ActionSleep"
     
@@ -218,6 +233,17 @@ definitions:
       body_from_file:
         type: string
         description: file name (relative to working directory of OM) to load HTTP body from
+
+  ActionReplyGRPC:
+    type: object
+    description: reply to incoming GRPC that triggered this behavior with a response
+    properties:
+      payload:
+        type: string
+        description: string payload to send via GRPC, this should be a json string that maps to the protobuf response object
+      payload_from_file:
+        type: string
+        description: file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load payload from, this should be a json string that maps to the protobuf response object
 
   ActionPublishAMQP:
     type: object

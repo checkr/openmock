@@ -8,7 +8,7 @@ package template_set
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // DeleteTemplateSetHandlerFunc turns a function with the right signature into a delete template set handler
