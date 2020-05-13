@@ -16,8 +16,11 @@ func (om *OpenMock) startHTTP() {
 	e.Use(em.Logrus())
 	e.Use(middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
 		logrus.WithFields(logrus.Fields{
-			"http_req": string(reqBody),
-			"http_res": string(resBody),
+			"http_path":   c.Path(),
+			"http_method": c.Request().Method,
+			"http_host":   c.Request().Host,
+			"http_req":    string(reqBody),
+			"http_res":    string(resBody),
 		}).Info()
 	}))
 	if om.CorsEnabled {

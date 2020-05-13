@@ -134,6 +134,12 @@ func (om *OpenMock) startKafka() {
 							return
 						}
 						c.KafkaPayload = string(payload)
+
+						newOmLogger(c).WithFields(logrus.Fields{
+							"topic":   msg.Topic,
+							"payload": c.KafkaPayload,
+						}).Info("start_consuming_message")
+
 						if err := ms.DoActions(c); err != nil {
 							logrus.WithFields(logrus.Fields{
 								"err":   err,

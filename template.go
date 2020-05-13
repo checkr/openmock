@@ -29,7 +29,8 @@ type Context struct {
 
 	Values map[string]interface{}
 
-	om *OpenMock
+	om          *OpenMock
+	currentMock *Mock
 }
 
 var globalTemplate = template.New("__global__")
@@ -59,9 +60,11 @@ func (c Context) Render(raw string) (out string, err error) {
 
 // MatchCondition checks the condition given the context
 func (c Context) MatchCondition(condition string) (r bool) {
+	logger := newOmLogger(c)
 	defer func() {
 		if r {
-			logrus.WithFields(logrus.Fields{
+			logger.Info("ok match condition")
+			logger.WithFields(logrus.Fields{
 				"HTTPHeader":   c.HTTPHeader,
 				"HTTPBody":     c.HTTPBody,
 				"KafkaPayload": c.KafkaPayload,
@@ -78,7 +81,7 @@ func (c Context) MatchCondition(condition string) (r bool) {
 
 	result, err := c.Render(condition)
 	if err != nil {
-		logrus.WithField("err", err).Errorf("failed to render condition: %s", condition)
+		logger.WithField("err", err).Errorf("failed to render condition: %s", condition)
 		return false
 	}
 	return result == "true"

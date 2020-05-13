@@ -2,12 +2,40 @@
   kind: Behavior
   expect:
     kafka:
-      topic: hello_kafka_in
+      topic: hello_kafka_in_1
   actions:
     - publish_kafka:
         topic: hello_kafka_out
         payload: >
           {
             "kafka": "OK",
-            "data": {}
+            "data": 1
+          }
+
+- key: test_kafka_2
+  kind: Behavior
+  expect:
+    kafka:
+      topic: hello_kafka_in_2
+  actions:
+    - publish_kafka:
+        topic: hello_kafka_out
+        payload: >
+          {
+            "kafka": "OK",
+            "data": 2
+          }
+
+- key: test_kafka_3
+  kind: Behavior
+  expect:
+    kafka:
+      topic: hello_kafka_in_3
+  actions:
+    - publish_kafka:
+        topic: hello_kafka_out
+        payload: >
+          {
+            "kafka": "OK",
+            "data": 3
           }
