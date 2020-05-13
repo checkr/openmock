@@ -1,4 +1,4 @@
-- key: test_kafka_2
+- key: test_kafka_payload_file
   kind: Behavior
   expect:
     kafka:

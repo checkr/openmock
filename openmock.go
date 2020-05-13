@@ -63,6 +63,7 @@ func (om *OpenMock) SetupLogrus() {
 	}
 	logrus.SetLevel(l)
 	logrus.SetOutput(os.Stdout)
+	logrus.SetReportCaller(true)
 }
 
 func (om *OpenMock) SetupRepo() {

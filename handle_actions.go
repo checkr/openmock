@@ -20,13 +20,16 @@ func (ms MocksArray) DoActions(ctx Context) error {
 
 func (m *Mock) DoActions(ctx Context) error {
 	ctx.Values = m.Values
+	ctx.currentMock = m
 	if !ctx.MatchCondition(m.Expect.Condition) {
 		return nil
 	}
+	logger := newOmLogger(ctx)
+	logger.Info("doing actions")
 	for _, actionDispatcher := range m.Actions {
 		actualAction := getActualAction(actionDispatcher)
 		if err := actualAction.Perform(ctx); err != nil {
-			logrus.WithFields(logrus.Fields{
+			logger.WithFields(logrus.Fields{
 				"err":    err,
 				"action": fmt.Sprintf("%T", actualAction),
 			}).Errorf("failed to do action")
@@ -47,7 +50,7 @@ func (a ActionSendHTTP) Perform(ctx Context) error {
 	}
 
 	request := gorequest.New().
-		SetDebug(true).
+		SetLogger(newOmLogger(ctx)).
 		CustomMethod(a.Method, urlStr)
 
 	a.Headers, err = renderHeaders(ctx, a.Headers)
@@ -84,7 +87,7 @@ func (a ActionReplyHTTP) Perform(ctx Context) (err error) {
 
 	msg, err := ctx.Render(a.Body)
 	if err != nil {
-		logrus.WithField("err", err).Error("failed to render template for http body")
+		newOmLogger(ctx).WithField("err", err).Error("failed to render template for http body")
 		return err
 	}
 
@@ -125,15 +128,16 @@ func (a ActionSleep) Perform(ctx Context) error {
 }
 
 func (a ActionPublishKafka) Perform(ctx Context) error {
+	logger := newOmLogger(ctx)
 	msg := a.Payload
 	msg, err := ctx.Render(msg)
 	if err != nil {
-		logrus.WithField("err", err).Error("failed to render template for kafka payload")
+		logger.WithField("err", err).Error("failed to render template for kafka payload")
 		return err
 	}
 	err = ctx.om.kafkaClient.sendMessage(a.Topic, []byte(msg))
 	if err != nil {
-		logrus.WithField("err", err).Error("failed to publish to kafka")
+		logger.WithField("err", err).Error("failed to publish to kafka")
 	}
 	return err
 }
@@ -141,7 +145,7 @@ func (a ActionPublishKafka) Perform(ctx Context) error {
 func (a ActionPublishAMQP) Perform(ctx Context) error {
 	msg, err := ctx.Render(a.Payload)
 	if err != nil {
-		logrus.WithField("err", err).Error("failed to render template for amqp")
+		newOmLogger(ctx).WithField("err", err).Error("failed to render template for amqp")
 		return err
 	}
 	publishToAMQP(
@@ -158,7 +162,7 @@ func renderHeaders(ctx Context, headers map[string]string) (map[string]string, e
 	for k, v := range headers {
 		msg, err := ctx.Render(v)
 		if err != nil {
-			logrus.WithField("err", err).Error("failed to render template for http headers")
+			newOmLogger(ctx).WithField("err", err).Error("failed to render template for http headers")
 			return nil, err
 		}
 		ret[k] = msg
