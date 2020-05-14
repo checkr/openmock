@@ -31,9 +31,9 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere.  The goal is to simplify the process of writing mocks in various channels.  Currently it supports four channels: HTTP Kafka AMQP (e.g. RabbitMQ) GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live.  The base path for the admin API is \"/api/v1\".\n",
+    "description": "OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. The goal is to simplify the process of writing mocks in various channels. Currently it supports four channels: HTTP Kafka AMQP (e.g. RabbitMQ) GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live. The base path for the admin API is \"/api/v1\".\n",
     "title": "OpenMock",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "basePath": "/api/v1",
   "paths": {
@@ -339,6 +339,11 @@ func init() {
       "description": "reply to incoming GRPC that triggered this behavior with a response",
       "type": "object",
       "properties": {
+        "headers": {
+          "description": "map of string to string specifying gRPC headers to attach to our message",
+          "type": "object",
+          "additionalProperties": true
+        },
         "payload": {
           "description": "string payload to send via GRPC, this should be a json string that maps to the protobuf response object",
           "type": "string"
@@ -592,9 +597,9 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere.  The goal is to simplify the process of writing mocks in various channels.  Currently it supports four channels: HTTP Kafka AMQP (e.g. RabbitMQ) GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live.  The base path for the admin API is \"/api/v1\".\n",
+    "description": "OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. The goal is to simplify the process of writing mocks in various channels. Currently it supports four channels: HTTP Kafka AMQP (e.g. RabbitMQ) GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live. The base path for the admin API is \"/api/v1\".\n",
     "title": "OpenMock",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "basePath": "/api/v1",
   "paths": {
@@ -900,6 +905,11 @@ func init() {
       "description": "reply to incoming GRPC that triggered this behavior with a response",
       "type": "object",
       "properties": {
+        "headers": {
+          "description": "map of string to string specifying gRPC headers to attach to our message",
+          "type": "object",
+          "additionalProperties": true
+        },
         "payload": {
           "description": "string payload to send via GRPC, this should be a json string that maps to the protobuf response object",
           "type": "string"

@@ -1,3 +1,14 @@
+- key: example_grpc_eq_zzzz
+  expect:
+    grpc:
+      service: demo_protobuf.ExampleService
+      method: ExampleMethod
+    condition: '{{ .GRPCPayload | jsonPath "two" | eq "zzzz" }}'
+  actions:
+    - reply_grpc:
+        payload: >
+          {"message": "yyyy", "code": 200}
+
 - key: example_grpc
   expect:
     grpc:

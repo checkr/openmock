@@ -3,8 +3,17 @@ package openmock
 import (
 	"testing"
 
+	"github.com/goombaio/orderedmap"
 	"github.com/stretchr/testify/assert"
 )
+
+func getMockFromMap(m *orderedmap.OrderedMap, key string) *Mock {
+	item, ok := m.Get(key)
+	if !ok {
+		return &Mock{}
+	}
+	return item.(*Mock)
+}
 
 func TestLoadRedis(t *testing.T) {
 	om := &OpenMock{
@@ -156,6 +165,8 @@ func TestLoad(t *testing.T) {
 		assert.NotZero(t, len(om.repo.HTTPMocks))
 		assert.NotZero(t, len(om.repo.GRPCMocks))
 		assert.NotZero(t, len(om.repo.KafkaMocks))
+		assert.NotZero(t, len(om.repo.Templates))
+		assert.NotZero(t, om.repo.Behaviors.Size())
 	})
 }
 
@@ -167,7 +178,7 @@ func TestLoadBehaviors(t *testing.T) {
 			Key: "ping",
 		}
 		om.populateBehaviors(MocksArray{ping})
-		assert.Equal(t, ping, om.repo.Behaviors["ping"])
+		assert.Equal(t, ping, getMockFromMap(om.repo.Behaviors, "ping"))
 	})
 	t.Run("actions are ordered if order specified", func(t *testing.T) {
 		om := &OpenMock{}
@@ -196,7 +207,7 @@ func TestLoadBehaviors(t *testing.T) {
 			},
 		}
 		om.populateBehaviors(MocksArray{ping})
-		assert.Equal(t, expectedActions, om.repo.Behaviors["ping"].Actions)
+		assert.Equal(t, expectedActions, getMockFromMap(om.repo.Behaviors, "ping").Actions)
 	})
 }
 
@@ -227,22 +238,22 @@ func TestLoadExtendedBehaviors(t *testing.T) {
 		om := &OpenMock{}
 		om.SetupRepo()
 		om.populateBehaviors(MocksArray{abstract, concrete})
-		assert.NotZero(t, om.repo.Behaviors["concrete"].Actions)
-		assert.Equal(t, "banana", om.repo.Behaviors["concrete"].Actions[0].ActionReplyHTTP.Body)
+		assert.NotZero(t, getMockFromMap(om.repo.Behaviors, "concrete").Actions)
+		assert.Equal(t, "banana", getMockFromMap(om.repo.Behaviors, "concrete").Actions[0].ActionReplyHTTP.Body)
 	})
 
 	t.Run("persists values", func(t *testing.T) {
 		om := &OpenMock{}
 		om.SetupRepo()
 		om.populateBehaviors(MocksArray{abstract, concrete})
-		assert.Equal(t, "bar", om.repo.Behaviors["concrete"].Values["foo"])
+		assert.Equal(t, "bar", getMockFromMap(om.repo.Behaviors, "concrete").Values["foo"])
 	})
 
 	t.Run("extended behavior defined after concrete behavior", func(t *testing.T) {
 		om := &OpenMock{}
 		om.SetupRepo()
 		om.populateBehaviors(MocksArray{concrete, abstract})
-		assert.Equal(t, "banana", om.repo.Behaviors["concrete"].Actions[0].ActionReplyHTTP.Body)
+		assert.Equal(t, "banana", getMockFromMap(om.repo.Behaviors, "concrete").Actions[0].ActionReplyHTTP.Body)
 	})
 
 	t.Run("abstract behavior not exposed as actionable", func(t *testing.T) {
@@ -269,9 +280,9 @@ func TestLoadExtendedBehaviors(t *testing.T) {
 		om := &OpenMock{}
 		om.SetupRepo()
 		om.populateBehaviors(MocksArray{abstract, concreteWithActions})
-		assert.NotZero(t, om.repo.Behaviors["concreteWithActions"].Actions)
-		assert.Equal(t, "banana", om.repo.Behaviors["concreteWithActions"].Actions[0].ActionReplyHTTP.Body)
-		assert.Equal(t, "hi", om.repo.Behaviors["concreteWithActions"].Actions[1].ActionRedis[0])
+		assert.NotZero(t, getMockFromMap(om.repo.Behaviors, "concreteWithActions").Actions)
+		assert.Equal(t, "banana", getMockFromMap(om.repo.Behaviors, "concreteWithActions").Actions[0].ActionReplyHTTP.Body)
+		assert.Equal(t, "hi", getMockFromMap(om.repo.Behaviors, "concreteWithActions").Actions[1].ActionRedis[0])
 	})
 }
 

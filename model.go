@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/fatih/structs"
+	"github.com/goombaio/orderedmap"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -95,7 +96,8 @@ type (
 		KafkaMocks KafkaMocks
 		AMQPMocks  AMQPMocks
 		Templates  MocksArray
-		Behaviors  map[string]*Mock
+
+		Behaviors *orderedmap.OrderedMap
 	}
 )
 
@@ -172,8 +174,9 @@ type ActionReplyHTTP struct {
 
 // ActionReplyGRPC represents reply grpc action
 type ActionReplyGRPC struct {
-	Payload         string `yaml:"payload,omitempty"`
-	PayloadFromFile string `yaml:"payload_from_file,omitempty"`
+	Headers         map[string]string `yaml:"headers,omitempty"`
+	Payload         string            `yaml:"payload,omitempty"`
+	PayloadFromFile string            `yaml:"payload_from_file,omitempty"`
 }
 
 // ActionPublishAMQP represents publish AMQP action

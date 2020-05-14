@@ -15,6 +15,9 @@ import (
 // swagger:model ActionReplyGRPC
 type ActionReplyGRPC struct {
 
+	// map of string to string specifying gRPC headers to attach to our message
+	Headers interface{} `json:"headers,omitempty"`
+
 	// string payload to send via GRPC, this should be a json string that maps to the protobuf response object
 	Payload string `json:"payload,omitempty"`
 

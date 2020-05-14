@@ -1,31 +1,27 @@
 package openmock
 
 import (
-	"encoding/binary"
 	"fmt"
 	"time"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/parnurzeal/gorequest"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/proto"
 )
 
-func (ms MocksArray) DoActions(ctx Context) error {
+func (ms MocksArray) DoActions(ctx Context) {
 	for _, m := range ms {
-		if err := m.DoActions(ctx); err != nil {
-			return nil
+		if conditionMatch := m.DoActions(ctx); conditionMatch {
+			return
 		}
 	}
-	return nil
 }
 
-func (m *Mock) DoActions(ctx Context) error {
+func (m *Mock) DoActions(ctx Context) (conditionMatch bool) {
 	ctx.Values = m.Values
 	ctx.currentMock = m
 	if !ctx.MatchCondition(m.Expect.Condition) {
-		return nil
+		return false
 	}
 	logger := newOmLogger(ctx)
 	logger.Info("doing actions")
@@ -36,9 +32,10 @@ func (m *Mock) DoActions(ctx Context) error {
 				"err":    err,
 				"action": fmt.Sprintf("%T", actualAction),
 			}).Errorf("failed to do action")
+			return true
 		}
 	}
-	return nil
+	return true
 }
 
 func (a ActionSendHTTP) Perform(ctx Context) error {
@@ -117,76 +114,41 @@ func (a ActionReplyHTTP) Perform(ctx Context) (err error) {
 
 func (a ActionReplyGRPC) Perform(ctx Context) error {
 	ec := ctx.GRPCContext
-
 	msg, err := ctx.Render(a.Payload)
-
 	if err != nil {
-		logrus.WithField("err", err).Error("failed to render template for grpc")
 		return err
 	}
 
 	ec.Response().Header().Set("Content-Type", "application/grpc")
 	ec.Response().Header().Set("Trailer", "grpc-status, grpc-message")
-	//ec.Response().WriteHeader(200)
+	ec.Response().Header().Set("grpc-status", "0")
+	ec.Response().Header().Set("grpc-message", "OK")
 
-	responseStruct := GRPCServiceMethodResponseMap[ctx.GRPCService][ctx.GRPCMethod].Response
-	err = protojson.Unmarshal([]byte(msg), responseStruct)
+	a.Headers, err = renderHeaders(ctx, a.Headers)
+	if err != nil {
+		return err
+	}
+	for k, v := range a.Headers {
+		ec.Response().Header().Set(k, v)
+	}
 
+	hdr, data, err := ctx.om.convertJSONToH2Response(ctx, msg)
 	if err != nil {
 		return err
 	}
 
-	b, err := proto.Marshal(responseStruct)
-
-	if err != nil {
-		return err
-	}
-
-	hdr, data := msgHeader(b)
-
-	// length-prefixed message, see https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md
 	_, err = ec.Response().Write(hdr)
-
 	if err != nil {
 		return err
 	}
 
 	_, err = ec.Response().Write(data)
-
-	if err != nil {
-		return err
-	}
-
-	ec.Response().Header().Set("grpc-status", "0")
-	ec.Response().Header().Set("grpc-message", "OK")
-
 	if err != nil {
 		return err
 	}
 
 	ec.Response().Flush()
-
-	if err != nil {
-		return nil
-	}
-
 	return nil
-}
-
-const (
-	payloadLen = 1
-	sizeLen    = 4
-	headerLen  = payloadLen + sizeLen
-)
-
-func msgHeader(data []byte) (hdr []byte, payload []byte) {
-	hdr = make([]byte, headerLen)
-
-	hdr[0] = byte(0)
-
-	// Write length of payload into buf
-	binary.BigEndian.PutUint32(hdr[payloadLen:], uint32(len(data)))
-	return hdr, data
 }
 
 func (a ActionRedis) Perform(ctx Context) error {

@@ -1,6 +1,7 @@
 package openmock
 
 import (
+	"encoding/binary"
 	"fmt"
 	"io/ioutil"
 	"time"
@@ -11,54 +12,108 @@ import (
 	"golang.org/x/net/http2"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
-
-	"github.com/checkr/openmock/demo_protobuf"
 )
 
-// GRPCServiceMethodResponseMap Map of services, methods with the response protobuf they expect.
-// This is needed to give a proper response to the GRPC client.
-var GRPCServiceMethodResponseMap = map[string]map[string]RequestResponsePair{
-	"demo_protobuf.ExampleService": {
-		"ExampleMethod": RequestResponsePair{
-			Request:  &demo_protobuf.ExampleRequest{},
-			Response: &demo_protobuf.ExampleResponse{},
-		},
-	},
+const (
+	grpcPayloadLen = 1
+	grpcSizeLen    = 4
+	grpcHeaderLen  = grpcPayloadLen + grpcSizeLen
+)
+
+// length-prefixed message, see https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md
+func msgHeader(data []byte) (hdr []byte, payload []byte) {
+	hdr = make([]byte, grpcHeaderLen)
+
+	hdr[0] = byte(0)
+
+	// Write length of payload into buf
+	binary.BigEndian.PutUint32(hdr[grpcPayloadLen:], uint32(len(data)))
+	return hdr, data
 }
 
-type RequestResponsePair struct {
+// GRPCService is a map of service_name => GRPCRequestResponsePair
+type GRPCService map[string]GRPCRequestResponsePair
+
+// GRPCRequestResponsePair is a pair of proto.Message to define
+// the message schema of request and response of a method
+type GRPCRequestResponsePair struct {
 	Request  proto.Message
 	Response proto.Message
 }
 
-// convertBodyToJSON is how we support JSONPath to take values from GRPC requests and include them in responses
-func convertBodyToJSON(h ExpectGRPC, body []byte) string {
-	m := GRPCServiceMethodResponseMap[h.Service][h.Method].Request
-
-	// first 5 bytes are compression and size information
-	err := proto.Unmarshal(body[5:], m)
-
-	if err != nil {
-		logrus.Fatalf("error unmarshalling body and message: %v, %v", err, m)
+func (om *OpenMock) convertJSONToH2Response(ctx Context, resJSON string) (header []byte, data []byte, err error) {
+	if om.GRPCServiceMap == nil {
+		return nil, nil, fmt.Errorf("empty GRPCServiceMap")
 	}
 
-	jsonRequestMsg, err := protojson.Marshal(m)
-
-	if err != nil {
-		logrus.Fatalf("error marshalling proto to json %v", m)
+	if _, ok := om.GRPCServiceMap[ctx.GRPCService]; !ok {
+		return nil, nil, fmt.Errorf("invalid service in GRPCServiceMap. %s", ctx.GRPCService)
 	}
 
-	return string(jsonRequestMsg)
+	if _, ok := om.GRPCServiceMap[ctx.GRPCService][ctx.GRPCMethod]; !ok {
+		return nil, nil, fmt.Errorf("invalid method in GRPCServiceMap[%s]. %+v", ctx.GRPCService, ctx.GRPCMethod)
+	}
+
+	res := om.GRPCServiceMap[ctx.GRPCService][ctx.GRPCMethod].Response
+	err = protojson.Unmarshal([]byte(resJSON), res)
+	if err != nil {
+		return nil, nil, err
+	}
+	b, err := proto.Marshal(res)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	header, data = msgHeader(b)
+	return header, data, nil
 }
 
-func (om *OpenMock) startGRPC() {
+// convertRequestBodyToJSON is how we support JSONPath to take values from GRPC requests and include them in responses
+func (om *OpenMock) convertRequestBodyToJSON(h ExpectGRPC, body []byte) (string, error) {
+	if om.GRPCServiceMap == nil {
+		return "", fmt.Errorf("empty GRPCServiceMap")
+	}
+
+	if _, ok := om.GRPCServiceMap[h.Service]; !ok {
+		return "", fmt.Errorf("invalid service in GRPCServiceMap. %s", h.Service)
+	}
+
+	if _, ok := om.GRPCServiceMap[h.Service][h.Method]; !ok {
+		return "", fmt.Errorf("invalid method in GRPCServiceMap[%s]. %+v", h.Service, h.Method)
+	}
+
+	req := om.GRPCServiceMap[h.Service][h.Method].Request
+
+	if len(body) <= grpcSizeLen {
+		return "", fmt.Errorf("invalid grpc body length. length: %d", len(body))
+	}
+	// first grpcSizeLen bytes are compression and size information
+	err := proto.Unmarshal(body[(grpcSizeLen+1):], req)
+
+	if err != nil {
+		return "", err
+	}
+
+	jsonRequestMsg, err := protojson.Marshal(req)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonRequestMsg), nil
+}
+
+func (om *OpenMock) prepareGRPCEcho() *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	e.Use(middleware.Logger())
 	e.Use(middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
 		logrus.WithFields(logrus.Fields{
-			"grpc_req": string(reqBody),
-			"grpc_res": string(resBody),
+			"grpc_path":   c.Path(),
+			"grpc_method": c.Request().Method,
+			"grpc_host":   c.Request().Host,
+			"grpc_req":    string(reqBody),
+			"grpc_res":    string(resBody),
 		}).Info()
 	}))
 	if om.CorsEnabled {
@@ -77,7 +132,11 @@ func (om *OpenMock) startGRPC() {
 				fmt.Sprintf("/%s/%s", h.Service, h.Method),
 				func(ec echo.Context) error {
 					body, _ := ioutil.ReadAll(ec.Request().Body)
-					JSONRequestBody := convertBodyToJSON(h, body)
+					JSONRequestBody, err := om.convertRequestBodyToJSON(h, body)
+					if err != nil {
+						logrus.WithError(err).Error("failed to convert gRPC request body to JSON")
+						return err
+					}
 
 					c := Context{
 						GRPCContext: ec,
@@ -88,21 +147,21 @@ func (om *OpenMock) startGRPC() {
 						om:          om,
 					}
 
-					return ms.DoActions(c)
+					ms.DoActions(c)
+					return nil
 				},
 			)
 		}(h, ms)
 	}
+	return e
+}
 
+func (om *OpenMock) startGRPC() {
 	s := &http2.Server{
 		MaxConcurrentStreams: 250,
 		MaxReadFrameSize:     1048576,
 		IdleTimeout:          10 * time.Second,
 	}
+	e := om.prepareGRPCEcho()
 	e.Logger.Fatal(e.StartH2CServer(fmt.Sprintf("%s:%d", om.GRPCHost, om.GRPCPort), s))
-
-	e.Logger.Info("Serving GRPC traffic on %s:%d", om.GRPCHost, om.GRPCPort)
-	e.Logger.Fatal(
-		e.Start(fmt.Sprintf("%s:%d", om.GRPCHost, om.GRPCPort)),
-	)
 }

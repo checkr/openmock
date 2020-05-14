@@ -140,13 +140,7 @@ func (om *OpenMock) startKafka() {
 							"payload": c.KafkaPayload,
 						}).Info("start_consuming_message")
 
-						if err := ms.DoActions(c); err != nil {
-							logrus.WithFields(logrus.Fields{
-								"err":   err,
-								"topic": kafka.Topic,
-							}).Errorf("failed to do actions inside kafka consumer")
-							return
-						}
+						ms.DoActions(c)
 						consumer.MarkOffset(msg, "")
 					}
 				}

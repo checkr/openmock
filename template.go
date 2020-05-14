@@ -7,8 +7,7 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig"
-	"github.com/labstack/echo"
-	grpc_echo "github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,7 +21,7 @@ type Context struct {
 
 	GRPCService string
 	GRPCMethod  string
-	GRPCContext grpc_echo.Context
+	GRPCContext echo.Context
 	GRPCHeader  http.Header
 	GRPCPayload string
 

@@ -15,7 +15,6 @@ require (
 	github.com/aokoli/goutils v1.0.1 // indirect
 	github.com/bsm/sarama-cluster v2.1.15+incompatible
 	github.com/caarlos0/env v3.3.0+incompatible
-	github.com/dafiti/echo-middleware v0.0.0-20180423194757-e57a87d075ea
 	github.com/eapache/go-resiliency v1.1.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
@@ -34,14 +33,13 @@ require (
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/uuid v1.1.1
+	github.com/goombaio/orderedmap v0.0.0-20180925151256-3da0e2f905f9
 	github.com/huandu/xstrings v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/kr/text v0.2.0 // indirect
-	github.com/labstack/echo v3.3.5+incompatible
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/moul/http2curl v1.0.0 // indirect
-	github.com/newrelic/go-agent v2.1.0+incompatible // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/onsi/ginkgo v1.11.0 // indirect
 	github.com/onsi/gomega v1.8.1 // indirect
