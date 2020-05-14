@@ -610,9 +610,7 @@ func main() {
   
   // add our custom openmock functionality
   om := &openmock.OpenMock{}
-  om.ParseEnv()
-
-  openmock.GRPCServiceMethodResponseMap = map[string]map[string]openmock.RequestResponsePair{
+  om.GRPCServiceMap = map[string]openmock.GRPCService{
       "demo_protobuf.ExampleService": {
           "ExampleMethod": openmock.RequestResponsePair{
               Request:  proto.MessageV2(&demo_protobuf.ExampleRequest{}),
@@ -620,6 +618,7 @@ func main() {
           },
       },
   }
+  om.ParseEnv()
   server.ConfigureAPI(om)
 
   // rest of server set up copy & paste...
