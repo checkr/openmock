@@ -15,9 +15,10 @@
 # OpenMock
 OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere.
 The goal is to simplify the process of writing mocks in various channels.
-Currently it supports three channels:
+Currently it supports the following channels:
 
 - HTTP
+- gRPC
 - Kafka
 - AMQP (e.g. RabbitMQ)
 
