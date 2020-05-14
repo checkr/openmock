@@ -25,7 +25,7 @@ ifndef GOLANGCILINT
 	@GO111MODULE=off go get -u github.com/myitcv/gobin
 	@gobin github.com/golangci/golangci-lint/cmd/golangci-lint@v1.24.0
 endif
-	@golangci-lint run
+	@golangci-lint run -D errcheck .
 
 #################
 # Swagger stuff #

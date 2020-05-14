@@ -8,7 +8,7 @@ package template
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // PostTemplatesHandlerFunc turns a function with the right signature into a post templates handler

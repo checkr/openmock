@@ -68,31 +68,34 @@ func (om *OpenMock) populateTemplates(mocks []*Mock) error {
 	return nil
 }
 
+//nolint:gocognit
 func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 	r := om.repo
 
 	for i := range mocks {
 		m := mocks[i]
 		m.loadFile(om.TemplatesDir)
-		if r.Behaviors[m.Key] != nil {
+		if _, ok := r.Behaviors.Get(m.Key); ok {
 			logrus.WithField("key", m.Key).Info("Overriding existing behavior")
 		}
-		r.Behaviors[m.Key] = m
+		r.Behaviors.Put(m.Key, m)
 	}
 
-	for _, m := range r.Behaviors {
+	for _, item := range r.Behaviors.Values() {
+		m := item.(*Mock)
 		if m.Kind == KindAbstractBehavior {
 			continue
 		}
 		if m.Extend != "" {
-			if r.Behaviors[m.Extend] == nil {
+			parent, ok := r.Behaviors.Get(m.Extend)
+			if !ok {
 				logrus.WithFields(logrus.Fields{
 					"name":   m.Key,
 					"extend": m.Extend,
 				}).Errorf("Mock %s attempt to extend unknown behavior %s", m.Key, m.Extend)
 			} else {
-				m = r.Behaviors[m.Extend].patchedWith(*m)
-				r.Behaviors[m.Key] = m
+				m = parent.(*Mock).patchedWith(*m)
+				r.Behaviors.Put(m.Key, m)
 			}
 		}
 		if !structs.IsZero(m.Expect.HTTP) {
@@ -101,6 +104,14 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 				r.HTTPMocks[m.Expect.HTTP] = []*Mock{m}
 			} else {
 				r.HTTPMocks[m.Expect.HTTP] = append(r.HTTPMocks[m.Expect.HTTP], m)
+			}
+		}
+		if !structs.IsZero(m.Expect.GRPC) {
+			_, ok := r.GRPCMocks[m.Expect.GRPC]
+			if !ok {
+				r.GRPCMocks[m.Expect.GRPC] = []*Mock{m}
+			} else {
+				r.GRPCMocks[m.Expect.GRPC] = append(r.GRPCMocks[m.Expect.GRPC], m)
 			}
 		}
 		if !structs.IsZero(m.Expect.Kafka) {
@@ -120,16 +131,16 @@ func (om *OpenMock) populateBehaviors(mocks []*Mock) {
 			}
 		}
 
-		if len(r.Behaviors[m.Key].Actions) > 0 {
-			orderedActions := r.Behaviors[m.Key].Actions
+		if len(m.Actions) > 0 {
+			orderedActions := m.Actions
 			sort.Slice(orderedActions, func(i, j int) bool {
 				return orderedActions[i].Order < orderedActions[j].Order
 			})
-			if !actionsEqual(orderedActions, r.Behaviors[m.Key].Actions) {
-				m = r.Behaviors[m.Key].patchedWith(Mock{
+			if !actionsEqual(orderedActions, m.Actions) {
+				m = m.patchedWith(Mock{
 					Actions: orderedActions,
 				})
-				r.Behaviors[m.Key] = m
+				r.Behaviors.Put(m.Key, m)
 			}
 		}
 	}
@@ -195,6 +206,7 @@ func loadYAML(searchDir string) ([]byte, error) {
 	return w.Bytes(), nil
 }
 
+//nolint:gocognit
 func (m *Mock) loadFile(baseDir string) {
 	for i := range m.Actions {
 		a := &m.Actions[i]
@@ -224,6 +236,13 @@ func (m *Mock) loadFile(baseDir string) {
 			if h.BodyFromFile != "" && h.Body == "" {
 				h.Body = readFile(m.Key, baseDir, h.BodyFromFile)
 				h.BodyFromFile = ""
+			}
+		}
+		if !structs.IsZero(a.ActionReplyGRPC) {
+			grpc := &a.ActionReplyGRPC
+			if grpc.PayloadFromFile != "" && grpc.Payload == "" {
+				grpc.Payload = readFile(m.Key, baseDir, grpc.PayloadFromFile)
+				grpc.PayloadFromFile = ""
 			}
 		}
 	}

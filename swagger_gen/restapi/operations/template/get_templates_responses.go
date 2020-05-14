@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	models "github.com/checkr/openmock/swagger_gen/models"
+	"github.com/checkr/openmock/swagger_gen/models"
 )
 
 // GetTemplatesOKCode is the HTTP code returned for type GetTemplatesOK

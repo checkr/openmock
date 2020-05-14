@@ -31,9 +31,9 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere.  The goal is to simplify the process of writing mocks in various channels.  Currently it supports three channels: HTTP Kafka AMQP (e.g. RabbitMQ) The admin API allows you to manipulate the mock behaviour provided by openmock, live.  The base path for the admin API is \"/api/v1\".\n",
+    "description": "OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. The goal is to simplify the process of writing mocks in various channels. Currently it supports four channels: HTTP Kafka AMQP (e.g. RabbitMQ) GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live. The base path for the admin API is \"/api/v1\".\n",
     "title": "OpenMock",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "basePath": "/api/v1",
   "paths": {
@@ -274,6 +274,9 @@ func init() {
         "redis": {
           "$ref": "#/definitions/ActionRedis"
         },
+        "reply_grpc": {
+          "$ref": "#/definitions/ActionReplyGRPC"
+        },
         "reply_http": {
           "$ref": "#/definitions/ActionReplyHTTP"
         },
@@ -330,6 +333,25 @@ func init() {
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "ActionReplyGRPC": {
+      "description": "reply to incoming GRPC that triggered this behavior with a response",
+      "type": "object",
+      "properties": {
+        "headers": {
+          "description": "map of string to string specifying gRPC headers to attach to our message",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "payload": {
+          "description": "string payload to send via GRPC, this should be a json string that maps to the protobuf response object",
+          "type": "string"
+        },
+        "payload_from_file": {
+          "description": "file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load payload from, this should be a json string that maps to the protobuf response object",
+          "type": "string"
+        }
       }
     },
     "ActionReplyHTTP": {
@@ -412,6 +434,9 @@ func init() {
           "description": "a go template that determines if this behavior triggers",
           "type": "string"
         },
+        "grpc": {
+          "$ref": "#/definitions/ExpectGRPC"
+        },
         "http": {
           "$ref": "#/definitions/ExpectHTTP"
         },
@@ -433,6 +458,19 @@ func init() {
         },
         "routing_key": {
           "description": "TODO",
+          "type": "string"
+        }
+      }
+    },
+    "ExpectGRPC": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "description": "GRPC method to expect to trigger this behavior",
+          "type": "string"
+        },
+        "service": {
+          "description": "GRPC service to expect to trigger this behavior",
           "type": "string"
         }
       }
@@ -547,21 +585,21 @@ func init() {
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "consumes": [
-    "application/yaml",
-    "application/json"
+    "application/json",
+    "application/yaml"
   ],
   "produces": [
-    "application/yaml",
-    "application/json"
+    "application/json",
+    "application/yaml"
   ],
   "schemes": [
     "http"
   ],
   "swagger": "2.0",
   "info": {
-    "description": "OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere.  The goal is to simplify the process of writing mocks in various channels.  Currently it supports three channels: HTTP Kafka AMQP (e.g. RabbitMQ) The admin API allows you to manipulate the mock behaviour provided by openmock, live.  The base path for the admin API is \"/api/v1\".\n",
+    "description": "OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. The goal is to simplify the process of writing mocks in various channels. Currently it supports four channels: HTTP Kafka AMQP (e.g. RabbitMQ) GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live. The base path for the admin API is \"/api/v1\".\n",
     "title": "OpenMock",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "basePath": "/api/v1",
   "paths": {
@@ -802,6 +840,9 @@ func init() {
         "redis": {
           "$ref": "#/definitions/ActionRedis"
         },
+        "reply_grpc": {
+          "$ref": "#/definitions/ActionReplyGRPC"
+        },
         "reply_http": {
           "$ref": "#/definitions/ActionReplyHTTP"
         },
@@ -858,6 +899,25 @@ func init() {
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "ActionReplyGRPC": {
+      "description": "reply to incoming GRPC that triggered this behavior with a response",
+      "type": "object",
+      "properties": {
+        "headers": {
+          "description": "map of string to string specifying gRPC headers to attach to our message",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "payload": {
+          "description": "string payload to send via GRPC, this should be a json string that maps to the protobuf response object",
+          "type": "string"
+        },
+        "payload_from_file": {
+          "description": "file path (relative to OPENMOCK_TEMPLATES_DIR of OM) to load payload from, this should be a json string that maps to the protobuf response object",
+          "type": "string"
+        }
       }
     },
     "ActionReplyHTTP": {
@@ -940,6 +1000,9 @@ func init() {
           "description": "a go template that determines if this behavior triggers",
           "type": "string"
         },
+        "grpc": {
+          "$ref": "#/definitions/ExpectGRPC"
+        },
         "http": {
           "$ref": "#/definitions/ExpectHTTP"
         },
@@ -961,6 +1024,19 @@ func init() {
         },
         "routing_key": {
           "description": "TODO",
+          "type": "string"
+        }
+      }
+    },
+    "ExpectGRPC": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "description": "GRPC method to expect to trigger this behavior",
+          "type": "string"
+        },
+        "service": {
+          "description": "GRPC service to expect to trigger this behavior",
           "type": "string"
         }
       }

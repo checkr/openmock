@@ -138,6 +138,13 @@ func TestActionDispatch(t *testing.T) {
 		}
 		assert.Equal(t, getActualAction(a), expectedAction)
 	})
+	t.Run("resolves to ActionReplyGRPC", func(t *testing.T) {
+		expectedAction := ActionReplyGRPC{Payload: "success"}
+		a := ActionDispatcher{
+			ActionReplyGRPC: expectedAction,
+		}
+		assert.Equal(t, getActualAction(a), expectedAction)
+	})
 	t.Run("resolves to ActionRedis", func(t *testing.T) {
 		expectedAction := ActionRedis{"potato", "potato"}
 		a := ActionDispatcher{

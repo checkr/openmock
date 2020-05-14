@@ -4,25 +4,24 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/parnurzeal/gorequest"
 	"github.com/sirupsen/logrus"
 )
 
-func (ms MocksArray) DoActions(ctx Context) error {
+func (ms MocksArray) DoActions(ctx Context) {
 	for _, m := range ms {
-		if err := m.DoActions(ctx); err != nil {
-			return nil
+		if conditionMatch := m.DoActions(ctx); conditionMatch {
+			return
 		}
 	}
-	return nil
 }
 
-func (m *Mock) DoActions(ctx Context) error {
+func (m *Mock) DoActions(ctx Context) (conditionMatch bool) {
 	ctx.Values = m.Values
 	ctx.currentMock = m
 	if !ctx.MatchCondition(m.Expect.Condition) {
-		return nil
+		return false
 	}
 	logger := newOmLogger(ctx)
 	logger.Info("doing actions")
@@ -33,9 +32,10 @@ func (m *Mock) DoActions(ctx Context) error {
 				"err":    err,
 				"action": fmt.Sprintf("%T", actualAction),
 			}).Errorf("failed to do action")
+			return true
 		}
 	}
-	return nil
+	return true
 }
 
 func (a ActionSendHTTP) Perform(ctx Context) error {
@@ -109,6 +109,45 @@ func (a ActionReplyHTTP) Perform(ctx Context) (err error) {
 	}
 	conn.Close()
 
+	return nil
+}
+
+func (a ActionReplyGRPC) Perform(ctx Context) error {
+	ec := ctx.GRPCContext
+	msg, err := ctx.Render(a.Payload)
+	if err != nil {
+		return err
+	}
+
+	ec.Response().Header().Set("Content-Type", "application/grpc")
+	ec.Response().Header().Set("Trailer", "grpc-status, grpc-message")
+	ec.Response().Header().Set("grpc-status", "0")
+	ec.Response().Header().Set("grpc-message", "OK")
+
+	a.Headers, err = renderHeaders(ctx, a.Headers)
+	if err != nil {
+		return err
+	}
+	for k, v := range a.Headers {
+		ec.Response().Header().Set(k, v)
+	}
+
+	hdr, data, err := ctx.om.convertJSONToH2Response(ctx, msg)
+	if err != nil {
+		return err
+	}
+
+	_, err = ec.Response().Write(hdr)
+	if err != nil {
+		return err
+	}
+
+	_, err = ec.Response().Write(data)
+	if err != nil {
+		return err
+	}
+
+	ec.Response().Flush()
 	return nil
 }
 

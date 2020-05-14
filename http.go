@@ -4,16 +4,15 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	em "github.com/dafiti/echo-middleware"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
 )
 
 func (om *OpenMock) startHTTP() {
 	e := echo.New()
 	e.HideBanner = true
-	e.Use(em.Logrus())
+	e.Use(middleware.Logger())
 	e.Use(middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
 		logrus.WithFields(logrus.Fields{
 			"http_path":   c.Path(),
@@ -47,7 +46,8 @@ func (om *OpenMock) startHTTP() {
 						HTTPQueryString: ec.QueryString(),
 						om:              om,
 					}
-					return ms.DoActions(c)
+					ms.DoActions(c)
+					return nil
 				},
 			)
 		}(h, ms)
