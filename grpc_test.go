@@ -60,8 +60,8 @@ func TestGRPCServer(t *testing.T) {
 	t.Run("happy code path", func(t *testing.T) {
 		// Set up a connection to the server.
 		conn, err := grpc.Dial(grpcaddress, grpc.WithInsecure(), grpc.WithBlock())
-		defer conn.Close()
 		assert.NoError(t, err)
+		defer conn.Close()
 
 		c := demo_protobuf.NewExampleServiceClient(conn)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -76,8 +76,8 @@ func TestGRPCServer(t *testing.T) {
 	t.Run("ok with condition", func(t *testing.T) {
 		// Set up a connection to the server.
 		conn, err := grpc.Dial(grpcaddress, grpc.WithInsecure(), grpc.WithBlock())
-		defer conn.Close()
 		assert.NoError(t, err)
+		defer conn.Close()
 
 		c := demo_protobuf.NewExampleServiceClient(conn)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
