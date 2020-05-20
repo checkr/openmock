@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/checkr/openmock/swagger_gen/restapi/operations/evaluate"
 	"github.com/checkr/openmock/swagger_gen/restapi/operations/health"
 	"github.com/checkr/openmock/swagger_gen/restapi/operations/template"
 	"github.com/checkr/openmock/swagger_gen/restapi/operations/template_set"
@@ -57,6 +58,9 @@ func NewOpenMockAPI(spec *loads.Document) *OpenMockAPI {
 		TemplateDeleteTemplatesHandler: template.DeleteTemplatesHandlerFunc(func(params template.DeleteTemplatesParams) middleware.Responder {
 			return middleware.NotImplemented("operation template.DeleteTemplates has not yet been implemented")
 		}),
+		EvaluateEvaluateHandler: evaluate.EvaluateHandlerFunc(func(params evaluate.EvaluateParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluate.Evaluate has not yet been implemented")
+		}),
 		HealthGetHealthHandler: health.GetHealthHandlerFunc(func(params health.GetHealthParams) middleware.Responder {
 			return middleware.NotImplemented("operation health.GetHealth has not yet been implemented")
 		}),
@@ -72,7 +76,7 @@ func NewOpenMockAPI(spec *loads.Document) *OpenMockAPI {
 	}
 }
 
-/*OpenMockAPI OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. The goal is to simplify the process of writing mocks in various channels. Currently it supports four channels: HTTP Kafka AMQP (e.g. RabbitMQ) GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live. The base path for the admin API is "/api/v1".
+/*OpenMockAPI OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. The goal is to simplify the process of writing mocks in various channels. Currently it supports four channels: HTTP,  Kafka,, AMQP (e.g. RabbitMQ), and  GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live. The base path for the admin API is "/api/v1".
  */
 type OpenMockAPI struct {
 	spec            *loads.Document
@@ -115,6 +119,8 @@ type OpenMockAPI struct {
 	TemplateSetDeleteTemplateSetHandler template_set.DeleteTemplateSetHandler
 	// TemplateDeleteTemplatesHandler sets the operation handler for the delete templates operation
 	TemplateDeleteTemplatesHandler template.DeleteTemplatesHandler
+	// EvaluateEvaluateHandler sets the operation handler for the evaluate operation
+	EvaluateEvaluateHandler evaluate.EvaluateHandler
 	// HealthGetHealthHandler sets the operation handler for the get health operation
 	HealthGetHealthHandler health.GetHealthHandler
 	// TemplateGetTemplatesHandler sets the operation handler for the get templates operation
@@ -203,6 +209,9 @@ func (o *OpenMockAPI) Validate() error {
 	}
 	if o.TemplateDeleteTemplatesHandler == nil {
 		unregistered = append(unregistered, "template.DeleteTemplatesHandler")
+	}
+	if o.EvaluateEvaluateHandler == nil {
+		unregistered = append(unregistered, "evaluate.EvaluateHandler")
 	}
 	if o.HealthGetHealthHandler == nil {
 		unregistered = append(unregistered, "health.GetHealthHandler")
@@ -320,6 +329,10 @@ func (o *OpenMockAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/templates"] = template.NewDeleteTemplates(o.context, o.TemplateDeleteTemplatesHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/evaluate"] = evaluate.NewEvaluate(o.context, o.EvaluateEvaluateHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

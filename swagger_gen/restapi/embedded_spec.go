@@ -31,12 +31,46 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. The goal is to simplify the process of writing mocks in various channels. Currently it supports four channels: HTTP Kafka AMQP (e.g. RabbitMQ) GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live. The base path for the admin API is \"/api/v1\".\n",
+    "description": "OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. The goal is to simplify the process of writing mocks in various channels. Currently it supports four channels: HTTP,  Kafka,, AMQP (e.g. RabbitMQ), and  GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live. The base path for the admin API is \"/api/v1\".\n",
     "title": "OpenMock",
     "version": "0.3.0"
   },
   "basePath": "/api/v1",
   "paths": {
+    "/evaluate": {
+      "post": {
+        "description": "evaluates a mock's response to a given input context, for debugging / development purposes",
+        "tags": [
+          "evaluate"
+        ],
+        "operationId": "evaluate",
+        "parameters": [
+          {
+            "description": "request to process",
+            "name": "eval_request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MockEvalRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "when successfully evaluated",
+            "schema": {
+              "$ref": "#/definitions/MockEvalResponse"
+            }
+          },
+          "default": {
+            "description": "server error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "description": "Check if Flagr is healthy",
@@ -288,6 +322,18 @@ func init() {
         }
       }
     },
+    "ActionPerformed": {
+      "description": "when evaluating a mock, an object capturing what would happen if the mock's action is performed",
+      "type": "object",
+      "properties": {
+        "publish_kafka_action_performed": {
+          "$ref": "#/definitions/PublishKafkaActionPerformed"
+        },
+        "reply_http_action_performed": {
+          "$ref": "#/definitions/ReplyHTTPActionPerformed"
+        }
+      }
+    },
     "ActionPublishAMQP": {
       "description": "publish a message on AMQP if this behaviors condition is met",
       "type": "object",
@@ -424,6 +470,52 @@ func init() {
         }
       }
     },
+    "EvalContext": {
+      "description": "when evaluating a mock, the input context to evaluate. Contains subfields specific to each channel openmock supports",
+      "type": "object",
+      "properties": {
+        "http_context": {
+          "$ref": "#/definitions/EvalHTTPContext"
+        },
+        "kafka_context": {
+          "$ref": "#/definitions/EvalKafkaContext"
+        }
+      }
+    },
+    "EvalHTTPContext": {
+      "description": "input context for ExpectHTTP mock",
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "method": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "query_string": {
+          "type": "string"
+        }
+      }
+    },
+    "EvalKafkaContext": {
+      "description": "input context for ExpectKafka mock",
+      "type": "object",
+      "properties": {
+        "payload": {
+          "type": "string"
+        },
+        "topic": {
+          "type": "string"
+        }
+      }
+    },
     "Expect": {
       "type": "object",
       "properties": {
@@ -547,11 +639,87 @@ func init() {
         }
       }
     },
+    "MockEvalRequest": {
+      "description": "Request to evaluate a mock's behavior given an input context",
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context to evaluate the mock",
+          "$ref": "#/definitions/EvalContext"
+        },
+        "mock": {
+          "description": "The mock to evaluate",
+          "$ref": "#/definitions/Mock"
+        }
+      }
+    },
+    "MockEvalResponse": {
+      "description": "Result of evaluating mock, indicates what the mock would be expected to do given the input",
+      "type": "object",
+      "properties": {
+        "actions_performed": {
+          "description": "list of responses the mock performed (assuming the condition passed)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionPerformed"
+          }
+        },
+        "condition_passed": {
+          "description": "whether the condition passed when evaluated, so the actions would take place",
+          "type": "boolean"
+        },
+        "condition_rendered": {
+          "description": "the rendered value of the mock's expect's condition when evaluating with the context",
+          "type": "string"
+        },
+        "expect_passed": {
+          "description": "whether the channel-specific condition of the evaluation passed. For example for a mock with ExpectHTTP, this returns true if the HTTP path and method in the input context matched the ExpectHTTP.",
+          "type": "boolean"
+        }
+      }
+    },
     "Mocks": {
       "description": "collection of mocks",
       "type": "array",
       "items": {
         "$ref": "#/definitions/Mock"
+      }
+    },
+    "PublishKafkaActionPerformed": {
+      "description": "kafka reply info that would be replied when an evaluated mock did PublishKafka action",
+      "type": "object",
+      "properties": {
+        "payload": {
+          "description": "rendered payload",
+          "type": "string"
+        },
+        "topic": {
+          "description": "the kafka topic to send to",
+          "type": "string"
+        }
+      }
+    },
+    "ReplyHTTPActionPerformed": {
+      "description": "http info that would be replied when an evaluated mock did ReplyHTTP action",
+      "type": "object",
+      "properties": {
+        "body": {
+          "description": "body bytes-converted-to-string returned in HTTP reply",
+          "type": "string"
+        },
+        "content_type": {
+          "description": "the HTTP content-type of the reply",
+          "type": "string"
+        },
+        "headers": {
+          "description": "Key-value pair HTTP headers attached to the reply",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "status_code": {
+          "description": "HTTP status code in the reply",
+          "type": "string"
+        }
       }
     },
     "error": {
@@ -597,12 +765,46 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. The goal is to simplify the process of writing mocks in various channels. Currently it supports four channels: HTTP Kafka AMQP (e.g. RabbitMQ) GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live. The base path for the admin API is \"/api/v1\".\n",
+    "description": "OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. The goal is to simplify the process of writing mocks in various channels. Currently it supports four channels: HTTP,  Kafka,, AMQP (e.g. RabbitMQ), and  GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live. The base path for the admin API is \"/api/v1\".\n",
     "title": "OpenMock",
     "version": "0.3.0"
   },
   "basePath": "/api/v1",
   "paths": {
+    "/evaluate": {
+      "post": {
+        "description": "evaluates a mock's response to a given input context, for debugging / development purposes",
+        "tags": [
+          "evaluate"
+        ],
+        "operationId": "evaluate",
+        "parameters": [
+          {
+            "description": "request to process",
+            "name": "eval_request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MockEvalRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "when successfully evaluated",
+            "schema": {
+              "$ref": "#/definitions/MockEvalResponse"
+            }
+          },
+          "default": {
+            "description": "server error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "description": "Check if Flagr is healthy",
@@ -854,6 +1056,18 @@ func init() {
         }
       }
     },
+    "ActionPerformed": {
+      "description": "when evaluating a mock, an object capturing what would happen if the mock's action is performed",
+      "type": "object",
+      "properties": {
+        "publish_kafka_action_performed": {
+          "$ref": "#/definitions/PublishKafkaActionPerformed"
+        },
+        "reply_http_action_performed": {
+          "$ref": "#/definitions/ReplyHTTPActionPerformed"
+        }
+      }
+    },
     "ActionPublishAMQP": {
       "description": "publish a message on AMQP if this behaviors condition is met",
       "type": "object",
@@ -990,6 +1204,52 @@ func init() {
         }
       }
     },
+    "EvalContext": {
+      "description": "when evaluating a mock, the input context to evaluate. Contains subfields specific to each channel openmock supports",
+      "type": "object",
+      "properties": {
+        "http_context": {
+          "$ref": "#/definitions/EvalHTTPContext"
+        },
+        "kafka_context": {
+          "$ref": "#/definitions/EvalKafkaContext"
+        }
+      }
+    },
+    "EvalHTTPContext": {
+      "description": "input context for ExpectHTTP mock",
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "method": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "query_string": {
+          "type": "string"
+        }
+      }
+    },
+    "EvalKafkaContext": {
+      "description": "input context for ExpectKafka mock",
+      "type": "object",
+      "properties": {
+        "payload": {
+          "type": "string"
+        },
+        "topic": {
+          "type": "string"
+        }
+      }
+    },
     "Expect": {
       "type": "object",
       "properties": {
@@ -1113,11 +1373,87 @@ func init() {
         }
       }
     },
+    "MockEvalRequest": {
+      "description": "Request to evaluate a mock's behavior given an input context",
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context to evaluate the mock",
+          "$ref": "#/definitions/EvalContext"
+        },
+        "mock": {
+          "description": "The mock to evaluate",
+          "$ref": "#/definitions/Mock"
+        }
+      }
+    },
+    "MockEvalResponse": {
+      "description": "Result of evaluating mock, indicates what the mock would be expected to do given the input",
+      "type": "object",
+      "properties": {
+        "actions_performed": {
+          "description": "list of responses the mock performed (assuming the condition passed)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionPerformed"
+          }
+        },
+        "condition_passed": {
+          "description": "whether the condition passed when evaluated, so the actions would take place",
+          "type": "boolean"
+        },
+        "condition_rendered": {
+          "description": "the rendered value of the mock's expect's condition when evaluating with the context",
+          "type": "string"
+        },
+        "expect_passed": {
+          "description": "whether the channel-specific condition of the evaluation passed. For example for a mock with ExpectHTTP, this returns true if the HTTP path and method in the input context matched the ExpectHTTP.",
+          "type": "boolean"
+        }
+      }
+    },
     "Mocks": {
       "description": "collection of mocks",
       "type": "array",
       "items": {
         "$ref": "#/definitions/Mock"
+      }
+    },
+    "PublishKafkaActionPerformed": {
+      "description": "kafka reply info that would be replied when an evaluated mock did PublishKafka action",
+      "type": "object",
+      "properties": {
+        "payload": {
+          "description": "rendered payload",
+          "type": "string"
+        },
+        "topic": {
+          "description": "the kafka topic to send to",
+          "type": "string"
+        }
+      }
+    },
+    "ReplyHTTPActionPerformed": {
+      "description": "http info that would be replied when an evaluated mock did ReplyHTTP action",
+      "type": "object",
+      "properties": {
+        "body": {
+          "description": "body bytes-converted-to-string returned in HTTP reply",
+          "type": "string"
+        },
+        "content_type": {
+          "description": "the HTTP content-type of the reply",
+          "type": "string"
+        },
+        "headers": {
+          "description": "Key-value pair HTTP headers attached to the reply",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "status_code": {
+          "description": "HTTP status code in the reply",
+          "type": "string"
+        }
       }
     },
     "error": {
