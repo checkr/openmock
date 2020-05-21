@@ -163,7 +163,6 @@ func (c *crud) DeleteTemplateSet(params template_set.DeleteTemplateSetParams) mi
 func (c *crud) PostEvaluate(params evaluate.EvaluateParams) middleware.Responder {
 	mock := swaggerToOpenmockMock(*params.EvalRequest.Mock)
 
-	evaluator := evaluator.NewEvaluator()
 	response, err := evaluator.Evaluate(params.EvalRequest.Context, &mock)
 	if err != nil {
 		resp := evaluate.NewEvaluateDefault(500)

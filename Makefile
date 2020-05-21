@@ -16,6 +16,7 @@ build_swagger:
 
 test: lint
 	@GO111MODULE=on go test -mod=vendor -race -covermode=atomic  . ./pkg/admin 
+	# @GO111MODULE=on go test -mod=vendor -race -covermode=atomic  ./pkg/evaluator
 
 run: build
 	OPENMOCK_TEMPLATES_DIR=./demo_templates ./om
