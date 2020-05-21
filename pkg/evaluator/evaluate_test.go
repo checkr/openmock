@@ -11,23 +11,13 @@ import (
 )
 
 func TestCheckCondition(t *testing.T) {
-	t.Run("error out if conditionContext err", func(t *testing.T) {
-		test_err := errors.New("test-error")
-		defer gostub.StubFunc(&conditionContext, nil, test_err).Reset()
-		passed, rendered, err := checkCondition(nil, nil)
-		assert.False(t, passed)
-		assert.Equal(t, "", rendered)
-		assert.Equal(t, test_err, err)
-	})
-
 	t.Run("if condition is blank return true", func(t *testing.T) {
 		mock := &om.Mock{
 			Expect: om.Expect{
 				Condition: "",
 			},
 		}
-		defer gostub.StubFunc(&conditionContext, nil, nil).Reset()
-		passed, rendered, err := checkCondition(nil, mock)
+		passed, rendered, err := checkCondition(nil, mock, nil)
 		assert.True(t, passed)
 		assert.Equal(t, "", rendered)
 		assert.Nil(t, err)
@@ -35,7 +25,6 @@ func TestCheckCondition(t *testing.T) {
 
 	t.Run("if condition non-blank render it with the conditionContext generated", func(t *testing.T) {
 		empty_context := &om.Context{}
-		defer gostub.StubFunc(&conditionContext, empty_context, nil).Reset()
 
 		t.Run("with true render returns passed = true", func(t *testing.T) {
 			mock := &om.Mock{
@@ -44,7 +33,7 @@ func TestCheckCondition(t *testing.T) {
 				},
 			}
 
-			passed, rendered, err := checkCondition(nil, mock)
+			passed, rendered, err := checkCondition(nil, mock, empty_context)
 			assert.True(t, passed)
 			assert.Equal(t, "true", rendered)
 			assert.Nil(t, err)
@@ -57,7 +46,7 @@ func TestCheckCondition(t *testing.T) {
 				},
 			}
 
-			passed, rendered, err := checkCondition(nil, mock)
+			passed, rendered, err := checkCondition(nil, mock, empty_context)
 			assert.False(t, passed)
 			assert.Equal(t, "Foo", rendered)
 			assert.Nil(t, err)
@@ -158,6 +147,7 @@ func TestCheckChannelCondition(t *testing.T) {
 func TestEvaluate(t *testing.T) {
 	t.Run("happy path", func(t *testing.T) {
 		condition_rendered := "did stuff"
+		defer gostub.StubFunc(&conditionContext, nil, nil).Reset()
 		defer gostub.StubFunc(&checkChannelCondition, true).Reset()
 		defer gostub.StubFunc(&checkCondition, true, condition_rendered, nil).Reset()
 
@@ -173,8 +163,13 @@ func TestEvaluate(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("if conditionContext err, also err", func(t *testing.T) {
+
+	})
+
 	t.Run("if checkCondition err, also err", func(t *testing.T) {
 		expected_err := errors.New("Uhoh")
+		defer gostub.StubFunc(&conditionContext, nil, nil).Reset()
 		defer gostub.StubFunc(&checkChannelCondition, true).Reset()
 		defer gostub.StubFunc(&checkCondition, false, "", expected_err).Reset()
 
@@ -192,6 +187,7 @@ func TestEvaluate(t *testing.T) {
 
 	t.Run("if checkCondition false, return false", func(t *testing.T) {
 		condition_rendered := "foo uhoh"
+		defer gostub.StubFunc(&conditionContext, nil, nil).Reset()
 		defer gostub.StubFunc(&checkChannelCondition, true).Reset()
 		defer gostub.StubFunc(&checkCondition, false, condition_rendered, nil).Reset()
 

@@ -6,6 +6,7 @@ import (
 	om "github.com/checkr/openmock"
 	models "github.com/checkr/openmock/swagger_gen/models"
 	"github.com/fatih/structs"
+	"github.com/sirupsen/logrus"
 )
 
 var Evaluate = func(context *models.EvalContext, mock *om.Mock) (response models.MockEvalResponse, err error) {
@@ -18,8 +19,23 @@ var Evaluate = func(context *models.EvalContext, mock *om.Mock) (response models
 		}, nil
 	}
 
+	// get the OM context that will be used to check condition and perform actions
+	om_context, err := conditionContext(context)
+	if err != nil {
+		logrus.Errorf("Problem setting up om context %v", err)
+		return models.MockEvalResponse{
+			ExpectPassed:     true,
+			ActionsPerformed: make([]*models.ActionPerformed, 0, 0),
+		}, err
+	}
+	if om_context != nil {
+		om_context.Values = mock.Values
+	}
+
+	// TODO should we set om_context.currentMock? need to make it not private in OM model if so
+
 	// check if mock's expect condition passes
-	condition_passed, condition_rendered, err := checkCondition(context, mock)
+	condition_passed, condition_rendered, err := checkCondition(context, mock, om_context)
 	if err != nil {
 		return models.MockEvalResponse{
 			ExpectPassed:     true,
@@ -51,12 +67,7 @@ var checkChannelCondition = func(context *models.EvalContext, mock *om.Mock) boo
 	return checkHTTPCondition(context.HTTPContext, mock) || checkKafkaCondition(context.KafkaContext, mock)
 }
 
-var checkCondition = func(context *models.EvalContext, mock *om.Mock) (bool, string, error) {
-	om_context, err := conditionContext(context)
-	if err != nil {
-		return false, "", err
-	}
-
+var checkCondition = func(context *models.EvalContext, mock *om.Mock, om_context *om.Context) (bool, string, error) {
 	// blank condition is considered a match
 	if mock.Expect.Condition == "" {
 		return true, "", nil
@@ -64,6 +75,10 @@ var checkCondition = func(context *models.EvalContext, mock *om.Mock) (bool, str
 
 	// check if condition matches
 	render_result, err := om_context.Render(mock.Expect.Condition)
+	if err != nil {
+		return false, render_result, err
+	}
+
 	return render_result == "true", render_result, nil
 }
 
