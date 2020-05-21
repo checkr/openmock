@@ -9,6 +9,45 @@ import (
 	"github.com/checkr/openmock/swagger_gen/models"
 )
 
+func TestHTTPToOpenmockConditionContext(t *testing.T) {
+	t.Run("returns nil when nil input", func(t *testing.T) {
+		actual_result, err := httpToOpenmockConditionContext(nil)
+		assert.Nil(t, actual_result)
+		assert.NotNil(t, err)
+	})
+
+	t.Run("copies swagger http input context to openmock context", func(t *testing.T) {
+		body := "foobar\nbaz"
+		method := "GET"
+		path := "/ping"
+		query_string := "option1=value&option2=value"
+
+		eval_context := &models.EvalHTTPContext{
+			Body: body,
+			Headers: map[string]interface{}{
+				"Header1": "Value1",
+				"Header2": "Value2",
+			},
+			Method:      method,
+			Path:        path,
+			QueryString: query_string,
+		}
+
+		expected_result := &om.Context{
+			HTTPBody:        body,
+			HTTPPath:        path,
+			HTTPQueryString: query_string,
+			HTTPHeader: map[string][]string{
+				"Header1": []string{"Value1"},
+				"Header2": []string{"Value2"},
+			},
+		}
+		actual_result, err := httpToOpenmockConditionContext(eval_context)
+		assert.Equal(t, expected_result, actual_result)
+		assert.Nil(t, err)
+	})
+}
+
 func TestCheckHTTPCondition(t *testing.T) {
 	matching_method := "GET"
 	mismatching_method := "POST"

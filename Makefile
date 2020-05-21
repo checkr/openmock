@@ -15,7 +15,7 @@ build_swagger:
 	GO111MODULE=on go build -mod=vendor -o $(PWD)/om github.com/checkr/openmock/swagger_gen/cmd/open-mock-server
 
 test: lint
-	@GO111MODULE=on go test -mod=vendor -race -covermode=atomic  . ./pkg/admin 
+	@GO111MODULE=on go test -mod=vendor -race -covermode=atomic  . ./pkg/admin ./pkg/evaluator
 	# @GO111MODULE=on go test -mod=vendor -race -covermode=atomic  ./pkg/evaluator
 
 run: build

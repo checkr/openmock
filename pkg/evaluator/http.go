@@ -1,6 +1,8 @@
 package evaluator
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -10,6 +12,40 @@ import (
 	"github.com/fatih/structs"
 	"github.com/labstack/echo/v4"
 )
+
+var httpToOpenmockConditionContext = func(context *models.EvalHTTPContext) (*om.Context, error) {
+	if context == nil {
+		return nil, errors.New("missing input context")
+	}
+
+	headers := map[string][]string{}
+
+	if context.Headers != nil {
+		contextHeaders, ok := context.Headers.(map[string]interface{})
+
+		if !ok {
+			return nil, errors.New(fmt.Sprintf("can't parse context headers %T", context.Headers))
+		}
+
+		for k, v := range contextHeaders {
+			v_string, ok2 := v.(string)
+			if !ok2 {
+				continue
+			}
+
+			newV := make([]string, 1)
+			newV[0] = v_string
+			headers[k] = newV
+		}
+	}
+
+	return &om.Context{
+		HTTPBody:        context.Body,
+		HTTPPath:        context.Path,
+		HTTPQueryString: context.QueryString,
+		HTTPHeader:      headers,
+	}, nil
+}
 
 var checkHTTPCondition = func(context *models.EvalHTTPContext, mock *om.Mock) bool {
 	if context == nil || structs.IsZero(*context) || mock == nil || structs.IsZero(mock.Expect.HTTP) {

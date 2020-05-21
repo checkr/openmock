@@ -8,6 +8,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestKafkaToOpenmockConditionContext(t *testing.T) {
+	t.Run("returns nil when nil input", func(t *testing.T) {
+		actual_result, err := kafkaToOpenmockConditionContext(nil)
+		assert.Nil(t, actual_result)
+		assert.NotNil(t, err)
+	})
+
+	t.Run("copies swagger http input context to openmock context", func(t *testing.T) {
+		payload := "{\"json\": \"blob\""
+		topic := "my_topic"
+
+		eval_context := &models.EvalKafkaContext{
+			Payload: payload,
+			Topic:   topic,
+		}
+
+		expected_result := &om.Context{
+			KafkaTopic:   topic,
+			KafkaPayload: payload,
+		}
+		actual_result, err := kafkaToOpenmockConditionContext(eval_context)
+		assert.Equal(t, expected_result, actual_result)
+		assert.Nil(t, err)
+	})
+}
+
 func TestCheckKafkaCondition(t *testing.T) {
 	matching_topic := "foo"
 	mismatching_topic := "bar"
