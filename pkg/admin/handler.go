@@ -4,6 +4,7 @@ import (
 	"github.com/checkr/openmock"
 	"github.com/checkr/openmock/swagger_gen/models"
 	"github.com/checkr/openmock/swagger_gen/restapi/operations"
+	"github.com/checkr/openmock/swagger_gen/restapi/operations/evaluate"
 	"github.com/checkr/openmock/swagger_gen/restapi/operations/health"
 	"github.com/checkr/openmock/swagger_gen/restapi/operations/template"
 	"github.com/checkr/openmock/swagger_gen/restapi/operations/template_set"
@@ -50,4 +51,7 @@ func setupCRUD(api *operations.OpenMockAPI, om *openmock.OpenMock) {
 	// Template sets
 	api.TemplateSetDeleteTemplateSetHandler = template_set.DeleteTemplateSetHandlerFunc(c.DeleteTemplateSet)
 	api.TemplateSetPostTemplateSetHandler = template_set.PostTemplateSetHandlerFunc(c.PostTemplateSet)
+
+	// evaluate
+	api.EvaluateEvaluateHandler = evaluate.EvaluateHandlerFunc(c.PostEvaluate)
 }
