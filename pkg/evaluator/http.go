@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 
 	om "github.com/checkr/openmock"
@@ -12,6 +13,44 @@ import (
 	"github.com/fatih/structs"
 	"github.com/labstack/echo/v4"
 )
+
+var performReplyHTTPAction = func(context *om.Context, mock *om.ActionReplyHTTP) (*models.ReplyHTTPActionPerformed, error) {
+	// initial output struct
+	out := &models.ReplyHTTPActionPerformed{
+		ContentType: echo.MIMEApplicationJSON,
+		StatusCode:  strconv.Itoa(mock.StatusCode),
+	}
+	output_headers := make(map[string]string)
+
+	// override content type if a header was provided in the mock
+	if ct, ok := mock.Headers[echo.HeaderContentType]; ok {
+		out.ContentType = ct
+	}
+
+	// render body
+	body, err := context.Render(mock.Body)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Problem rendering body for replyHTTPAction: %v", err))
+	}
+	out.Body = body
+
+	// render headers
+	for k, v := range mock.Headers {
+		rendered, err := context.Render(v)
+		if err != nil {
+			return nil, errors.New(fmt.Sprintf("Problem rendering header! %s %s %v", k, v, err))
+		}
+		output_headers[k] = rendered
+	}
+
+	// additional headers provided by OM
+	body_len := fmt.Sprintf("%d", len(body))
+	output_headers["Content-Length"] = body_len
+	output_headers["Content-Type"] = out.ContentType
+
+	out.Headers = output_headers
+	return out, nil
+}
 
 var httpToOpenmockConditionContext = func(context *models.EvalHTTPContext) (*om.Context, error) {
 	if context == nil {

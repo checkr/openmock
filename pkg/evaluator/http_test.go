@@ -9,6 +9,36 @@ import (
 	"github.com/checkr/openmock/swagger_gen/models"
 )
 
+func TestPerformReplyHTTPAction(t *testing.T) {
+	t.Run("happy path", func(t *testing.T) {
+		mock_action := &om.ActionReplyHTTP{
+			StatusCode: 200,
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+			Body: "{\"greeting\": \"hello\", \"path\": \"{{ .HTTPPath }}\"}",
+		}
+
+		eval_context := &om.Context{
+			HTTPPath: "/ping",
+		}
+
+		expected_result := &models.ReplyHTTPActionPerformed{
+			Body:        "{\"greeting\": \"hello\", \"path\": \"/ping\"}",
+			ContentType: "application/json",
+			Headers: map[string]string{
+				"Content-Type":   "application/json",
+				"Content-Length": "38",
+			},
+			StatusCode: "200",
+		}
+
+		actual_result, err := performReplyHTTPAction(eval_context, mock_action)
+		assert.Equal(t, expected_result, actual_result)
+		assert.Nil(t, err)
+	})
+}
+
 func TestHTTPToOpenmockConditionContext(t *testing.T) {
 	t.Run("returns nil when nil input", func(t *testing.T) {
 		actual_result, err := httpToOpenmockConditionContext(nil)

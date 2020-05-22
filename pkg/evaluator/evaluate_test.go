@@ -10,6 +10,63 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestPerformActions(t *testing.T) {
+	t.Run("happy path", func(t *testing.T) {
+		topic := "my_topic"
+
+		context := &om.Context{
+			KafkaTopic: topic,
+			HTTPPath:   "/ping",
+		}
+
+		kafka_payload := "{\"asdf\": \"';lk\", \"path\": \"{{ .KafkaTopic }}\"}"
+		actions := &[]om.ActionDispatcher{
+			om.ActionDispatcher{
+				Order: 2,
+				ActionReplyHTTP: om.ActionReplyHTTP{
+					StatusCode: 200,
+					Headers: map[string]string{
+						"Content-Type": "application/json",
+					},
+					Body: "{\"asdf\": \"';lk\", \"path\": \"{{ .HTTPPath }}\"}",
+				},
+			},
+			om.ActionDispatcher{
+				Order: 1,
+				ActionPublishKafka: om.ActionPublishKafka{
+					Topic:   topic,
+					Payload: kafka_payload,
+				},
+			},
+		}
+
+		expected_kafka_action := &models.ActionPerformed{
+			PublishKafkaActionPerformed: &models.PublishKafkaActionPerformed{
+				Payload: "{\"asdf\": \"';lk\", \"path\": \"my_topic\"}",
+				Topic:   topic,
+			},
+		}
+		expected_reply_http_action := &models.ActionPerformed{
+			ReplyHTTPActionPerformed: &models.ReplyHTTPActionPerformed{
+				Body:        "{\"asdf\": \"';lk\", \"path\": \"/ping\"}",
+				ContentType: "application/json",
+				Headers: map[string]string{
+					"Content-Type":   "application/json",
+					"Content-Length": "33",
+				},
+				StatusCode: "200",
+			},
+		}
+		expected_actions := &[]*models.ActionPerformed{
+			expected_kafka_action, expected_reply_http_action,
+		}
+
+		actual_actions, err := actionsPerformed(context, actions)
+		assert.Equal(t, expected_actions, actual_actions)
+		assert.Nil(t, err)
+	})
+}
+
 func TestCheckCondition(t *testing.T) {
 	t.Run("if condition is blank return true", func(t *testing.T) {
 		mock := &om.Mock{

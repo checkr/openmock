@@ -122,53 +122,53 @@ func TestActionDispatch(t *testing.T) {
 		a := ActionDispatcher{
 			ActionSleep: expectedAction,
 		}
-		assert.Equal(t, getActualAction(a), expectedAction)
+		assert.Equal(t, GetActualAction(a), expectedAction)
 	})
 	t.Run("resolves to ActionSendHTTP", func(t *testing.T) {
 		expectedAction := ActionSendHTTP{URL: "potato"}
 		a := ActionDispatcher{
 			ActionSendHTTP: expectedAction,
 		}
-		assert.Equal(t, getActualAction(a), expectedAction)
+		assert.Equal(t, GetActualAction(a), expectedAction)
 	})
 	t.Run("resolves to ActionReplyHTTP", func(t *testing.T) {
 		expectedAction := ActionReplyHTTP{StatusCode: 9001}
 		a := ActionDispatcher{
 			ActionReplyHTTP: expectedAction,
 		}
-		assert.Equal(t, getActualAction(a), expectedAction)
+		assert.Equal(t, GetActualAction(a), expectedAction)
 	})
 	t.Run("resolves to ActionReplyGRPC", func(t *testing.T) {
 		expectedAction := ActionReplyGRPC{Payload: "success"}
 		a := ActionDispatcher{
 			ActionReplyGRPC: expectedAction,
 		}
-		assert.Equal(t, getActualAction(a), expectedAction)
+		assert.Equal(t, GetActualAction(a), expectedAction)
 	})
 	t.Run("resolves to ActionRedis", func(t *testing.T) {
 		expectedAction := ActionRedis{"potato", "potato"}
 		a := ActionDispatcher{
 			ActionRedis: expectedAction,
 		}
-		assert.Equal(t, getActualAction(a), expectedAction)
+		assert.Equal(t, GetActualAction(a), expectedAction)
 	})
 	t.Run("resolves to ActionPublishKafka", func(t *testing.T) {
 		expectedAction := ActionPublishKafka{Payload: "potato"}
 		a := ActionDispatcher{
 			ActionPublishKafka: expectedAction,
 		}
-		assert.Equal(t, getActualAction(a), expectedAction)
+		assert.Equal(t, GetActualAction(a), expectedAction)
 	})
 	t.Run("resolves to ActionPublishAMQP", func(t *testing.T) {
 		expectedAction := ActionPublishAMQP{Payload: "potato"}
 		a := ActionDispatcher{
 			ActionPublishAMQP: expectedAction,
 		}
-		assert.Equal(t, getActualAction(a), expectedAction)
+		assert.Equal(t, GetActualAction(a), expectedAction)
 	})
 	t.Run("defaults to ActionSleep for duration of 0 (no-op)", func(t *testing.T) {
 		expectedAction := ActionSleep{Duration: 0}
 		a := ActionDispatcher{}
-		assert.Equal(t, getActualAction(a), expectedAction)
+		assert.Equal(t, GetActualAction(a), expectedAction)
 	})
 }

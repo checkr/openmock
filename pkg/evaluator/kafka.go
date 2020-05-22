@@ -2,12 +2,29 @@ package evaluator
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/fatih/structs"
 
 	om "github.com/checkr/openmock"
 	"github.com/checkr/openmock/swagger_gen/models"
 )
+
+var performPublishKafkaAction = func(context *om.Context, mock *om.ActionPublishKafka) (*models.PublishKafkaActionPerformed, error) {
+	// initial output struct
+	out := &models.PublishKafkaActionPerformed{
+		Topic: mock.Topic,
+	}
+
+	// render payload
+	payload, err := context.Render(mock.Payload)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Problem rendering body for publishKafkaAction: %v", err))
+	}
+	out.Payload = payload
+
+	return out, nil
+}
 
 var kafkaToOpenmockConditionContext = func(context *models.EvalKafkaContext) (*om.Context, error) {
 	if context == nil {

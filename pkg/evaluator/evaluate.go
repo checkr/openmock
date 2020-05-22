@@ -2,6 +2,8 @@ package evaluator
 
 import (
 	"errors"
+	"fmt"
+	"sort"
 
 	om "github.com/checkr/openmock"
 	models "github.com/checkr/openmock/swagger_gen/models"
@@ -10,12 +12,14 @@ import (
 )
 
 var Evaluate = func(context *models.EvalContext, mock *om.Mock) (response models.MockEvalResponse, err error) {
+	actions_performed := &[]*models.ActionPerformed{}
+
 	// check if the mock's Expect matches the input context (e.g. HTTP path & method)
 	expect_passed := checkChannelCondition(context, mock)
 	if !expect_passed {
 		return models.MockEvalResponse{
 			ExpectPassed:     false,
-			ActionsPerformed: make([]*models.ActionPerformed, 0, 0),
+			ActionsPerformed: *actions_performed,
 		}, nil
 	}
 
@@ -25,7 +29,7 @@ var Evaluate = func(context *models.EvalContext, mock *om.Mock) (response models
 		logrus.Errorf("Problem setting up om context %v", err)
 		return models.MockEvalResponse{
 			ExpectPassed:     true,
-			ActionsPerformed: make([]*models.ActionPerformed, 0, 0),
+			ActionsPerformed: *actions_performed,
 		}, err
 	}
 	if om_context != nil {
@@ -39,22 +43,32 @@ var Evaluate = func(context *models.EvalContext, mock *om.Mock) (response models
 	if err != nil {
 		return models.MockEvalResponse{
 			ExpectPassed:     true,
-			ActionsPerformed: make([]*models.ActionPerformed, 0, 0),
+			ActionsPerformed: *actions_performed,
 		}, err
 	}
 	if !condition_passed {
 		return models.MockEvalResponse{
 			ExpectPassed:      true,
-			ActionsPerformed:  make([]*models.ActionPerformed, 0, 0),
+			ActionsPerformed:  *actions_performed,
 			ConditionRendered: condition_rendered,
 		}, nil
 	}
 
-	// TODO if both match, see what the actions would be
+	// if both match, see what the actions would be
+	if mock != nil {
+		actions_performed, err = actionsPerformed(om_context, &mock.Actions)
+		if err != nil {
+			return models.MockEvalResponse{
+				ExpectPassed:      true,
+				ActionsPerformed:  *actions_performed,
+				ConditionRendered: condition_rendered,
+			}, err
+		}
+	}
 
 	return models.MockEvalResponse{
 		ExpectPassed:      expect_passed,
-		ActionsPerformed:  make([]*models.ActionPerformed, 0, 0),
+		ActionsPerformed:  *actions_performed,
 		ConditionPassed:   condition_passed,
 		ConditionRendered: condition_rendered,
 	}, nil
@@ -100,4 +114,40 @@ var conditionContext = func(context *models.EvalContext) (*om.Context, error) {
 	// kafka with the same actions.
 
 	return nil, errors.New("All channels had no context to make condition context")
+}
+
+var actionsPerformed = func(context *om.Context, actions *[]om.ActionDispatcher) (*[]*models.ActionPerformed, error) {
+	// do actions in specified Order
+	ordered_actions := *actions
+	sort.Slice(ordered_actions, func(i, j int) bool {
+		return ordered_actions[i].Order < ordered_actions[j].Order
+	})
+
+	// for each action map it to an output action
+	output_actions := make([]*models.ActionPerformed, 0, len(ordered_actions))
+	for _, om_action := range ordered_actions {
+		actual_action := om.GetActualAction(om_action)
+
+		if reply_http_action, ok := actual_action.(om.ActionReplyHTTP); ok {
+			if output_action, err := performReplyHTTPAction(context, &reply_http_action); err == nil {
+				output_actions = append(output_actions, &models.ActionPerformed{
+					ReplyHTTPActionPerformed: output_action,
+				})
+			} else {
+				return &output_actions, errors.New(fmt.Sprintf("Error performing reply http action %v", err))
+			}
+		}
+
+		if publish_kafka_action, ok := actual_action.(om.ActionPublishKafka); ok {
+			if output_action, err := performPublishKafkaAction(context, &publish_kafka_action); err == nil {
+				output_actions = append(output_actions, &models.ActionPerformed{
+					PublishKafkaActionPerformed: output_action,
+				})
+			} else {
+				return &output_actions, errors.New(fmt.Sprintf("Error performing publish kafka action %v", err))
+			}
+		}
+	}
+
+	return &output_actions, nil
 }
