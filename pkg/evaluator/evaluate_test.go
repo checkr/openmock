@@ -118,18 +118,20 @@ func TestConditionContext(t *testing.T) {
 		assert.NotNil(t, err)
 	})
 
-	t.Run("err if all channel contexts are empty", func(t *testing.T) {
+	t.Run("nil if all channel contexts are empty", func(t *testing.T) {
 		empty_context := &models.EvalContext{
 			HTTPContext:  &models.EvalHTTPContext{},
 			KafkaContext: &models.EvalKafkaContext{},
 		}
+
 		actual_result, err := conditionContext(empty_context)
 		assert.Nil(t, actual_result)
 		assert.NotNil(t, err)
 	})
 
-	t.Run("err if all channel contexts are nil", func(t *testing.T) {
+	t.Run("empty context if all channel contexts are nil", func(t *testing.T) {
 		empty_context := &models.EvalContext{}
+
 		actual_result, err := conditionContext(empty_context)
 		assert.Nil(t, actual_result)
 		assert.NotNil(t, err)
@@ -151,10 +153,15 @@ func TestConditionContext(t *testing.T) {
 			HTTPContext: eval_context,
 		}
 
-		defer gostub.StubFunc(&httpToOpenmockConditionContext, nil, nil).Reset()
+		http_om_context := &om.Context{
+			HTTPPath: "/ping",
+			HTTPBody: "foobar\nbaz",
+		}
+
+		defer gostub.StubFunc(&httpToOpenmockConditionContext, http_om_context, nil).Reset()
 
 		actual_result, err := conditionContext(http_context)
-		assert.Nil(t, actual_result)
+		assert.Equal(t, http_om_context, actual_result)
 		assert.Nil(t, err)
 	})
 
@@ -168,10 +175,63 @@ func TestConditionContext(t *testing.T) {
 			KafkaContext: eval_context,
 		}
 
-		defer gostub.StubFunc(&kafkaToOpenmockConditionContext, nil, nil).Reset()
+		kafka_om_context := &om.Context{
+			KafkaTopic:   "foo",
+			KafkaPayload: "bar",
+		}
+
+		defer gostub.StubFunc(&kafkaToOpenmockConditionContext, kafka_om_context, nil).Reset()
 
 		actual_result, err := conditionContext(kafka_context)
-		assert.Nil(t, actual_result)
+		assert.Equal(t, kafka_om_context, actual_result)
+		assert.Nil(t, err)
+	})
+
+	t.Run("when multiple contexts are present, both are available in result", func(t *testing.T) {
+		http_eval_context := &models.EvalHTTPContext{
+			Body: "foobar\nbaz",
+			Headers: map[string]string{
+				"Header1": "Value1",
+				"Header2": "Value2",
+			},
+			Method:      "GET",
+			Path:        "/ping",
+			QueryString: "option1=value&option2=value",
+		}
+
+		http_om_context := &om.Context{
+			HTTPPath: "/ping",
+			HTTPBody: "foobar\nbaz",
+		}
+
+		defer gostub.StubFunc(&httpToOpenmockConditionContext, http_om_context, nil).Reset()
+
+		kafka_eval_context := &models.EvalKafkaContext{
+			Topic:   "foo",
+			Payload: "bar",
+		}
+
+		kafka_om_context := &om.Context{
+			KafkaTopic:   "foo",
+			KafkaPayload: "bar",
+		}
+
+		defer gostub.StubFunc(&kafkaToOpenmockConditionContext, kafka_om_context, nil).Reset()
+
+		expected_result := &om.Context{
+			HTTPPath:     "/ping",
+			HTTPBody:     "foobar\nbaz",
+			KafkaTopic:   "foo",
+			KafkaPayload: "bar",
+		}
+
+		eval_context := &models.EvalContext{
+			KafkaContext: kafka_eval_context,
+			HTTPContext:  http_eval_context,
+		}
+
+		actual_result, err := conditionContext(eval_context)
+		assert.Equal(t, expected_result, actual_result)
 		assert.Nil(t, err)
 	})
 }

@@ -36,8 +36,6 @@ var Evaluate = func(context *models.EvalContext, mock *om.Mock) (response models
 		om_context.Values = mock.Values
 	}
 
-	// TODO should we set om_context.currentMock? need to make it not private in OM model if so
-
 	// check if mock's expect condition passes
 	condition_passed, condition_rendered, err := checkCondition(context, mock, om_context)
 	if err != nil {
@@ -101,19 +99,25 @@ var conditionContext = func(context *models.EvalContext) (*om.Context, error) {
 		return nil, errors.New("can't make context for nil input")
 	}
 
+	out := om.Context{}
+
 	if context.HTTPContext != nil && !structs.IsZero(context.HTTPContext) {
-		return httpToOpenmockConditionContext(context.HTTPContext)
+		if http_context, err := httpToOpenmockConditionContext(context.HTTPContext); err == nil {
+			out = out.Merge(*http_context)
+		} else {
+			return &out, fmt.Errorf("Problem constructing http context %v", err)
+		}
 	}
 
 	if context.KafkaContext != nil && !structs.IsZero(context.KafkaContext) {
-		return kafkaToOpenmockConditionContext(context.KafkaContext)
+		if kafka_context, err := kafkaToOpenmockConditionContext(context.KafkaContext); err == nil {
+			out = out.Merge(*kafka_context)
+		} else {
+			return &out, fmt.Errorf("Problem constructing kafka context %v", err)
+		}
 	}
 
-	// TODO - maybe we'd want to do something where we combined the contexts?
-	// you could write a mock behavior that responded to either a HTTP call or
-	// kafka with the same actions.
-
-	return nil, errors.New("All channels had no context to make condition context")
+	return &out, nil
 }
 
 var actionsPerformed = func(context *om.Context, actions *[]om.ActionDispatcher) (*[]*models.ActionPerformed, error) {

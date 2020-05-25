@@ -7,6 +7,7 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig"
+	"github.com/imdario/mergo"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 )
@@ -45,6 +46,14 @@ var globalTemplate = template.New("__global__")
 func cleanup(raw string) string {
 	re := regexp.MustCompile(`\r?\n|\t`)
 	return re.ReplaceAllString(raw, " ")
+}
+
+// Create a new context that combines values in this context with values in the
+// other context if not blank
+func (c Context) Merge(other Context) (out Context) {
+	mergo.Merge(&out, other)
+	mergo.Merge(&out, c)
+	return out
 }
 
 // Render renders the raw given the context
