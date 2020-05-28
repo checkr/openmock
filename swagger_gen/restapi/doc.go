@@ -2,7 +2,7 @@
 
 // Package restapi OpenMock
 //
-//  OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. The goal is to simplify the process of writing mocks in various channels. Currently it supports four channels: HTTP Kafka AMQP (e.g. RabbitMQ) GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live. The base path for the admin API is "/api/v1".
+//  OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere. The goal is to simplify the process of writing mocks in various channels. Currently it supports four channels: HTTP,  Kafka,, AMQP (e.g. RabbitMQ), and  GRPC The admin API allows you to manipulate the mock behaviour provided by openmock, live. The base path for the admin API is "/api/v1".
 //
 //  Schemes:
 //    http

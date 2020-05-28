@@ -28,7 +28,7 @@ func TestContextUpdate(t *testing.T) {
 		}
 
 		fakePerformer := FakePerformer{}
-		defer gostub.StubFunc(&getActualAction, &fakePerformer).Reset()
+		defer gostub.StubFunc(&GetActualAction, &fakePerformer).Reset()
 
 		mock.DoActions(Context{})
 		assert.Equal(t, "bar", fakePerformer.ReceivedContext.Values["foo"])
@@ -46,7 +46,7 @@ func TestContextUpdate(t *testing.T) {
 		}
 
 		fakePerformer := FakePerformer{}
-		defer gostub.StubFunc(&getActualAction, &fakePerformer).Reset()
+		defer gostub.StubFunc(&GetActualAction, &fakePerformer).Reset()
 
 		unActingMock.DoActions(Context{})
 		assert.False(t, fakePerformer.Performed)
@@ -64,7 +64,7 @@ func TestContextUpdate(t *testing.T) {
 		}
 
 		fakePerformer := FakePerformer{}
-		defer gostub.StubFunc(&getActualAction, &fakePerformer).Reset()
+		defer gostub.StubFunc(&GetActualAction, &fakePerformer).Reset()
 
 		actingMock.DoActions(Context{})
 		assert.True(t, fakePerformer.Performed)

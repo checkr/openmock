@@ -9,6 +9,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestContextMerge(t *testing.T) {
+	t.Run("happy path example", func(t *testing.T) {
+		orig_context := Context{
+			HTTPBody: "hello",
+			HTTPPath: "goodbye",
+		}
+		merge_context := Context{
+			HTTPPath:   "au revoir",
+			KafkaTopic: "this is a topic",
+		}
+		expected_result := Context{
+			HTTPPath:   "au revoir",
+			KafkaTopic: "this is a topic",
+			HTTPBody:   "hello",
+		}
+
+		actual_result := orig_context.Merge(merge_context)
+		assert.Equal(t, expected_result, actual_result)
+	})
+}
+
 func TestTemplateRender(t *testing.T) {
 	t.Run("happy code path", func(t *testing.T) {
 		raw := `{

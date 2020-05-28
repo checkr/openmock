@@ -3,10 +3,10 @@ info:
   description: >
     OpenMock is a Go service that can mock services in integration tests,
     staging environment, or anywhere. The goal is to simplify the process of
-    writing mocks in various channels. Currently it supports four channels: HTTP
-    Kafka AMQP (e.g. RabbitMQ) GRPC The admin API allows you to manipulate the
-    mock behaviour provided by openmock, live. The base path for the admin API
-    is "/api/v1".
+    writing mocks in various channels. Currently it supports four channels:
+    HTTP, Kafka, AMQP (e.g. RabbitMQ), and GRPC The admin API allows you to
+    manipulate the mock behaviour provided by openmock, live. The base path for
+    the admin API is "/api/v1".
   title: OpenMock
   version: 0.3.0
 tags:
@@ -169,6 +169,30 @@ paths:
           description: server error
           schema:
             $ref: '#/definitions/error'
+  /evaluate:
+    post:
+      tags:
+        - evaluate
+      operationId: evaluate
+      description: >-
+        evaluates a mock's response to a given input context, for debugging /
+        development purposes
+      parameters:
+        - in: body
+          name: eval_request
+          description: request to process
+          required: true
+          schema:
+            $ref: '#/definitions/MockEvalRequest'
+      responses:
+        '200':
+          description: when successfully evaluated
+          schema:
+            $ref: '#/definitions/MockEvalResponse'
+        default:
+          description: server error
+          schema:
+            $ref: '#/definitions/error'
 definitions:
   health:
     type: object
@@ -181,6 +205,117 @@ definitions:
       message:
         type: string
         minLength: 1
+  MockEvalRequest:
+    type: object
+    description: Request to evaluate a mock's behavior given an input context
+    properties:
+      mock:
+        $ref: '#/definitions/Mock'
+        description: The mock to evaluate
+      context:
+        $ref: '#/definitions/EvalContext'
+        description: The context to evaluate the mock
+  MockEvalResponse:
+    type: object
+    description: >-
+      Result of evaluating mock, indicates what the mock would be expected to do
+      given the input
+    properties:
+      condition_rendered:
+        type: string
+        description: >-
+          the rendered value of the mock's expect's condition when evaluating
+          with the context
+      condition_passed:
+        type: boolean
+        description: >-
+          whether the condition passed when evaluated, so the actions would take
+          place
+      expect_passed:
+        type: boolean
+        description: >-
+          whether the channel-specific condition of the evaluation passed. For
+          example for a mock with ExpectHTTP, this returns true if the HTTP path
+          and method in the input context matched the ExpectHTTP.
+      actions_performed:
+        type: array
+        description: list of responses the mock performed (assuming the condition passed)
+        items:
+          $ref: '#/definitions/ActionPerformed'
+  ActionPerformed:
+    type: object
+    description: >-
+      when evaluating a mock, an object capturing what would happen if the
+      mock's action is performed
+    properties:
+      reply_http_action_performed:
+        $ref: '#/definitions/ReplyHTTPActionPerformed'
+      publish_kafka_action_performed:
+        $ref: '#/definitions/PublishKafkaActionPerformed'
+  ReplyHTTPActionPerformed:
+    type: object
+    description: >-
+      http info that would be replied when an evaluated mock did ReplyHTTP
+      action
+    properties:
+      content_type:
+        type: string
+        description: the HTTP content-type of the reply
+      headers:
+        type: object
+        additionalProperties: true
+        description: Key-value pair HTTP headers attached to the reply
+      body:
+        type: string
+        description: body bytes-converted-to-string returned in HTTP reply
+      status_code:
+        type: string
+        description: HTTP status code in the reply
+  PublishKafkaActionPerformed:
+    type: object
+    description: >-
+      kafka reply info that would be replied when an evaluated mock did
+      PublishKafka action
+    properties:
+      payload:
+        type: string
+        description: rendered payload
+      topic:
+        type: string
+        description: the kafka topic to send to
+  EvalContext:
+    type: object
+    description: >-
+      when evaluating a mock, the input context to evaluate. Contains subfields
+      specific to each channel openmock supports
+    properties:
+      http_context:
+        $ref: '#/definitions/EvalHTTPContext'
+      kafka_context:
+        $ref: '#/definitions/EvalKafkaContext'
+  EvalKafkaContext:
+    type: object
+    description: input context for ExpectKafka mock
+    properties:
+      topic:
+        type: string
+      payload:
+        type: string
+  EvalHTTPContext:
+    type: object
+    description: input context for ExpectHTTP mock
+    properties:
+      method:
+        type: string
+      path:
+        type: string
+      headers:
+        type: object
+        additionalProperties: true
+      body:
+        type: string
+      query_string:
+        type: string
   Mocks:
     type: array
     description: collection of mocks

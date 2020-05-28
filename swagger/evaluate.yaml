@@ -1,0 +1,21 @@
+post:
+  tags:
+    - evaluate
+  operationId: evaluate
+  description: evaluates a mock's response to a given input context, for debugging / development purposes
+  parameters:
+    - in: body
+      name: eval_request
+      description: request to process
+      required: true
+      schema:
+        $ref: "#/definitions/MockEvalRequest"
+  responses: 
+    200:
+      description: when successfully evaluated
+      schema:
+        $ref: "#/definitions/MockEvalResponse"
+    default:
+      description: server error
+      schema:
+        $ref: "#/definitions/error"

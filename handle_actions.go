@@ -26,7 +26,7 @@ func (m *Mock) DoActions(ctx Context) (conditionMatch bool) {
 	logger := newOmLogger(ctx)
 	logger.Info("doing actions")
 	for _, actionDispatcher := range m.Actions {
-		actualAction := getActualAction(actionDispatcher)
+		actualAction := GetActualAction(actionDispatcher)
 		if err := actualAction.Perform(ctx); err != nil {
 			logger.WithFields(logrus.Fields{
 				"err":    err,

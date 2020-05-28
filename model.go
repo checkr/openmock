@@ -235,7 +235,7 @@ func (repo *MockRepo) ToYAML() []byte {
 	return b
 }
 
-var getActualAction = func(action ActionDispatcher) Action {
+var GetActualAction = func(action ActionDispatcher) Action {
 	if !structs.IsZero(action.ActionPublishAMQP) {
 		return action.ActionPublishAMQP
 	}

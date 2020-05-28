@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"github.com/checkr/openmock"
+	"github.com/checkr/openmock/pkg/evaluator"
 	"github.com/checkr/openmock/swagger_gen/models"
+	"github.com/checkr/openmock/swagger_gen/restapi/operations/evaluate"
 	"github.com/checkr/openmock/swagger_gen/restapi/operations/template"
 	"github.com/checkr/openmock/swagger_gen/restapi/operations/template_set"
 	"github.com/go-openapi/runtime/middleware"
@@ -30,6 +32,9 @@ type CRUD interface {
 	// Template Sets
 	PostTemplateSet(template_set.PostTemplateSetParams) middleware.Responder
 	DeleteTemplateSet(template_set.DeleteTemplateSetParams) middleware.Responder
+
+	// Evaluate
+	PostEvaluate(evaluate.EvaluateParams) middleware.Responder
 }
 
 func NewCRUD(om *openmock.OpenMock) CRUD {
@@ -152,6 +157,22 @@ func (c *crud) DeleteTemplateSet(params template_set.DeleteTemplateSetParams) mi
 	c.reloadModel()
 
 	resp := template_set.NewDeleteTemplateSetNoContent()
+	return resp
+}
+
+func (c *crud) PostEvaluate(params evaluate.EvaluateParams) middleware.Responder {
+	mock := swaggerToOpenmockMock(*params.EvalRequest.Mock)
+
+	response, err := evaluator.Evaluate(params.EvalRequest.Context, &mock)
+	if err != nil {
+		resp := evaluate.NewEvaluateDefault(500)
+		message := fmt.Sprintf("%v", err)
+		resp.SetPayload(&models.Error{Message: message})
+		return resp
+	}
+
+	resp := evaluate.NewEvaluateOK()
+	resp.SetPayload(&response)
 	return resp
 }
 

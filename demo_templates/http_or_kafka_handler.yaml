@@ -1,0 +1,52 @@
+# demonstrate that a behavior can have 
+# more than one 'expect' - thus you can respond to multiple channels in the 
+# same way.  You can only have one condition per channel, though. 
+# (you wouldn't be able to set two different http paths for the same behavior.
+#  the paths go to echo though, so there might be some magic provided by its routing.)
+#
+- key: http_or_kafka_expect
+  expect:
+    http:
+      method: GET 
+      path: /double_expect
+    kafka:
+      topic: double-expect
+  actions:
+    - redis:
+      - '{{redisDo "RPUSH" "double-expect-random" uuidv4}}'
+
+- key: http_or_kafka_trigger_kafka
+  expect:
+    http:
+      method: GET
+      path: /double_expect/trigger
+  actions:
+    - publish_kafka:
+        topic: double-expect
+        payload: >
+          {
+            "dummy": true
+          }
+
+- key: http_or_kafka_redis_dump
+  expect:
+    http:
+      method: GET
+      path: /double_expect/dump
+  actions:
+    - reply_http:
+        status_code: 200
+        body: >
+          {
+            "randomStr": "{{redisDo "LRANGE" "double-expect-random" 0 -1}}",
+            "random": [
+              {{ $arr := redisDo "LRANGE" "double-expect-random" 0 -1 | splitList ";;" }}
+              {{ range $i, $v := $arr }}
+                {{if isLastIndex $i $arr}}
+                  "{{$v}}"
+                {{else}}
+                  "{{$v}}",
+                {{end}}
+              {{end}}
+            ]
+          }

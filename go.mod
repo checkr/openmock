@@ -35,7 +35,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/goombaio/orderedmap v0.0.0-20180925151256-3da0e2f905f9
 	github.com/huandu/xstrings v1.0.0 // indirect
-	github.com/imdario/mergo v0.3.6 // indirect
+	github.com/imdario/mergo v0.3.9
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/kr/text v0.2.0 // indirect
 	github.com/labstack/echo/v4 v4.1.16
