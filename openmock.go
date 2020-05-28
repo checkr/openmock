@@ -2,7 +2,6 @@ package openmock
 
 import (
 	"log"
-	"os"
 
 	"github.com/caarlos0/env"
 	"github.com/goombaio/orderedmap"
@@ -82,8 +81,7 @@ func (om *OpenMock) SetupLogrus() {
 		logrus.WithField("err", err).Fatalf("failed to set logrus level:%s", om.LogLevel)
 	}
 	logrus.SetLevel(l)
-	logrus.SetOutput(os.Stdout)
-	logrus.SetReportCaller(true)
+	logrus.SetFormatter(&logrus.JSONFormatter{})
 }
 
 func (om *OpenMock) SetupRepo() {
@@ -101,7 +99,6 @@ func (om *OpenMock) SetupRepo() {
 func (om *OpenMock) Start() {
 	om.SetupLogrus()
 	om.SetupRepo()
-
 	om.SetRedis()
 
 	err := om.Load()

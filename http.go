@@ -42,7 +42,7 @@ func (om *OpenMock) startHTTP() {
 						HTTPContext:     ec,
 						HTTPHeader:      ec.Request().Header,
 						HTTPBody:        string(body),
-						HTTPPath:        ec.Path(),
+						HTTPPath:        ec.Request().URL.String(),
 						HTTPQueryString: ec.QueryString(),
 						om:              om,
 					}

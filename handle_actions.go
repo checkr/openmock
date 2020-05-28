@@ -50,6 +50,7 @@ func (a ActionSendHTTP) Perform(ctx Context) error {
 	}
 
 	request := gorequest.New().
+		SetDebug(true).
 		SetLogger(newOmLogger(ctx)).
 		CustomMethod(a.Method, urlStr)
 
