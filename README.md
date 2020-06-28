@@ -279,10 +279,12 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
   ```bash
   # Supported functions defined in ./template_helper.go
 
-    - jsonPath # doc: https://github.com/antchfx/xpath
-    - xmlPath  # doc: https://github.com/antchfx/xpath
-    - uuidv5   # uuid v5 sha1 hash
-    - redisDo  # run redis commands. For example {{redisDo "RPUSH" "arr" "hi"}}
+    - 
+    - jsonPath    # doc: https://github.com/antchfx/xpath
+    - gJsonPath   # doc: https://github.com/tidwall/gjson
+    - xmlPath     # doc: https://github.com/antchfx/xpath
+    - uuidv5      # uuid v5 sha1 hash
+    - redisDo     # run redis commands. For example {{redisDo "RPUSH" "arr" "hi"}}
     - ...
 
   # Supported functions inherited from
@@ -296,6 +298,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
   # Examples
   {{.HTTPHeader.Get "X-Token" | eq "t1234"}}
   {{.HTTPBody | jsonPath "user/first_name" | replace "A" "a" | uuidv5 }}
+  {{.HTTPBody | gJsonPath "users.0.first_name" }}
   {{.HTTPBody | xmlPath "node1/node2/node3"}}
   ```
 
@@ -602,7 +605,7 @@ with the `proto.MessageV2` method.
 
 Please note that OpenMock expects the `payload` or `payload_from_file` for a reply_grpc action to be in the json
 form of your `Response` protobuf message.  The request should be in the `Request` protobuf message format
-as it is parsed into json to support JSONPath operations.
+as it is parsed into json to support `jsonPath` and `gJsonPath` operations.
 
 Example configuration by directly importing the `github.com/checkr/openmock` package into a wrapper project.
 ```

@@ -194,6 +194,18 @@
         status_code: 200
         body: '{{ .HTTPBody | jsonPath "foo" }}'
 
+- key: json-payload-from-http-body
+  kind: Behavior
+  expect:
+    condition: '{{ .HTTPBody | gJsonPath "context.type" | toString | eq "foo" }}'
+    http:
+      method: POST
+      path: /json_from_body
+  actions:
+    - reply_http:
+        status_code: 200
+        body: '{{ .HTTPBody | gJsonPath "context.payload" }}'
+
 - key: base64-basicauth-with-env
   kind: Behavior
   expect:

@@ -56,6 +56,8 @@ require (
 	github.com/streadway/amqp v0.0.0-20180806233856-70e15c650864
 	github.com/stretchr/testify v1.5.1
 	github.com/teamwork/reload v1.3.0
+	github.com/tidwall/gjson v1.6.0
+	github.com/tidwall/pretty v1.0.1 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20180827083657-b942cacc89fe // indirect
 	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
 	google.golang.org/genproto v0.0.0-20200224152610-e50cd9704f63 // indirect
