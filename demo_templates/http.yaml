@@ -194,7 +194,7 @@
         status_code: 200
         body: '{{ .HTTPBody | jsonPath "foo" }}'
 
-- key: json-payload-from-http-body
+- key: json-payload-from-http-body-gJsonPath-example
   kind: Behavior
   expect:
     condition: '{{ .HTTPBody | gJsonPath "context.type" | toString | eq "foo" }}'
