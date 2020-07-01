@@ -149,6 +149,12 @@ github.com/streadway/amqp
 github.com/stretchr/testify/assert
 # github.com/teamwork/reload v1.3.0
 github.com/teamwork/reload
+# github.com/tidwall/gjson v1.6.0
+github.com/tidwall/gjson
+# github.com/tidwall/match v1.0.1
+github.com/tidwall/match
+# github.com/tidwall/pretty v1.0.1
+github.com/tidwall/pretty
 # github.com/valyala/bytebufferpool v1.0.0
 github.com/valyala/bytebufferpool
 # github.com/valyala/fasttemplate v1.1.0

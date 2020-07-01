@@ -35,7 +35,8 @@ func TestTemplateRender(t *testing.T) {
 		raw := `{
 				"transaction_id": "{{.KafkaPayload | jsonPath "transaction_id"}}",
 				"first_name": "{{.AMQPPayload | xmlPath "user/first_name"}}",
-				"middle_name": "{{.HTTPBody | jsonPath "user/middle_name"}}"
+				"middle_name": "{{.HTTPBody | jsonPath "user/middle_name"}}",
+				"user": {{.HTTPBody | gJsonPath "user"}}
 				}`
 		c := Context{
 			HTTPBody:     `{"user": {"middle_name": "H"}}`,
@@ -49,7 +50,8 @@ func TestTemplateRender(t *testing.T) {
 			{
 				"transaction_id": "t1234",
 				"first_name": "John",
-				"middle_name": "H"
+				"middle_name": "H",
+				"user": {"middle_name": "H"}
 			}
 		`)
 	})

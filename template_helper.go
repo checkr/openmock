@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"reflect"
 	"regexp"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"github.com/antchfx/xmlquery"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"github.com/tidwall/gjson"
 )
 
 func genLocalFuncMap(om *OpenMock) template.FuncMap {
@@ -20,6 +22,7 @@ func genLocalFuncMap(om *OpenMock) template.FuncMap {
 		"htmlEscapeString":       template.HTMLEscapeString,
 		"isLastIndex":            isLastIndex,
 		"jsonPath":               jsonPath,
+		"gJsonPath":              gJsonPath,
 		"redisDo":                redisDo(om),
 		"regexFindAllSubmatch":   regexFindAllSubmatch,
 		"regexFindFirstSubmatch": regexFindFirstSubmatch,
@@ -52,6 +55,36 @@ func jsonPath(expr string, tmpl string) (ret string, err error) {
 	node := jsonquery.FindOne(doc, expr)
 	if node != nil {
 		return node.InnerText(), nil
+	}
+	return "", nil
+}
+
+func gJsonPath(expr string, tmpl string) (ret string, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = r.(error)
+		}
+		logrus.WithFields(logrus.Fields{
+			"err":  err,
+			"tmpl": tmpl,
+			"expr": expr,
+		}).Debug("running gJsonPath")
+	}()
+
+	if tmpl == "" {
+		return "", nil
+	}
+
+	if !gjson.Valid(tmpl) {
+		return "", errors.New("Invalid json")
+	}
+
+	node := gjson.Parse(tmpl).Get(expr)
+	if node.Exists() {
+		if node.Type.String() == "String" {
+			return node.String(), nil
+		}
+		return node.Raw, nil
 	}
 	return "", nil
 }

@@ -47,6 +47,62 @@ func TestJSONPath(t *testing.T) {
 	assert.Equal(t, "112879785776", ret)
 }
 
+func TestGJsonPath(t *testing.T) {
+	var tmpl string
+	var ret string
+	var err error
+
+	tmpl = `{"payload": {"user": {"username": "johnny", "first_name": "John", "valid": true, "id": 7, "profile": null}}}`
+
+	ret, err = gJsonPath("payload.user", tmpl)
+	assert.NoError(t, err)
+	assert.Equal(t, "{\"username\": \"johnny\", \"first_name\": \"John\", \"valid\": true, \"id\": 7, \"profile\": null}", ret)
+
+	ret, err = gJsonPath("payload.user.first_name", tmpl)
+	assert.NoError(t, err)
+	assert.Equal(t, "John", ret)
+
+	ret, err = gJsonPath("payload.user.valid", tmpl)
+	assert.NoError(t, err)
+	assert.Equal(t, "true", ret)
+
+	ret, err = gJsonPath("payload.user.id", tmpl)
+	assert.NoError(t, err)
+	assert.Equal(t, "7", ret)
+
+	ret, err = gJsonPath("payload.user.profile", tmpl)
+	assert.NoError(t, err)
+	assert.Equal(t, "null", ret)
+
+	tmpl = `{"payload": {"rivers": ["klamath", "merced", "american", "mississippi"]}}`
+
+	ret, err = gJsonPath("payload.rivers.#", tmpl)
+	assert.NoError(t, err)
+	assert.Equal(t, "4", ret)
+
+	ret, err = gJsonPath("payload.rivers.1", tmpl)
+	assert.NoError(t, err)
+	assert.Equal(t, "merced", ret)
+
+	ret, err = gJsonPath("payload.riv*.2", tmpl)
+	assert.NoError(t, err)
+	assert.Equal(t, "american", ret)
+
+	ret, err = gJsonPath("payload.r?vers.0", tmpl)
+	assert.NoError(t, err)
+	assert.Equal(t, "klamath", ret)
+
+	tmpl = `{"payload": {"rivers": [{"name": "klamath", "length": 257}, {"name": "merced", "length": 145}]}}`
+	ret, err = gJsonPath("payload.rivers.#.length", tmpl)
+	assert.NoError(t, err)
+	assert.Equal(t, "[257,145]", ret)
+
+	tmpl = `{"payload": {"rivers": [{"name": "klamath", "length": 257}, {"name": "merced", "length": 145}]}}`
+	ret, err = gJsonPath("payload.rivers.1.name", tmpl)
+	assert.NoError(t, err)
+	assert.Equal(t, "merced", ret)
+}
+
 func TestHelpers(t *testing.T) {
 	t.Run("uuid4 helpers", func(t *testing.T) {
 		raw := `{{ uuidv4 }}`
