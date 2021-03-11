@@ -3,7 +3,7 @@ package openmock
 import (
 	"log"
 
-	"github.com/caarlos0/env"
+	"github.com/caarlos0/env/v6"
 	"github.com/goombaio/orderedmap"
 	"github.com/sirupsen/logrus"
 	"github.com/teamwork/reload"

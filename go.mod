@@ -1,6 +1,6 @@
 module github.com/checkr/openmock
 
-go 1.12
+go 1.15
 
 require (
 	github.com/Masterminds/semver v1.4.2 // indirect
@@ -15,6 +15,7 @@ require (
 	github.com/aokoli/goutils v1.0.1 // indirect
 	github.com/bsm/sarama-cluster v2.1.15+incompatible
 	github.com/caarlos0/env v3.3.0+incompatible
+	github.com/caarlos0/env/v6 v6.5.0
 	github.com/eapache/go-resiliency v1.1.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
@@ -54,7 +55,7 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/streadway/amqp v0.0.0-20180806233856-70e15c650864
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.7.0
 	github.com/teamwork/reload v1.3.0
 	github.com/tidwall/gjson v1.6.0
 	github.com/tidwall/pretty v1.0.1 // indirect
