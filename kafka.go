@@ -68,8 +68,87 @@ func (kc *kafkaClient) close() error {
 	return nil
 }
 
+func (om *OpenMock) saramaConsumerConfig() (config *cluster.Config, seedBrokers []string) {
+	config = cluster.NewConfig()
+
+	shouldEnableTLS := om.KafkaTLSConsumerEnabled || om.KafkaTLSEnabled
+	if shouldEnableTLS {
+		config.Net.TLS.Enable = true
+	}
+
+	saslUsername := om.KafkaSaslUsername
+	if om.KafkaSaslConsumerUsername != "" {
+		saslUsername = om.KafkaSaslConsumerUsername
+	}
+
+	saslPassword := om.KafkaSaslPassword
+	if om.KafkaSaslConsumerPassword != "" {
+		saslPassword = om.KafkaSaslConsumerPassword
+	}
+
+	if saslUsername != "" || saslPassword != "" {
+		config.Net.SASL.Enable = true
+		config.Net.SASL.User = saslUsername
+		config.Net.SASL.Password = saslPassword
+
+		saslMechanism := om.KafkaSaslMechanism
+		if om.KafkaSaslConsumerMechanism != "" {
+			saslMechanism = om.KafkaSaslConsumerMechanism
+		}
+
+		config.Net.SASL.Mechanism = sarama.SASLMechanism(saslMechanism)
+	}
+
+	seedBrokers = om.KafkaSeedBrokers
+	if len(om.KafkaConsumerSeedBrokers) != 0 {
+		seedBrokers = om.KafkaConsumerSeedBrokers
+	}
+
+	return config, seedBrokers
+}
+
+func (om *OpenMock) saramaProducerConfig() (config *sarama.Config, seedBrokers []string) {
+	config = &sarama.Config{}
+
+	shouldEnableTLS := om.KafkaTLSProducerEnabeld || om.KafkaTLSEnabled
+	if shouldEnableTLS {
+		config.Net.TLS.Enable = true
+	}
+
+	saslUsername := om.KafkaSaslUsername
+	if om.KafkaSaslProducerUsername != "" {
+		saslUsername = om.KafkaSaslProducerUsername
+	}
+
+	saslPassword := om.KafkaSaslPassword
+	if om.KafkaSaslProducerPassword != "" {
+		saslPassword = om.KafkaSaslProducerPassword
+	}
+
+	if saslUsername != "" || saslPassword != "" {
+		config.Net.SASL.Enable = true
+		config.Net.SASL.User = saslUsername
+		config.Net.SASL.Password = saslPassword
+
+		saslMechanism := om.KafkaSaslMechanism
+		if om.KafkaSaslProducerMechanism != "" {
+			saslMechanism = om.KafkaSaslProducerMechanism
+		}
+
+		config.Net.SASL.Mechanism = sarama.SASLMechanism(saslMechanism)
+	}
+
+	seedBrokers = om.KafkaSeedBrokers
+	if len(om.KafkaProducerSeedBrokers) != 0 {
+		seedBrokers = om.KafkaProducerSeedBrokers
+	}
+
+	return config, seedBrokers
+}
+
 func (om *OpenMock) configKafka() error {
-	producer, err := sarama.NewSyncProducer(om.KafkaSeedBrokers, nil)
+	config, seedBrokers := om.saramaProducerConfig()
+	producer, err := sarama.NewSyncProducer(seedBrokers, config)
 	if err != nil {
 		return err
 	}
@@ -99,11 +178,12 @@ func (om *OpenMock) startKafka() {
 	}
 	for kafka, ms := range om.repo.KafkaMocks {
 		go func(kafka ExpectKafka, ms MocksArray) {
+			config, brokers := om.saramaConsumerConfig()
 			consumer, err := cluster.NewConsumer(
-				om.kafkaClient.brokers,
+				brokers,
 				om.kafkaClient.clientID,
 				[]string{kafka.Topic},
-				nil,
+				config,
 			)
 			if err != nil {
 				logrus.WithFields(logrus.Fields{

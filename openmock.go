@@ -27,9 +27,25 @@ type OpenMock struct {
 	AdminHTTPHost    string `env:"OPENMOCK_ADMIN_HTTP_HOST" envDefault:"0.0.0.0"`
 
 	// Kafka channel
-	KafkaEnabled     bool     `env:"OPENMOCK_KAFKA_ENABLED" envDefault:"false"`
-	KafkaClientID    string   `env:"OPENMOCK_KAFKA_CLIENT_ID" envDefault:"openmock"`
-	KafkaSeedBrokers []string `env:"OPENMOCK_KAFKA_SEED_BROKERS" envDefault:"kafka:9092" envSeparator:","`
+	KafkaEnabled       bool     `env:"OPENMOCK_KAFKA_ENABLED" envDefault:"false"`
+	KafkaClientID      string   `env:"OPENMOCK_KAFKA_CLIENT_ID" envDefault:"openmock"`
+	KafkaSeedBrokers   []string `env:"OPENMOCK_KAFKA_SEED_BROKERS" envDefault:"kafka:9092" envSeparator:","`
+	KafkaSaslUsername  string   `env:"OPENMOCK_KAFKA_SASL_USERNAME" envDefault:""`
+	KafkaSaslPassword  string   `env:"OPENMOCK_KAFKA_SASL_PASSWORD" envDefault:""`
+	KafkaSaslMechanism string   `env:"OPENMOCK_KAFKA_SASL_MECHANISM" envDefault:"PLAIN"`
+	KafkaTLSEnabled    bool     `env:"OPENMOCK_KAFKA_TLS_ENABLED" envDefault:"false"`
+
+	KafkaProducerSeedBrokers   []string `env:"OPENMOCK_KAFKA_PRODUCER_SEED_BROKERS" envDefault:"" envSeparator:","`
+	KafkaSaslProducerUsername  string   `env:"OPENMOCK_KAFKA_SASL_PRODUCER_USERNAME" envDefault:""`
+	KafkaSaslProducerPassword  string   `env:"OPENMOCK_KAFKA_SASL_PRODUCER_PASSWORD" envDefault:""`
+	KafkaSaslProducerMechanism string   `env:"OPENMOCK_KAFKA_SASL_PRODUCER_MECHANISM" envDefault:""`
+	KafkaTLSProducerEnabeld    bool     `env:"OPENMOCK_KAFKA_TLS_PRODUCER_ENABLED" envDefault:""`
+
+	KafkaConsumerSeedBrokers   []string `env:"OPENMOCK_KAFKA_CONSUMER_SEED_BROKERS" envDefault:"" envSeparator:","`
+	KafkaSaslConsumerUsername  string   `env:"OPENMOCK_KAFKA_SASL_CONSUMER_USERNAME" envDefault:""`
+	KafkaSaslConsumerPassword  string   `env:"OPENMOCK_KAFKA_SASL_CONSUMER_PASSWORD" envDefault:""`
+	KafkaSaslConsumerMechanism string   `env:"OPENMOCK_KAFKA_SASL_CONSUMER_MECHANISM" envDefault:""`
+	KafkaTLSConsumerEnabled    bool     `env:"OPENMOCK_KAFKA_TLS_CONSUMER_ENABLED" envDefault:""`
 
 	// AMQP channel
 	AMQPEnabled bool   `env:"OPENMOCK_AMQP_ENABLED" envDefault:"false"`
