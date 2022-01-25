@@ -5,8 +5,7 @@ go 1.12
 require (
 	github.com/Masterminds/semver v1.4.2 // indirect
 	github.com/Masterminds/sprig v2.15.0+incompatible
-	github.com/Shopify/sarama v1.19.0
-	github.com/Shopify/toxiproxy v2.1.4+incompatible // indirect
+	github.com/Shopify/sarama v1.31.0
 	github.com/alicebob/gopher-json v0.0.0-20180125190556-5a6b3ba71ee6 // indirect
 	github.com/alicebob/miniredis v0.0.0-20180623114124-8890fdcfa933
 	github.com/antchfx/jsonquery v0.0.0-20180821084212-a2896be8c82b
@@ -15,9 +14,6 @@ require (
 	github.com/aokoli/goutils v1.0.1 // indirect
 	github.com/bsm/sarama-cluster v2.1.15+incompatible
 	github.com/caarlos0/env v3.3.0+incompatible
-	github.com/eapache/go-resiliency v1.1.0 // indirect
-	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
-	github.com/eapache/queue v1.1.0 // indirect
 	github.com/elazarl/goproxy v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/elazarl/goproxy/ext v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/fatih/structs v1.0.0
@@ -30,36 +26,34 @@ require (
 	github.com/go-openapi/swag v0.19.6
 	github.com/go-openapi/validate v0.19.5
 	github.com/golang/protobuf v1.4.0-rc.4.0.20200313231945-b860323f09d0
-	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/uuid v1.1.1
 	github.com/goombaio/orderedmap v0.0.0-20180925151256-3da0e2f905f9
 	github.com/huandu/xstrings v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.9
 	github.com/jessevdk/go-flags v1.4.0
-	github.com/kr/text v0.2.0 // indirect
+	github.com/klauspost/compress v1.14.2 // indirect
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/onsi/ginkgo v1.11.0 // indirect
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/parnurzeal/gorequest v0.0.0-20171015110455-8e3aed27fe49
-	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/prashantv/gostub v1.0.0
-	github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a // indirect
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/streadway/amqp v0.0.0-20180806233856-70e15c650864
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.7.0
 	github.com/teamwork/reload v1.3.0
 	github.com/tidwall/gjson v1.6.0
 	github.com/tidwall/pretty v1.0.1 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20180827083657-b942cacc89fe // indirect
-	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
+	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce // indirect
+	golang.org/x/net v0.0.0-20220121210141-e204ce36a2ba
 	google.golang.org/genproto v0.0.0-20200224152610-e50cd9704f63 // indirect
 	google.golang.org/grpc v1.28.1
 	google.golang.org/protobuf v1.21.0
