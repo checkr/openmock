@@ -90,13 +90,6 @@ func (om *OpenMock) saramaConsumerConfig() (config *cluster.Config, seedBrokers 
 		config.Net.SASL.Enable = true
 		config.Net.SASL.User = saslUsername
 		config.Net.SASL.Password = saslPassword
-
-		saslMechanism := om.KafkaSaslMechanism
-		if om.KafkaSaslConsumerMechanism != "" {
-			saslMechanism = om.KafkaSaslConsumerMechanism
-		}
-
-		config.Net.SASL.Mechanism = sarama.SASLMechanism(saslMechanism)
 	}
 
 	seedBrokers = om.KafkaSeedBrokers
@@ -110,7 +103,7 @@ func (om *OpenMock) saramaConsumerConfig() (config *cluster.Config, seedBrokers 
 func (om *OpenMock) saramaProducerConfig() (config *sarama.Config, seedBrokers []string) {
 	config = &sarama.Config{}
 
-	shouldEnableTLS := om.KafkaTLSProducerEnabeld || om.KafkaTLSEnabled
+	shouldEnableTLS := om.KafkaTLSProducerEnabled || om.KafkaTLSEnabled
 	if shouldEnableTLS {
 		config.Net.TLS.Enable = true
 	}
@@ -129,13 +122,6 @@ func (om *OpenMock) saramaProducerConfig() (config *sarama.Config, seedBrokers [
 		config.Net.SASL.Enable = true
 		config.Net.SASL.User = saslUsername
 		config.Net.SASL.Password = saslPassword
-
-		saslMechanism := om.KafkaSaslMechanism
-		if om.KafkaSaslProducerMechanism != "" {
-			saslMechanism = om.KafkaSaslProducerMechanism
-		}
-
-		config.Net.SASL.Mechanism = sarama.SASLMechanism(saslMechanism)
 	}
 
 	seedBrokers = om.KafkaSeedBrokers
