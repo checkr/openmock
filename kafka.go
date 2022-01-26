@@ -1,6 +1,8 @@
 package openmock
 
 import (
+	"crypto/tls"
+
 	"github.com/Shopify/sarama"
 	cluster "github.com/bsm/sarama-cluster"
 	"github.com/sirupsen/logrus"
@@ -74,6 +76,7 @@ func (om *OpenMock) saramaConsumerConfig() (config *cluster.Config, seedBrokers 
 	shouldEnableTLS := om.KafkaTLSConsumerEnabled || om.KafkaTLSEnabled
 	if shouldEnableTLS {
 		config.Net.TLS.Enable = true
+		config.Net.TLS.Config = &tls.Config{}
 	}
 
 	saslUsername := om.KafkaSaslUsername
@@ -106,6 +109,7 @@ func (om *OpenMock) saramaProducerConfig() (config *sarama.Config, seedBrokers [
 	shouldEnableTLS := om.KafkaTLSProducerEnabled || om.KafkaTLSEnabled
 	if shouldEnableTLS {
 		config.Net.TLS.Enable = true
+		config.Net.TLS.Config = &tls.Config{}
 	}
 
 	saslUsername := om.KafkaSaslUsername
