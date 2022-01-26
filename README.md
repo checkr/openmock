@@ -45,7 +45,12 @@ Dependencies.
   - One can configure GRPC port, set env `OPENMOCK_GRPC_PORT=50051`
 - Kafka (optional)
   - To enable mocking kafka, set env `OPENMOCK_KAFKA_ENABLED=true`.
-  - One can also config `OPENMOCK_KAFKA_CLIENT_ID` and `OPENMOCK_KAFKA_SEED_BROKERS`.
+  - One can also config the following kafka parameters, optionally with separate config for consumers and producers.  For example `OPENMOCK_KAFKA_SEED_BROKERS`, `OPENMOCK_KAFKA_PRODUCER_SEED_BROKERS`, and `OPENMOCK_KAFKA_CONSUMER_SEED_BROKERS`
+    - `OPENMOCK_KAFKA_SEED_BROKERS`
+    - `OPENMOCK_KAFKA_SASL_USERNAME`
+    - `OPENMOCK_KAFKA_SASL_PASSWORD`
+    - `OPENMOCK_KAFKA_SASL_MECHANISM`
+    - `OPENMOCK_KAFKA_TLS_ENABLED`
 - AMQP (optional)
   - To enable mocking amqp, set env `OPENMOCK_AMQP_ENABLED=true`
   - One can also config `OPENMOCK_AMQP_URL`.
