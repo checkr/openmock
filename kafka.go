@@ -86,7 +86,7 @@ func (om *OpenMock) saramaConsumerConfig() (config *cluster.Config, seedBrokers 
 		saslPassword = om.KafkaSaslConsumerPassword
 	}
 
-	if saslUsername != "" || saslPassword != "" {
+	if saslUsername != "" && saslPassword != "" {
 		config.Net.SASL.Enable = true
 		config.Net.SASL.User = saslUsername
 		config.Net.SASL.Password = saslPassword
@@ -118,7 +118,7 @@ func (om *OpenMock) saramaProducerConfig() (config *sarama.Config, seedBrokers [
 		saslPassword = om.KafkaSaslProducerPassword
 	}
 
-	if saslUsername != "" || saslPassword != "" {
+	if saslUsername != "" && saslPassword != "" {
 		config.Net.SASL.Enable = true
 		config.Net.SASL.User = saslUsername
 		config.Net.SASL.Password = saslPassword
