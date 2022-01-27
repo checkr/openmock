@@ -104,7 +104,7 @@ func (om *OpenMock) saramaConsumerConfig() (config *cluster.Config, seedBrokers 
 }
 
 func (om *OpenMock) saramaProducerConfig() (config *sarama.Config, seedBrokers []string) {
-	config = &sarama.Config{}
+	config = sarama.NewConfig()
 
 	shouldEnableTLS := om.KafkaTLSProducerEnabled || om.KafkaTLSEnabled
 	if shouldEnableTLS {
@@ -132,6 +132,10 @@ func (om *OpenMock) saramaProducerConfig() (config *sarama.Config, seedBrokers [
 	if len(om.KafkaProducerSeedBrokers) != 0 {
 		seedBrokers = om.KafkaProducerSeedBrokers
 	}
+
+	// Required for sync producer
+	config.Producer.Return.Successes = true
+	config.Producer.Return.Errors = true
 
 	return config, seedBrokers
 }
