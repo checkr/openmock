@@ -99,6 +99,9 @@ func (om *OpenMock) saramaConsumerConfig() (config *cluster.Config, seedBrokers 
 	if len(om.KafkaConsumerSeedBrokers) != 0 {
 		seedBrokers = om.KafkaConsumerSeedBrokers
 	}
+	
+        // see https://github.com/Shopify/sarama/issues/1638
+        config.Consumer.Offsets.CommitInterval = 1
 
 	return config, seedBrokers
 }
