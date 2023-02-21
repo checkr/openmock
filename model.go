@@ -157,19 +157,25 @@ type ActionRedis []string
 
 // ActionSendHTTP represents the send http action
 type ActionSendHTTP struct {
-	URL          string            `yaml:"url,omitempty"`
-	Method       string            `yaml:"method,omitempty"`
-	Headers      map[string]string `yaml:"headers,omitempty"`
-	Body         string            `yaml:"body,omitempty"`
-	BodyFromFile string            `yaml:"body_from_file,omitempty"`
+	URL                string            `yaml:"url,omitempty"`
+	Method             string            `yaml:"method,omitempty"`
+	Headers            map[string]string `yaml:"headers,omitempty"`
+	Body               string            `yaml:"body,omitempty"`
+	BodyFromFile       string            `yaml:"body_from_file,omitempty"`
+	BodyFromBinaryFile string            `yaml:"body_from_binary_file,omitempty"`
+	BinaryFileName     string            `yaml:"binary_file_name,omitempty"`
+	BinaryFile         []byte            // Just for internal use
 }
 
 // ActionReplyHTTP represents reply http action
 type ActionReplyHTTP struct {
-	StatusCode   int               `yaml:"status_code,omitempty"`
-	Headers      map[string]string `yaml:"headers,omitempty"`
-	Body         string            `yaml:"body,omitempty"`
-	BodyFromFile string            `yaml:"body_from_file,omitempty"`
+	StatusCode         int               `yaml:"status_code,omitempty"`
+	Headers            map[string]string `yaml:"headers,omitempty"`
+	Body               string            `yaml:"body,omitempty"`
+	BodyFromFile       string            `yaml:"body_from_file,omitempty"`
+	BodyFromBinaryFile string            `yaml:"body_from_binary_file,omitempty"`
+	BinaryFileName     string            `yaml:"binary_file_name,omitempty"`
+	BinaryFile         []byte            // Just for internal use
 }
 
 // ActionReplyGRPC represents reply grpc action

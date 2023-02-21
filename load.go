@@ -230,12 +230,20 @@ func (m *Mock) loadFile(baseDir string) {
 				h.Body = readFile(m.Key, baseDir, h.BodyFromFile)
 				h.BodyFromFile = ""
 			}
+			
+			if h.BodyFromBinaryFile != "" && h.Body == "" {
+				h.BinaryFile = readBinaryFile(m.Key, baseDir, h.BodyFromFile)
+			}
 		}
 		if !structs.IsZero(a.ActionSendHTTP) {
 			h := &a.ActionSendHTTP
 			if h.BodyFromFile != "" && h.Body == "" {
 				h.Body = readFile(m.Key, baseDir, h.BodyFromFile)
 				h.BodyFromFile = ""
+			}
+			
+			if h.BodyFromBinaryFile != "" && h.Body == "" {
+				h.BinaryFile = readBinaryFile(m.Key, baseDir, h.BodyFromFile)
 			}
 		}
 		if !structs.IsZero(a.ActionReplyGRPC) {
@@ -261,6 +269,21 @@ func readFile(templateKey string, baseDir string, filePath string) string {
 		return ""
 	}
 	return string(dat)
+
+}
+
+func readBinaryFile(templateKey string, baseDir string, filePath string) []byte {
+	path := fmt.Sprintf("%s/%s", baseDir, filePath)
+	dat, err := ioutil.ReadFile(path)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"template_key": templateKey,
+			"err":          err,
+			"path":         path,
+		}).Errorf("failed to load file")
+		return []byte{}
+	}
+	return dat
 
 }
 

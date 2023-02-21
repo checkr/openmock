@@ -258,7 +258,7 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
 - Usage of `{{ expr }}`. One can put `{{ expr }}` inside three types of places:
   - `expect.condition`
   - `action.http.body`, `action.grpc.payload`, `action.kafka.payload`, `action.amqp.payload`
-  - `action.http.body_from_file`, `action.grpc.payload_from_file`, `action.kafka.payload_from_file`, `action.amqp.payload_from_file` (`{{ expr }}` will be in the file)
+  - `action.http.body_from_file`, `action.http.body_from_binary_file` `action.grpc.payload_from_file`, `action.kafka.payload_from_file`, `action.amqp.payload_from_file` (`{{ expr }}` will be in the file)
 - Use Context inside `{{ expr }}`.
   ```bash
   .HTTPHeader      # type: http.Header; example: {{.HTTPHeader.Get "X-Token"}}
