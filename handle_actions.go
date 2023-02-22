@@ -105,16 +105,16 @@ func (a ActionReplyHTTP) Perform(ctx Context) (err error) {
 	}
 
 	// finalize the HTTP response so that further actions make our response wait
-	msgLen := fmt.Sprintf("%d", len(msg))
-	ec.Response().Header().Set("Content-Length", msgLen)
 	ec.Response().Header().Set("Content-Type", contentType)
-	ec.Response().WriteHeader(a.StatusCode)
 
 	if a.BodyFromBinaryFile != "" {
 
 		if a.BinaryFileName != "" {
 			ec.Response().Header().Set("Content-Type", "Content-Disposition: inline; filename=\""+a.BinaryFileName+"\"")
 		}
+
+		ec.Response().Header().Set("Content-Length", fmt.Sprintf("%d", len(a.BinaryFile)))
+		ec.Response().WriteHeader(a.StatusCode)
 
 		_, err := ec.Response().Write(a.BinaryFile)
 
@@ -123,6 +123,11 @@ func (a ActionReplyHTTP) Perform(ctx Context) (err error) {
 		}
 
 	} else {
+
+		msgLen := fmt.Sprintf("%d", len(msg))
+		ec.Response().Header().Set("Content-Length", msgLen)
+		ec.Response().WriteHeader(a.StatusCode)
+
 		_, err := ec.Response().Write([]byte(msg))
 
 		if err != nil {

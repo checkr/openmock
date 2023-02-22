@@ -230,9 +230,9 @@ func (m *Mock) loadFile(baseDir string) {
 				h.Body = readFile(m.Key, baseDir, h.BodyFromFile)
 				h.BodyFromFile = ""
 			}
-			
+
 			if h.BodyFromBinaryFile != "" && h.Body == "" {
-				h.BinaryFile = readBinaryFile(m.Key, baseDir, h.BodyFromFile)
+				h.BinaryFile = readBinaryFile(m.Key, baseDir, h.BodyFromBinaryFile)
 			}
 		}
 		if !structs.IsZero(a.ActionSendHTTP) {
@@ -241,9 +241,9 @@ func (m *Mock) loadFile(baseDir string) {
 				h.Body = readFile(m.Key, baseDir, h.BodyFromFile)
 				h.BodyFromFile = ""
 			}
-			
+
 			if h.BodyFromBinaryFile != "" && h.Body == "" {
-				h.BinaryFile = readBinaryFile(m.Key, baseDir, h.BodyFromFile)
+				h.BinaryFile = readBinaryFile(m.Key, baseDir, h.BodyFromBinaryFile)
 			}
 		}
 		if !structs.IsZero(a.ActionReplyGRPC) {
@@ -280,7 +280,7 @@ func readBinaryFile(templateKey string, baseDir string, filePath string) []byte 
 			"template_key": templateKey,
 			"err":          err,
 			"path":         path,
-		}).Errorf("failed to load file")
+		}).Errorf("failed to load binary file")
 		return []byte{}
 	}
 	return dat
