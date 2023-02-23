@@ -110,7 +110,7 @@ func (a ActionReplyHTTP) Perform(ctx Context) (err error) {
 	if a.BodyFromBinaryFile != "" {
 
 		if a.BinaryFileName != "" {
-			ec.Response().Header().Set("Content-Type", "Content-Disposition: inline; filename=\""+a.BinaryFileName+"\"")
+			ec.Response().Header().Set("Content-Disposition", "inline; filename=\""+a.BinaryFileName+"\"")
 		}
 
 		ec.Response().Header().Set("Content-Length", fmt.Sprintf("%d", len(a.BinaryFile)))
