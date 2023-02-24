@@ -13,6 +13,7 @@
 </p>
 
 # OpenMock
+
 OpenMock is a Go service that can mock services in integration tests, staging environment, or anywhere.
 The goal is to simplify the process of writing mocks in various channels.
 Currently it supports the following channels:
@@ -23,22 +24,27 @@ Currently it supports the following channels:
 - AMQP (e.g. RabbitMQ)
 
 # Usage
+
 Use it with docker.
+
 ```bash
 $ docker run -it -p 9999:9999 -v $(pwd)/demo_templates:/data/templates checkr/openmock 
 ```
 
 More complete openmock instance (e.g. redis) with docker-compose.
+
 ```bash
 $ docker-compose up
 ```
 
 Test it.
+
 ```bash
 $ curl localhost:9999/ping
 ```
 
 Dependencies.
+
 - HTTP (native supported, thanks to https://echo.labstack.com/)
   - One can configure HTTP port, set env `OPENMOCK_HTTP_PORT=80`
 - GRPC (supported through through HTTP/2 interface)
@@ -57,9 +63,11 @@ Dependencies.
   - Used in Makefile during swagger admin API server generation
 
 # OpenMock Templates
+
 Templates are YAML files that describe the behavior of OpenMock.
 
 ## Templates Directory
+
 You can put any number of `.yaml` or `.yml` files in a directory, and then point
 environment variable `OPENMOCK_TEMPLATES_DIR` to it. OpenMock
 will recursively (including subdirectories) load all the YAML files. For example:
@@ -78,8 +86,10 @@ will recursively (including subdirectories) load all the YAML files. For example
 ```
 
 ## Schema
+
 OpenMock is configured a list of behaviors for it to follow. Each behavior is
 identified by a key, and a kind:
+
 ```yaml
 - key: respond-to-resource
   kind: Behavior
@@ -116,9 +126,11 @@ we proceed with the actions.
       routing_key: key_in
       queue: key_in
 ```
-  
+
 ### Actions
+
 Actions are a series of functions to run. Availabe actions are:
+
 - publish_amqp
 - publish_kafka
 - redis
@@ -152,6 +164,7 @@ Actions are a series of functions to run. Availabe actions are:
 ```
 
 The actions by default run in the order defined in the mock file; you can adjust this by adding an int 'order' value from lowest to highest number. The default value for 'order' is 0.
+
 ```yaml
 - key: every-op
   kind: Behavior
@@ -174,6 +187,7 @@ The actions by default run in the order defined in the mock file; you can adjust
 ```
 
 ### Templates
+
 Templates can be useful to assemble your payloads from parts
 
 ```yaml
@@ -209,10 +223,12 @@ Templates can be useful to assemble your payloads from parts
 ```
 
 ### Abstract Behaviors
+
 Abstract Behaviors can be used to parameterize some data.
 
 When an abstract behavior and a behavior extending it both have actions defined, all of them are run when the behavior matches.  Actions will run from lowest to highest value of the 'order' field; if this is the same for two actions the action defined earlier in the abstract behavior runs first, followed by actions in the concrete behavior.
 Be aware that values with all digits will be interpreted into `int` type (YAML syntax), and it will fail the condition check given that some helper functions are returning `string` types. Pipe to `toString` before the comparison or alternatively put quotes around the values. See example in `abstract_behaviors.yml`.
+
 ```yaml
 - key: fruit-of-the-day
   kind: AbstractBehavior
@@ -249,23 +265,26 @@ Be aware that values with all digits will be interpreted into `int` type (YAML s
     - sleep:
          duration: 1s
       order: -1000
-
 ```
 
 ### Dynamic templating
+
 OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pkg/text/template/) to write dynamic templates. Specifically, it supports a lot of _Context_ and _Helper Functions_.
 
 - Usage of `{{ expr }}`. One can put `{{ expr }}` inside three types of places:
+  
   - `expect.condition`
   - `action.http.body`, `action.grpc.payload`, `action.kafka.payload`, `action.amqp.payload`
-  - `action.http.body_from_file`, `action.http.body_from_binary_file` `action.grpc.payload_from_file`, `action.kafka.payload_from_file`, `action.amqp.payload_from_file` (`{{ expr }}` will be in the file)
+  - `action.http.body_from_file`, `action.http.body_from_binary_file`, `action.http.binary_file_name` ,`action.grpc.payload_from_file`, `action.kafka.payload_from_file`, `action.amqp.payload_from_file` (`{{ expr }}` will be in the file)
+
 - Use Context inside `{{ expr }}`.
+  
   ```bash
   .HTTPHeader      # type: http.Header; example: {{.HTTPHeader.Get "X-Token"}}
   .HTTPBody        # type: string;      example: {{.HTTPBody}}
   .HTTPPath        # type: string;      example: {{.HTTPPath}}
   .HTTPQueryString # type: string;      example: {{.HTTPQueryString}}
-
+  
   .GRPCHeader      # type: string;      example: {{.GRPCHeader}}
   .GRPCPayload     # type: string;      example: {{.GRPCPayload}}
   .GRPCService     # type: string;      example: {{.GRPCService}}
@@ -273,16 +292,18 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
   
   .KafkaTopic      # type: string;      example: {{.KafkaTopic}}
   .KafkaPayload    # type: string;      example: {{.KafkaPayload}}
-
+  
   .AMQPExchange    # type: string;      example: {{.AMQPExchange}}
   .AMQPRoutingKey  # type: string;      example: {{.AMQPRoutingKey}}
   .AMQPQueue       # type: string;      example: {{.AMQPQueue}}
   .AMQPPayload     # type: string;      example: {{.AMQPPayload}}
   ```
+
 - Use helper functions inside `{{ expr }}`. We recommend pipeline format (`|`) of the functions.
+  
   ```bash
   # Supported functions defined in ./template_helper.go
-
+  
     - 
     - jsonPath    # doc: https://github.com/antchfx/xpath
     - gJsonPath   # doc: https://github.com/tidwall/gjson
@@ -290,15 +311,15 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
     - uuidv5      # uuid v5 sha1 hash
     - redisDo     # run redis commands. For example {{redisDo "RPUSH" "arr" "hi"}}
     - ...
-
+  
   # Supported functions inherited from
   # https://github.com/Masterminds/sprig/blob/master/functions.go
-
+  
     - replace
     - uuidv4
     - regexMatch
     - ...
-
+  
   # Examples
   {{.HTTPHeader.Get "X-Token" | eq "t1234"}}
   {{.HTTPBody | jsonPath "user/first_name" | replace "A" "a" | uuidv5 }}
@@ -307,25 +328,33 @@ OpenMock leverages [https://golang.org/pkg/text/template/](https://golang.org/pk
   ```
 
 ## Admin Interface
+
 Openmock also by default provides an API on port 9998 to control the running instance.  See [api documentation](docs/api_docs/bundle.yaml).  You can serve the api documentation by getting [go-swagger](https://github.com/go-swagger/go-swagger) and running:
+
 ```
 ./swagger serve --host 0.0.0.0 --port 9997 docs/api_docs/bundle.yaml"
 ```
 
 ## Command Line Interface
+
 Openmock has a command-line interface to help with certain tasks interacting with openmock instances. This is 
 invoked with the `omctl` command.  This uses the [cobra](https://github.com/spf13/cobra) library to provide a discoverable CLI; run `omctl` for a list of commands / flags. 
 
 ### CLI: Directory
+
 #### Push
+
 Pushes a local openmock model from the file system to a remote instance.
+
 ```
 # Adds templates from the ./demo_templates directory to the instance running on localhost.
 omctl push --directory ./demo_templates --url http://localhost:9998
 ```
 
 ## Examples
+
 ### Example: Mock HTTP
+
 ```yaml
 # demo_templates/http.yaml
 
@@ -371,10 +400,53 @@ omctl push --directory ./demo_templates --url http://localhost:9998
     - reply_http:
         status_code: 401
         body: Invalid X-Token
+```
 
+### Example: Mock HTTP and reply with binary file
+
+```yaml
+- key: get-pdf
+  expect:
+    http:
+      method: GET
+      path: /api/v1/:ClientID/pdf
+    condition: '{{
+      (.HTTPHeader.Get "Authorization" | contains "exp") | and
+      (.HTTPHeader.Get "x-timestamp" | eq "" | not) 
+    }}'
+  actions:
+    - reply_http:
+        status_code: 200
+        headers:
+          Content-Type: application/pdf
+        body_from_binary_file: ./data/example.pdf
+        binary_file_name: example_pdf.pdf # optional file name
+```
+
+### 
+
+### Example: Mock HTTP and reply with body from file
+
+```yaml
+- key: get-json
+  expect:
+    http:
+      method: GET
+      path: /api/v1/:ClientID/json
+    condition: '{{
+      (.HTTPHeader.Get "Authorization" | contains "exp") | and
+      (.HTTPHeader.Get "x-timestamp" | eq "" | not) 
+    }}'
+  actions:
+    - reply_http:
+        status_code: 200
+        headers:
+          Content-Type: application/json
+        body_from_file: ./data/example.json # only text files supported
 ```
 
 ### Example: Mock GRPC
+
 ```yaml
 # demo_templates/grpc.yaml
 
@@ -389,6 +461,7 @@ omctl push --directory ./demo_templates --url http://localhost:9998
 ```
 
 ### Example: Mock Kafka
+
 ```yaml
 # demo_templates/kafka.yaml
 
@@ -432,6 +505,7 @@ $ kt consume -topic hello_kafka_out -offsets all=newest:newest
 ```
 
 ### Example: Mock AMQP (e.g. RabbitMQ)
+
 ```yaml
 # demo_templates/amqp.yaml
 
@@ -467,6 +541,7 @@ $ kt consume -topic hello_kafka_out -offsets all=newest:newest
 ```
 
 ### Example: Use Redis for stateful things (by default, OpenMock uses an in-memory miniredis)
+
 ```yaml
 # demo_templates/redis.yaml
 
@@ -505,6 +580,7 @@ $ kt consume -topic hello_kafka_out -offsets all=newest:newest
 ```
 
 ### Example: Send Webhooks
+
 ```yaml
 # demo_templates/webhook.yaml
 
@@ -530,6 +606,7 @@ $ kt consume -topic hello_kafka_out -offsets all=newest:newest
 ```
 
 ### Example: Use data in templates
+
 ```yaml
 # demo_templates/http.yaml
 
@@ -567,13 +644,14 @@ $ kt consume -topic hello_kafka_out -offsets all=newest:newest
     color: purple
 ```
 
-
 # Advanced pipeline functions
+
 To enable advanced mocks, for example, your own encoding/decoding of the kafka messages,
 one can develop by directly importing the `github.com/checkr/openmock` package, making a copy of the swagger-generated server main, and passing in a custom OpenMock.
 
 For example:
 (see [example](https://github.com/sesquipedalian-dev/openmock-custom-example/blob/master/main.go))
+
 ```go
 package main
 
@@ -590,7 +668,7 @@ func consumePipelineFunc(c openmock.Context, in []byte) (out []byte, error) {
 
 func main() {
   // server set up copy & paste...
-  
+
   // add our custom openmock functionality
   om := &openmock.OpenMock{}
   om.ParseEnv()
@@ -603,6 +681,7 @@ func main() {
 ```
 
 ## GRPC Configuration Notes
+
 OpenMock uses the APIv2 protobuf module (google.golang.org/protobuf). If your project uses the APIv1 protobuf module,
 you can use https://github.com/golang/protobuf/releases/tag/v1.4.0 and convert your messages to be APIv2 compatible
 with the `proto.MessageV2` method.
@@ -612,10 +691,11 @@ form of your `Response` protobuf message.  The request should be in the `Request
 as it is parsed into json to support `jsonPath` and `gJsonPath` operations.
 
 Example configuration by directly importing the `github.com/checkr/openmock` package into a wrapper project.
+
 ```
 func main() {
   // server set up copy & paste...
-  
+
   // add our custom openmock functionality
   om := &openmock.OpenMock{}
   om.GRPCServiceMap = map[string]openmock.GRPCService{
@@ -632,8 +712,10 @@ func main() {
   // rest of server set up copy & paste...
 ```
 
-## Swagger 
+## Swagger
+
 ### Swagger files / directories:
+
 ```
 Makefile                    # contains build process for swagger generation
 swagger/                    # directory containing swagger definition, split 
@@ -661,8 +743,10 @@ brew install go-swagger
 ```
 
 ### Generate
+
 * `make gen` - bundles the separate swagger files and generates swagger_gen
 * `make build` - builds the executables `om` and `omctl`
 
 ### Run
+
 `OPENMOCK_REDIS_TYPE=redis OPENMOCK_REDIS_URL=<redis Url, e.g. redis://localhost:6379> OPENMOCK_TEMPLATES_DIR=./demo_templates ./om --port 9998`
