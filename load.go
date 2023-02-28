@@ -213,35 +213,43 @@ func (m *Mock) loadFile(baseDir string) {
 		if !structs.IsZero(a.ActionPublishAMQP) {
 			amqp := &a.ActionPublishAMQP
 			if amqp.PayloadFromFile != "" && amqp.Payload == "" {
-				amqp.Payload = readFile(m.Key, baseDir, amqp.PayloadFromFile)
+				amqp.Payload = string(readFile(m.Key, baseDir, amqp.PayloadFromFile))
 				amqp.PayloadFromFile = ""
 			}
 		}
 		if !structs.IsZero(a.ActionPublishKafka) {
 			kafka := &a.ActionPublishKafka
 			if kafka.PayloadFromFile != "" && kafka.Payload == "" {
-				kafka.Payload = readFile(m.Key, baseDir, kafka.PayloadFromFile)
+				kafka.Payload = string(readFile(m.Key, baseDir, kafka.PayloadFromFile))
 				kafka.PayloadFromFile = ""
 			}
 		}
 		if !structs.IsZero(a.ActionReplyHTTP) {
 			h := &a.ActionReplyHTTP
 			if h.BodyFromFile != "" && h.Body == "" {
-				h.Body = readFile(m.Key, baseDir, h.BodyFromFile)
+				h.Body = string(readFile(m.Key, baseDir, h.BodyFromFile))
 				h.BodyFromFile = ""
+			}
+
+			if h.BodyFromBinaryFile != "" && h.Body == "" {
+				h.BinaryFile = readFile(m.Key, baseDir, h.BodyFromBinaryFile)
 			}
 		}
 		if !structs.IsZero(a.ActionSendHTTP) {
 			h := &a.ActionSendHTTP
 			if h.BodyFromFile != "" && h.Body == "" {
-				h.Body = readFile(m.Key, baseDir, h.BodyFromFile)
+				h.Body = string(readFile(m.Key, baseDir, h.BodyFromFile))
 				h.BodyFromFile = ""
+			}
+
+			if h.BodyFromBinaryFile != "" && h.Body == "" {
+				h.BinaryFile = readFile(m.Key, baseDir, h.BodyFromBinaryFile)
 			}
 		}
 		if !structs.IsZero(a.ActionReplyGRPC) {
 			grpc := &a.ActionReplyGRPC
 			if grpc.PayloadFromFile != "" && grpc.Payload == "" {
-				grpc.Payload = readFile(m.Key, baseDir, grpc.PayloadFromFile)
+				grpc.Payload = string(readFile(m.Key, baseDir, grpc.PayloadFromFile))
 				grpc.PayloadFromFile = ""
 			}
 		}
@@ -249,7 +257,7 @@ func (m *Mock) loadFile(baseDir string) {
 	logrus.Infof("template with key:%s loaded.", m.Key)
 }
 
-func readFile(templateKey string, baseDir string, filePath string) string {
+func readFile(templateKey string, baseDir string, filePath string) []byte {
 	path := fmt.Sprintf("%s/%s", baseDir, filePath)
 	dat, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -258,9 +266,9 @@ func readFile(templateKey string, baseDir string, filePath string) string {
 			"err":          err,
 			"path":         path,
 		}).Errorf("failed to load file")
-		return ""
+		return []byte{}
 	}
-	return string(dat)
+	return dat
 
 }
 

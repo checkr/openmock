@@ -2,6 +2,7 @@ package openmock
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -63,10 +64,21 @@ func (a ActionSendHTTP) Perform(ctx Context) error {
 		request.Set(k, v)
 	}
 
-	_, _, errs := request.Send(bodyStr).End()
-	if len(errs) != 0 {
-		return errs[0]
+	if a.BodyFromBinaryFile != "" && strings.EqualFold(a.Method, "POST") {
+		_, _, errs := request.Type("multipart").SendFile(a.BinaryFile, a.BinaryFileName).End()
+
+		if len(errs) != 0 {
+			return errs[0]
+		}
+
+	} else {
+		_, _, errs := request.Send(bodyStr).End()
+
+		if len(errs) != 0 {
+			return errs[0]
+		}
 	}
+
 	return nil
 }
 
@@ -93,14 +105,34 @@ func (a ActionReplyHTTP) Perform(ctx Context) (err error) {
 	}
 
 	// finalize the HTTP response so that further actions make our response wait
-	msgLen := fmt.Sprintf("%d", len(msg))
-	ec.Response().Header().Set("Content-Length", msgLen)
 	ec.Response().Header().Set("Content-Type", contentType)
-	ec.Response().WriteHeader(a.StatusCode)
 
-	_, err = ec.Response().Write([]byte(msg))
-	if err != nil {
-		return err
+	if a.BodyFromBinaryFile != "" {
+
+		if a.BinaryFileName != "" {
+			ec.Response().Header().Set("Content-Disposition", "inline; filename=\""+a.BinaryFileName+"\"")
+		}
+
+		ec.Response().Header().Set("Content-Length", fmt.Sprintf("%d", len(a.BinaryFile)))
+		ec.Response().WriteHeader(a.StatusCode)
+
+		_, err := ec.Response().Write(a.BinaryFile)
+
+		if err != nil {
+			return err
+		}
+
+	} else {
+
+		msgLen := fmt.Sprintf("%d", len(msg))
+		ec.Response().Header().Set("Content-Length", msgLen)
+		ec.Response().WriteHeader(a.StatusCode)
+
+		_, err := ec.Response().Write([]byte(msg))
+
+		if err != nil {
+			return err
+		}
 	}
 
 	ec.Response().Flush()

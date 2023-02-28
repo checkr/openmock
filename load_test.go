@@ -96,6 +96,20 @@ func TestLoadFile(t *testing.T) {
 		assert.NotZero(t, m.Actions[0].ActionReplyHTTP.Body)
 	})
 
+	t.Run("reply_http body with binary file", func(t *testing.T) {
+		m := &Mock{
+			Actions: []ActionDispatcher{
+				{
+					ActionReplyHTTP: ActionReplyHTTP{
+						BodyFromBinaryFile: "./files/file-sample_150kB.pdf",
+					},
+				},
+			},
+		}
+		m.loadFile("demo_templates")
+		assert.NotZero(t, len(m.Actions[0].ActionReplyHTTP.BinaryFile))
+	})
+
 	t.Run("reply_grpc body", func(t *testing.T) {
 		m := &Mock{
 			Actions: []ActionDispatcher{
@@ -124,6 +138,20 @@ func TestLoadFile(t *testing.T) {
 		assert.NotZero(t, m.Actions[0].ActionSendHTTP.Body)
 	})
 
+	t.Run("send_http body with binary file", func(t *testing.T) {
+		m := &Mock{
+			Actions: []ActionDispatcher{
+				{
+					ActionSendHTTP: ActionSendHTTP{
+						BodyFromBinaryFile: "./files/file-sample_150kB.pdf",
+					},
+				},
+			},
+		}
+		m.loadFile("demo_templates")
+		assert.NotZero(t, len(m.Actions[0].ActionSendHTTP.BinaryFile))
+	})
+
 	t.Run("file not found", func(t *testing.T) {
 		m := &Mock{
 			Actions: []ActionDispatcher{
@@ -136,6 +164,20 @@ func TestLoadFile(t *testing.T) {
 		}
 		m.loadFile("demo_templates")
 		assert.Zero(t, m.Actions[0].ActionReplyHTTP.Body)
+	})
+
+	t.Run("binary file not found", func(t *testing.T) {
+		m := &Mock{
+			Actions: []ActionDispatcher{
+				{
+					ActionReplyHTTP: ActionReplyHTTP{
+						BodyFromFile: "./files/not_exists.pdf",
+					},
+				},
+			},
+		}
+		m.loadFile("demo_templates")
+		assert.Zero(t, len(m.Actions[0].ActionReplyHTTP.BinaryFile))
 	})
 }
 
