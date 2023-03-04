@@ -1,11 +1,11 @@
-FROM golang:1.14 as builder
+FROM golang:1.18 as builder
 WORKDIR /go/src/github.com/checkr/openmock
 ADD . .
 RUN make build
 
 FROM quay.io/goswagger/swagger as swagger-builder
 
-FROM alpine:3.6
+FROM alpine:3.15.5
 WORKDIR /go/src/github.com/checkr/openmock
 RUN apk add --no-cache ca-certificates libc6-compat
 COPY --from=builder /go/src/github.com/checkr/openmock/om ./om
